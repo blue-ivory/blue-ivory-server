@@ -59,12 +59,12 @@ gulp.task('server', function() {
     // configure nodemon
     nodemon({
         // the script to run the app
-        script: 'build/server.js',
+        script: 'build/server/server.js',
         // this listens to changes in any of these files/routes and restarts the application
         // watch: ["build/server.js", "app.js", "routes/", 'public/*', 'public/*/**'],
         watch: 'build',
     }).on('restart', function() {
-        gulp.src('build/server.js');
+        gulp.src('build/server/server.js');
 
         console.log('-----------------------');
         console.log('|  Server restarted!  |');
