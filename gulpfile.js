@@ -10,7 +10,9 @@ gulp.task('compile', function() {
     console.log('-----------------------------------------------');
     gulp.src('src/**/*.ts')
         .pipe(sourcemaps.init())
-        .pipe(typescript())
+        .pipe(typescript({
+            target: 'es5'
+        }))
         .pipe(sourcemaps.write('../maps'))
         .pipe(gulp.dest('build'))
 });
