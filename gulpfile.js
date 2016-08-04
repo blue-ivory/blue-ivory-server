@@ -13,7 +13,7 @@ gulp.task('compile', function() {
         .pipe(typescript({
             target: 'es5'
         }))
-        .pipe(sourcemaps.write('../maps'))
+        .pipe(sourcemaps.write('../build'))
         .pipe(gulp.dest('build'))
 });
 
