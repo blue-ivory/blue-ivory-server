@@ -1,19 +1,21 @@
 import { Visitor } from './visitor';
 import { User } from './user';
 
-export class Request  {
-    private _requestDate: Date;
-    private _startDate: Date;
-    private _endDate: Date;
-    private _visitor: Visitor;
-    private _requestor: User;
-    private _authorizer: User;
-    private _description: string;
-    private _isSolider: boolean;
-    private _needEscort: boolean;
-    private _hasCar: boolean;
+export class Request {
+    private _id;
+    private requestDate: Date;
+    private startDate: Date;
+    private endDate: Date;
+    private visitor: Visitor;
+    private requestor: User;
+    private authorizer: User;
+    private description: string;
+    private isSolider: boolean;
+    private needEscort: boolean;
+    private hasCar: boolean;
 
-    constructor(startDate: Date,
+    constructor(_id,
+        startDate: Date,
         endDate: Date,
         visitor: Visitor,
         requestor: User,
@@ -21,74 +23,78 @@ export class Request  {
         isSoldier: boolean,
         needEscort: boolean,
         hasCar: boolean) {
-
-        this._requestDate = new Date();
-        this._startDate = startDate;
-        this._endDate = endDate;
-        this._visitor = visitor;
-        this._requestor = requestor;
-        this._authorizer = null;
-        this._description = description;
-        this._isSolider = isSoldier;
-        this._needEscort = needEscort;
-        this._hasCar = hasCar;
+        
+        this._id = _id;
+        this.requestDate = new Date();
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.visitor = visitor;
+        this.requestor = requestor;
+        this.authorizer = null;
+        this.description = description;
+        this.isSolider = isSoldier;
+        this.needEscort = needEscort;
+        this.hasCar = hasCar;
     }
 
     /*
     * Getters
     */
-    public get requestDate(): Date {
-        return this._requestDate;
+    public get getID() {
+        return this._id;
+    }
+    public get getRequestDate(): Date {
+        return this.requestDate;
     }
 
-    public get startDate(): Date {
-        return this._startDate;
+    public get getStartDate(): Date {
+        return this.startDate;
     }
 
-    public get visitor(): Visitor {
-        return this._visitor;
+    public get getVisitor(): Visitor {
+        return this.visitor;
     }
 
-    public get requestor(): User {
-        return this._requestor;
+    public get getRequestor(): User {
+        return this.requestor;
     }
 
-    public get authorizer(): User {
-        return this._authorizer;
+    public get getAuthorizer(): User {
+        return this.authorizer;
     }
 
-    public get description(): string {
-        return this._description;
+    public get getDescription(): string {
+        return this.description;
     }
 
-    public get isSoldier(): boolean {
-        return this._isSolider;
+    public get getIsSoldier(): boolean {
+        return this.isSolider;
     }
 
-    public get needEscort(): boolean {
-        return this._needEscort;
+    public get getNeedEscort(): boolean {
+        return this.needEscort;
     }
 
-    public get hasCar(): boolean {
-        return this._hasCar;
+    public get getHasCar(): boolean {
+        return this.hasCar;
     }
 
     /*
     * Setters
     */
-    public set startDate(startDate: Date) {
-        this._startDate = startDate;
+    public set setStartDate(startDate: Date) {
+        this.startDate = startDate;
     }
 
-    public set endDate(endDate: Date) {
-        this._endDate = endDate;
+    public set setEndDate(endDate: Date) {
+        this.endDate = endDate;
     }
 
-    public set authorizer(authorizer: User) {
-        this._authorizer = authorizer;
+    public set setAuthorizer(authorizer: User) {
+        this.authorizer = authorizer;
     }
 
-    public set description(description: string) {
-        this._description = description;
+    public set setDescription(description: string) {
+        this.description = description;
     }
 }

@@ -1,24 +1,24 @@
 
 export class Visitor {
-    private _name: string;
-    private _company: string;
-    private _pid: number;
+    private name: string;
+    private company: string;
+    private _id: number;
 
-    constructor(name: string, company: string, pid: number) {
-        this._name = name;
-        this._company = company;
-        this._pid = pid;
+    constructor(name: string, company: string, _id: number) {
+        this.name = name;
+        this.company = company;
+        this._id = _id;
     }
 
-    public get name(): string {
-        return this._name;
+    public get getName(): string {
+        return this.name;
     }
 
-    public get pid(): number {
-        return this._pid;
+    public get getID(): number {
+        return this._id;
     }
 
-    public get company(): string {
-        return this._company;
+    public get getCompany(): string {
+        return this.company;
     }
 }

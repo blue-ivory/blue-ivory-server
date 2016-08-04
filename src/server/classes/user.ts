@@ -2,14 +2,14 @@
 export class User {
     private firstName: string;
     private lastName: string;
-    private _id: string;
+    private id: string;
     private mail: string;
     private base: string;
 
     constructor(firstName: string, lastName: string, uniqueId: string, mail: string, base: string) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this._id = uniqueId;
+        this.id = uniqueId;
         this.mail = mail;
         this.base = base;
     }
@@ -17,22 +17,30 @@ export class User {
     /*
     * Getters
     */
-    public get name(): string {
+    public get getID(): string {
+        return this.id;
+    }
+    
+    public get getName(): string {
         return this.firstName + ' ' + this.lastName;
     }
 
-    // public get mail(): string {
-    //     return this.mail;
-    // }
+    public get getMail(): string {
+        return this.mail;
+    }
 
-    // public get base(): string {
-    //     return this.base;
-    // }
+    public get getBase(): string {
+        return this.base;
+    }
 
     /*
     * Setters
     */
-    // public set base(base: string) {
-    //     this.base = base;
-    // }
+    public set setBase(base: string) {
+        this.base = base;
+    }
+
+    public set setMail(mail: string) {
+        this.mail = mail;
+    }
 }
