@@ -4,8 +4,6 @@
 var config = require('./../../config');
 var mongoose = require('mongoose');
 
-process.env.NODE_ENV = 'test';
-
 beforeEach((done) => {
     function clearDB() {
         for (let i in mongoose.connection.collections) {
