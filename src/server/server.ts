@@ -7,10 +7,10 @@ import * as methodOverride from 'method-override';
 import * as mongoose from 'mongoose';
 import * as requestRouter from './controllers/request.controller';
 import * as userRouter from './controllers/user.controller';  
-
+var config = require('./../../config'); 
 const app: express.Application = express();
 
-mongoose.connect('mongodb://localhost/blue-ivory-2');
+mongoose.connect(config.db.prod.url);
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
