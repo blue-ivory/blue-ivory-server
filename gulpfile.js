@@ -1,6 +1,8 @@
 var sourcemaps = require('gulp-sourcemaps');
 var typescript = require('gulp-typescript');
 var gulp = require('gulp');
+var mocha = require('gulp-mocha');
+var istanbul = require('gulp-istanbul');
 var nodemon = require('gulp-nodemon');
 
 // compile all the typescript files
@@ -16,6 +18,20 @@ gulp.task('compile', function() {
         .pipe(sourcemaps.write('../build'))
         .pipe(gulp.dest('build'))
 });
+
+// compile test files
+gulp.task('compile-test', function() {
+    console.log('----------------------------------------------------');
+    console.log('| compiling typescript files to test/build/**/*.js |');
+    console.log('----------------------------------------------------');
+    gulp.src('src/test/**/*.ts')
+        .pipe(sourcemaps.init())
+        .pipe(typescript({
+            target: 'es5'
+        }))
+        .pipe(sourcemaps.write('../test'))
+        .pipe(gulp.dest('build/test'))
+})
 
 // watch the files for changes and rebuild everything
 gulp.task("watch", function() {
@@ -74,4 +90,18 @@ gulp.task('server', function() {
     });
 });
 
-gulp.task('default', ['compile', 'watch', 'resources', 'server']);
+gulp.task("istanbul:hook", function() {
+    return gulp.src(['build/test/**/*.js'])
+        // Covering files
+        .pipe(istanbul())
+        // Force `require` to return covered files
+        .pipe(istanbul.hookRequire());
+});
+
+gulp.task("test", ['compile-test', 'istanbul:hook'], function() {
+    return gulp.src('build/test/**/*.js')
+        .pipe(mocha({ ui: 'bdd' }))
+        .pipe(istanbul.writeReports());
+});
+
+gulp.task('default', ['compile', 'watch', 'resources', 'test', 'server']);
