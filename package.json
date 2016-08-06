@@ -5,7 +5,7 @@
     "main": "build/server/server.js",
     "scripts": {
         "start": "gulp",
-        "test": "mocha build\\test"
+        "test": "gulp test"
     },
     "author": "Ron Borysovski",
     "license": "ISC",
