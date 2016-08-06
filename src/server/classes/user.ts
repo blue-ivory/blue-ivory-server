@@ -2,14 +2,14 @@
 export class User {
     private firstName: string;
     private lastName: string;
-    private id: string;
+    private _id: string;
     private mail: string;
     private base: string;
 
     constructor(firstName: string, lastName: string, uniqueId: string, mail: string, base: string) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.id = uniqueId;
+        this._id = uniqueId;
         this.mail = mail;
         this.base = base;
     }
@@ -18,7 +18,7 @@ export class User {
     * Getters
     */
     public get getID(): string {
-        return this.id;
+        return this._id;
     }
     
     public get getName(): string {
