@@ -1,29 +1,30 @@
 {
-    "name": "blue-ivory",
-    "version": "1.0.0",
-    "description": "",
-    "main": "build/server/server.js",
-    "scripts": {
-        "start": "gulp",
-        "test": "gulp test"
-    },
-    "author": "Ron Borysovski",
-    "license": "ISC",
-    "dependencies": {
-        "body-parser": "^1.15.2",
-        "express": "^4.14.0",
-        "gulp": "^3.9.1",
-        "gulp-istanbul": "^1.0.0",
-        "gulp-mocha": "^3.0.0",
-        "gulp-nodemon": "^2.1.0",
-        "gulp-sourcemaps": "^1.6.0",
-        "gulp-typescript": "^2.13.6",
-        "method-override": "^2.3.6",
-        "mocha": "^3.0.1",
-        "mongoose": "^4.5.7",
-        "morgan": "^1.7.0"
-    },
-    "devDependencies": {
-        "chai": "^3.5.0"
-    }
+  "name": "blue-ivory",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/server/server.js",
+  "scripts": {
+    "start": "gulp",
+    "test": "gulp test"
+  },
+  "author": "Ron Borysovski",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.4.6",
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "gulp": "^3.9.1",
+    "gulp-istanbul": "^1.0.0",
+    "gulp-mocha": "^3.0.0",
+    "gulp-nodemon": "^2.1.0",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-typescript": "^2.13.6",
+    "method-override": "^2.3.6",
+    "mocha": "^3.0.1",
+    "mongoose": "^4.5.7",
+    "morgan": "^1.7.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0"
+  }
 }

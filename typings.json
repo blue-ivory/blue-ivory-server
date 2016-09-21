@@ -15,5 +15,8 @@
     "node": "registry:dt/node#6.0.0+20160728152422",
     "promise": "registry:dt/promise#7.1.1+20160602154553",
     "serve-static": "registry:dt/serve-static#0.0.0+20160606155157"
+  },
+  "dependencies": {
+    "bluebird": "registry:npm/bluebird#3.4.1+20160909132857"
   }
 }
