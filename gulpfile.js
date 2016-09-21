@@ -98,10 +98,10 @@ gulp.task("istanbul:hook", function() {
         .pipe(istanbul.hookRequire());
 });
 
-gulp.task("test", ['compile-test', 'istanbul:hook'], function() {
+gulp.task("test", ['build', 'istanbul:hook'], function() {
     return gulp.src('build/test/**/*.js')
         .pipe(mocha({ ui: 'bdd' }))
         .pipe(istanbul.writeReports());
 });
 
-gulp.task('default', ['compile', 'watch', 'resources', 'test', 'server']);
+gulp.task('default', ['compile', 'watch', 'resources', 'server']);
