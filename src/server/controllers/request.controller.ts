@@ -8,52 +8,48 @@ var router: express.Router = express.Router();
 var requestManager = new RequestManager();
 
 router.get('/request', (req: express.Request, res: express.Response) => {
-    requestManager.all((error, requests) => {
-        if (error) {
-            console.error(error);
-            return res.sendStatus(500);
-        }
-
+    requestManager.all().then((requests) => {
         return res.json(requests);
+    }).catch((error) => {
+        console.error(error);
+        return res.sendStatus(500);
     });
 });
 
 router.get('/request/:id', (req: express.Request, res: express.Response) => {
-    requestManager.read(req.params.id, (error, request) => {
-        if (error) {
-            console.error(error);
-            return res.sendStatus(500);
-        }
-        if(!request){
+
+    requestManager.read(req.params.id).then((request) => {
+        if (!request) {
             return res.sendStatus(404);
         }
+
         return res.json(request);
+    }).catch((error) => {
+        console.error(error);
+        return res.sendStatus(500);
     });
 });
 
 router.post('/request', (req: express.Request, res: express.Response) => {
-    requestManager.create(req.body.request, (error, request) => {
-        if (error) {
-            console.error(error);
-            return res.sendStatus(500);
-        }
-
+    requestManager.create(req.body.request).then((request) => {
         return res.json(request);
+    }).catch((error) => {
+        console.error(error);
+        return res.sendStatus(500);
     });
 });
 
 router.delete('/request/:id', (req: express.Request, res: express.Response) => {
-    console.log(req.params.id);
-    requestManager.delete(req.params.id, (error, request) => {
-        if (error) {
-            console.error(error);
-            return res.sendStatus(500);
-        }
+    requestManager.delete(req.params.id).then((request) => {
         if (!request) {
             return res.sendStatus(404);
         }
+
         return res.json(request);
-    })
-})
+    }).catch((error) => {
+        console.error(error);
+        return res.sendStatus(500);
+    });
+});
 
 export = router;

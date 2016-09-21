@@ -8,54 +8,49 @@ var router: express.Router = express.Router();
 var userManager = new UserManager();
 
 router.get('/user', (req: express.Request, res: express.Response) => {
-    userManager.all((error, users) => {
-        if (error) {
-            console.error(error);
-            return res.sendStatus(500);
-        }
-
+    userManager.all().then((users) => {
         return res.json(users);
+    }).catch((error) => {
+        console.error(error);
+        return res.sendStatus(500);
     });
 });
 
 router.get('/user/:id', (req: express.Request, res: express.Response) => {
-    userManager.read(req.params.id, (error, user) => {
-        if (error) {
-            console.error(error);
-            return res.sendStatus(500);
-        }
 
-        if(!user){
+    userManager.read(req.params.id).then((user) => {
+        if (!user) {
             return res.sendStatus(404);
         }
 
         return res.json(user);
+
+    }).catch((error) => {
+        console.error(error);
+        return res.sendStatus(500);
     });
 });
 
 router.post('/user', (req: express.Request, res: express.Response) => {
-    userManager.create(req.body.user, (error, user) => {
-        if (error) {
-            console.error(error);
-            return res.sendStatus(500);
-        }
-
+    userManager.create(req.body.user).then((user) => {
         return res.json(user);
+    }).catch((error) => {
+        console.error(error);
+        return res.sendStatus(500);
     });
 });
 
 router.delete('/user/:id', (req: express.Request, res: express.Response) => {
-    console.log(req.params.id);
-    userManager.delete(req.params.id, (error, user) => {
-        if (error) {
-            console.error(error);
-            return res.sendStatus(500);
-        }
+    userManager.delete(req.params.id).then((user) => {
         if (!user) {
             return res.sendStatus(404);
         }
+
         return res.json(user);
-    })
-})
+    }).catch((error) => {
+        console.error(error);
+        return res.sendStatus(500);
+    });
+});
 
 export = router;
