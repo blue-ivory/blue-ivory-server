@@ -20,12 +20,27 @@ var userSchema: mongoose.Schema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    phone: {
+        type: String
+    },
     base: {
         type: String
+    },
+    roles: {
+        type: [{
+            type: String,
+            enum: ['user',
+                'admin',
+                'approve-car',
+                'approve-civilian',
+                'approve-solider',
+                'base-owner'],
+        }],
+        default: ['user']
     }
 });
 
-userSchema.virtual('uniqueId').get(()=>{
+userSchema.virtual('uniqueId').get(() => {
     return this._id;
 });
 
