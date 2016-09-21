@@ -1,4 +1,5 @@
-export class Base {
+
+export class Role {
     public name: string;
 
     constructor(name: string) {
