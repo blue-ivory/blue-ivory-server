@@ -8,6 +8,7 @@ import * as mongoose from 'mongoose';
 import * as bluebird from 'bluebird';
 import * as requestRouter from './controllers/request.controller';
 import * as userRouter from './controllers/user.controller';
+
 var config = require('./../../config');
 const app: express.Application = express();
 
@@ -20,6 +21,22 @@ app.use(bodyParser.json());
 app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 app.use(methodOverride());
 app.use(morgan('dev'));
+
+// Add headers
+app.use(function (req, res, next) {
+
+    // Website you wish to allow to connect
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
+
+    // Request methods you wish to allow
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+
+    // Request headers you wish to allow
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+
+    // Pass to next layer of middleware
+    next();
+});
 
 const port: number = 80;
 
