@@ -3,11 +3,12 @@
 import * as express from 'express';
 import { RequestManager } from './../managers/request.manager';
 import { Request } from './../classes/request';
+import { AuthMiddleware } from './../middlewares/auth.middleware';
 
 var router: express.Router = express.Router();
 var requestManager = new RequestManager();
 
-router.get('/request', (req: express.Request, res: express.Response) => {
+router.get('/request', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
     requestManager.all().then((requests) => {
         return res.json(requests);
     }).catch((error) => {
@@ -16,7 +17,7 @@ router.get('/request', (req: express.Request, res: express.Response) => {
     });
 });
 
-router.get('/request/:id', (req: express.Request, res: express.Response) => {
+router.get('/request/:id', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
 
     requestManager.read(req.params.id).then((request) => {
         if (!request) {
@@ -30,8 +31,16 @@ router.get('/request/:id', (req: express.Request, res: express.Response) => {
     });
 });
 
-router.post('/request', (req: express.Request, res: express.Response) => {
-    requestManager.create(req.body.request).then((request) => {
+router.post('/request', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
+    
+    // Get request from body
+    let request = req.body.request;
+
+    // Set requestor as current user
+    request.requestor = req.user._id;
+
+    // Create request
+    requestManager.create(request).then((request) => {
         return res.json(request);
     }).catch((error) => {
         console.error(error);
@@ -39,7 +48,7 @@ router.post('/request', (req: express.Request, res: express.Response) => {
     });
 });
 
-router.delete('/request/:id', (req: express.Request, res: express.Response) => {
+router.delete('/request/:id', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
     requestManager.delete(req.params.id).then((request) => {
         if (!request) {
             return res.sendStatus(404);
