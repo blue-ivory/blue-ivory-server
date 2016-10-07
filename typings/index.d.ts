@@ -11,5 +11,6 @@
 /// <reference path="globals/mongoose/index.d.ts" />
 /// <reference path="globals/morgan/index.d.ts" />
 /// <reference path="globals/node/index.d.ts" />
+/// <reference path="globals/promise/index.d.ts" />
 /// <reference path="globals/serve-static/index.d.ts" />
 /// <reference path="modules/bluebird/index.d.ts" />
