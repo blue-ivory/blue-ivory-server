@@ -34,6 +34,10 @@ var requestSchema: mongoose.Schema = new mongoose.Schema({
     description: {
         type: String
     },
+    phone: {
+        type: String,
+        default: '--'
+    },
     isSolider: {
         type: Boolean,
         default: false

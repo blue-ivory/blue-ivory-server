@@ -20,9 +20,6 @@ var userSchema: mongoose.Schema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    phone: {
-        type: String
-    },
     base: {
         type: String
     },
