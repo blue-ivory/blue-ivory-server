@@ -1,13 +1,15 @@
 import { IDAO } from './../interfaces/IDAO';
 import { Request } from './../classes/request';
 import * as RequestModel from './../models/request.model';
+import {VisitorManager} from './../managers/visitor.manager';
 import * as Promise from 'bluebird';
+require('./../models/visitor.model');
 
 export class RequestManager implements IDAO<Request>{
     public all(): Promise<any> {
         let deferred = Promise.defer();
 
-        RequestModel.find((err, requests) => {
+        RequestModel.find({}).populate([{ path: 'requestor' }, { path: 'visitor' }, { path: 'authorizer' }]).exec((err, requests) => {
             if (err) {
                 deferred.reject(err);
             } else {
@@ -19,15 +21,25 @@ export class RequestManager implements IDAO<Request>{
     }
 
     public create(request: Request): Promise<any> {
-        let requestModel = new RequestModel(request);
+
         let deferred = Promise.defer();
 
-        requestModel.save((err, request) => {
-            if (err) {
-                deferred.reject(err);
-            } else {
-                deferred.resolve(request);
-            }
+
+        let visitorManager = new VisitorManager();
+
+        visitorManager.readOrCreate(request.visitor).then(visitor => {
+            console.log(visitor);
+            request.visitor = visitor;
+            let requestModel = new RequestModel(request);
+            requestModel.save((err, request)=>{
+                if(err){
+                    deferred.reject(err);
+                } else {
+                    deferred.resolve(request);
+                }
+            });
+        }).catch(err => {
+            deferred.reject(err);
         });
 
         return deferred.promise;
