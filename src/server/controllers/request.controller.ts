@@ -32,7 +32,7 @@ router.get('/request/:id', AuthMiddleware.requireLogin, (req: express.Request, r
 });
 
 router.post('/request', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
-    
+
     // Get request from body
     let request = req.body.request;
 
@@ -41,6 +41,17 @@ router.post('/request', AuthMiddleware.requireLogin, (req: express.Request, res:
 
     // Create request
     requestManager.create(request).then((request) => {
+        return res.json(request);
+    }).catch((error) => {
+        console.error(error);
+        return res.sendStatus(500);
+    });
+});
+
+router.put('/request', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
+    let request = req.body.request;
+
+    requestManager.update(request).then((request) => {
         return res.json(request);
     }).catch((error) => {
         console.error(error);

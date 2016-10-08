@@ -60,6 +60,7 @@ export class RequestManager implements IDAO<Request>{
 
     public update(request: Request): Promise<any> {
         let deferred = Promise.defer();
+        console.log(request);
         RequestModel.findOneAndUpdate({ _id: request._id }, request, { upsert: true }, (err, request) => {
             if (err) {
                 deferred.reject(err);
