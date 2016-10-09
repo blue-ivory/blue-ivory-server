@@ -87,4 +87,24 @@ export class VisitorManager implements IDAO<Visitor>{
 
         return deferred.promise;
     }
+
+    public search(searchTerm: string): Promise<any> {
+        let deferred = Promise.defer();
+        let searchRegex = new RegExp(searchTerm, 'i');
+
+        VisitorModel.find({
+            '$or': [
+                { '_id': searchRegex },
+                { 'name': searchRegex }
+            ]
+        }, '_id', (err, visitors) => {
+            if (err) {
+                deferred.reject(err);
+            } else {
+                deferred.resolve(visitors);
+            }
+        });
+
+        return deferred.promise;
+    }
 }

@@ -31,8 +31,8 @@ export class RequestManager implements IDAO<Request>{
             console.log(visitor);
             request.visitor = visitor;
             let requestModel = new RequestModel(request);
-            requestModel.save((err, request)=>{
-                if(err){
+            requestModel.save((err, request) => {
+                if (err) {
                     deferred.reject(err);
                 } else {
                     deferred.resolve(request);
@@ -54,6 +54,38 @@ export class RequestManager implements IDAO<Request>{
                 deferred.resolve(request);
             }
         });
+
+        return deferred.promise;
+    }
+
+    public search(searcTerm: string): Promise<any> {
+        let deferred = Promise.defer();
+        let visitorManager = new VisitorManager();
+
+        searcTerm = searcTerm.replace(/[^\w\s\d]/gi, '');
+        console.log(searcTerm);
+        if (searcTerm !== '') {
+            visitorManager.search(searcTerm).then(visitors => {
+                let visitorsId = visitors.map(visitor => {
+                    return visitor._id;
+                });
+
+                RequestModel.find({ 'visitor': { '$in': visitorsId } })
+                    .populate([{ path: 'requestor' }, { path: 'visitor' }, { path: 'authorizer' }])
+                    .exec((err, requests) => {
+                        if (err) {
+                            deferred.reject(err);
+                        } else {
+                            deferred.resolve(requests);
+                        }
+                    });
+            }).catch(err => {
+                console.error(err);
+                deferred.reject(err);
+            });
+        } else {
+            deferred.resolve([]);
+        }
 
         return deferred.promise;
     }

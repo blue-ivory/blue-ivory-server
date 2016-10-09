@@ -17,14 +17,14 @@ router.get('/request', AuthMiddleware.requireLogin, (req: express.Request, res: 
     });
 });
 
-router.get('/request/:id', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
+router.get('/request/:searchTerm', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
 
-    requestManager.read(req.params.id).then((request) => {
-        if (!request) {
+    requestManager.search(req.params.searchTerm).then((requests) => {
+        if (!requests) {
             return res.sendStatus(404);
         }
 
-        return res.json(request);
+        return res.json(requests);
     }).catch((error) => {
         console.error(error);
         return res.sendStatus(500);
