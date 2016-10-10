@@ -1,11 +1,28 @@
 import { IDAO } from './../interfaces/IDAO';
 import { Request } from './../classes/request';
+import { User } from './../classes/user';
 import * as RequestModel from './../models/request.model';
 import {VisitorManager} from './../managers/visitor.manager';
 import * as Promise from 'bluebird';
 require('./../models/visitor.model');
 
 export class RequestManager implements IDAO<Request>{
+    public static MY_FILTER(user: User): Object {
+        return {
+            'requestor': user._id
+        };
+    }
+
+    public static PENDING_FILTER(user: User): Object {
+
+        // TODO : Check user role type to create relevant filter
+        return {
+            'status': {
+                '$ne': -1
+            }
+        }
+    }
+
     public all(): Promise<any> {
         let deferred = Promise.defer();
 
@@ -58,34 +75,77 @@ export class RequestManager implements IDAO<Request>{
         return deferred.promise;
     }
 
-    public search(searcTerm: string): Promise<any> {
+    // public search(searchTerm: string, filter: string, user: User): Promise<any> {
+    //     let deferred = Promise.defer();
+    //     let visitorManager = new VisitorManager();
+    //     let queryFilter = {};
+    //     switch (filter) {
+    //         case 'my_requests':
+    //             queryFilter = { 'requestor': user._id };
+    //             break;
+    //         case 'pending_requests':
+    //             queryFilter = { 'status': { '$ne': -1 } };
+    //             break;
+    //     }
+    //     console.log(queryFilter);
+    //     searchTerm = searchTerm.replace(/[^\s\w\d\u0590-\u05FF]/gi, '');
+    //     if (searchTerm || filter) {
+    //         visitorManager.search(searchTerm).then(visitors => {
+    //             let visitorsId = visitors.map(visitor => {
+    //                 return visitor._id;
+    //             });
+    //             RequestModel.find({
+    //                 '$and': [
+    //                     { 'visitor': { '$in': visitorsId } },
+    //                     queryFilter
+    //                 ]
+    //             }).populate([{ path: 'requestor' }, { path: 'visitor' }, { path: 'authorizer' }])
+    //                 .exec((err, requests) => {
+    //                     if (err) {
+    //                         deferred.reject(err);
+    //                     } else {
+    //                         deferred.resolve(requests);
+    //                     }
+    //                 });
+    //         }).catch(err => {
+    //             console.error(err);
+    //             deferred.reject(err);
+    //         });
+    //     } else {
+    //         deferred.resolve([]);
+    //     }
+
+    //     return deferred.promise;
+    // }
+
+    public search(searchTerm: string, filter?: Object): Promise<any> {
         let deferred = Promise.defer();
         let visitorManager = new VisitorManager();
 
-        searcTerm = searcTerm.replace(/[^\w\s\d]/gi, '');
-        console.log(searcTerm);
-        if (searcTerm !== '') {
-            visitorManager.search(searcTerm).then(visitors => {
-                let visitorsId = visitors.map(visitor => {
-                    return visitor._id;
-                });
+        searchTerm = searchTerm.replace(/[^\s\w\d\u0590-\u05FF]/gi, '');
 
-                RequestModel.find({ 'visitor': { '$in': visitorsId } })
-                    .populate([{ path: 'requestor' }, { path: 'visitor' }, { path: 'authorizer' }])
-                    .exec((err, requests) => {
-                        if (err) {
-                            deferred.reject(err);
-                        } else {
-                            deferred.resolve(requests);
-                        }
-                    });
-            }).catch(err => {
-                console.error(err);
-                deferred.reject(err);
+        visitorManager.search(searchTerm).then(visitors => {
+            let visitorsId = visitors.map(visitor => {
+                return visitor._id;
             });
-        } else {
-            deferred.resolve([]);
-        }
+
+            RequestModel.find({
+                '$and': [
+                    { 'visitor': { '$in': visitorsId } },
+                    filter ? filter : {}
+                ]
+            }).populate([{ path: 'requestor' }, { path: 'visitor' }, { path: 'authorizer' }])
+                .exec((err, requests) => {
+                    if (err) {
+                        deferred.reject(err);
+                    } else {
+                        deferred.resolve(requests);
+                    }
+                });
+        }, err => {
+            console.error(err);
+            deferred.reject(err);
+        });
 
         return deferred.promise;
     }

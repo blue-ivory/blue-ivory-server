@@ -90,14 +90,8 @@ export class VisitorManager implements IDAO<Visitor>{
 
     public search(searchTerm: string): Promise<any> {
         let deferred = Promise.defer();
-        let searchRegex = new RegExp(searchTerm, 'i');
 
-        VisitorModel.find({
-            '$or': [
-                { '_id': searchRegex },
-                { 'name': searchRegex }
-            ]
-        }, '_id', (err, visitors) => {
+        VisitorModel.find(this.searchFilter(searchTerm), '_id', (err, visitors) => {
             if (err) {
                 deferred.reject(err);
             } else {
@@ -106,5 +100,20 @@ export class VisitorManager implements IDAO<Visitor>{
         });
 
         return deferred.promise;
+    }
+
+    private searchFilter(searchTerm: string): Object {
+        if (!searchTerm) {
+            return {}
+        }
+        let searchRegex = new RegExp(searchTerm, 'i');
+        let query: Object = {
+            '$or': [
+                { '_id': searchRegex },
+                { 'name': searchRegex }
+            ]
+        };
+
+        return query;
     }
 }
