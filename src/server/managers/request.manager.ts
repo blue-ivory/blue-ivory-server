@@ -2,7 +2,7 @@ import { IDAO } from './../interfaces/IDAO';
 import { Request } from './../classes/request';
 import { User } from './../classes/user';
 import * as RequestModel from './../models/request.model';
-import {VisitorManager} from './../managers/visitor.manager';
+import { VisitorManager } from './../managers/visitor.manager';
 import * as Promise from 'bluebird';
 require('./../models/visitor.model');
 
@@ -75,49 +75,6 @@ export class RequestManager implements IDAO<Request>{
         return deferred.promise;
     }
 
-    // public search(searchTerm: string, filter: string, user: User): Promise<any> {
-    //     let deferred = Promise.defer();
-    //     let visitorManager = new VisitorManager();
-    //     let queryFilter = {};
-    //     switch (filter) {
-    //         case 'my_requests':
-    //             queryFilter = { 'requestor': user._id };
-    //             break;
-    //         case 'pending_requests':
-    //             queryFilter = { 'status': { '$ne': -1 } };
-    //             break;
-    //     }
-    //     console.log(queryFilter);
-    //     searchTerm = searchTerm.replace(/[^\s\w\d\u0590-\u05FF]/gi, '');
-    //     if (searchTerm || filter) {
-    //         visitorManager.search(searchTerm).then(visitors => {
-    //             let visitorsId = visitors.map(visitor => {
-    //                 return visitor._id;
-    //             });
-    //             RequestModel.find({
-    //                 '$and': [
-    //                     { 'visitor': { '$in': visitorsId } },
-    //                     queryFilter
-    //                 ]
-    //             }).populate([{ path: 'requestor' }, { path: 'visitor' }, { path: 'authorizer' }])
-    //                 .exec((err, requests) => {
-    //                     if (err) {
-    //                         deferred.reject(err);
-    //                     } else {
-    //                         deferred.resolve(requests);
-    //                     }
-    //                 });
-    //         }).catch(err => {
-    //             console.error(err);
-    //             deferred.reject(err);
-    //         });
-    //     } else {
-    //         deferred.resolve([]);
-    //     }
-
-    //     return deferred.promise;
-    // }
-
     public search(searchTerm: string, filter?: Object): Promise<any> {
         let deferred = Promise.defer();
         let visitorManager = new VisitorManager();
@@ -150,6 +107,10 @@ export class RequestManager implements IDAO<Request>{
         return deferred.promise;
     }
 
+    public searchByType(type: string, searchTerm: string, user: User): Promise<any> {
+        return this.search(searchTerm, this.filterByType(type, user));
+    }
+
     public update(request: Request): Promise<any> {
         let deferred = Promise.defer();
         console.log(request);
@@ -175,5 +136,24 @@ export class RequestManager implements IDAO<Request>{
         });
 
         return deferred.promise;
+    }
+
+    private filterByType(type: string, user: User): Object {
+        let filter: {
+            requestor?: string,
+            status?: Object
+        } = {};
+
+        switch (type) {
+            case 'my':
+                filter.requestor = user._id;
+                break;
+            case 'pending':
+                filter.status = {
+                    '$ne': -1
+                };
+                break;
+        }
+        return filter;
     }
 }

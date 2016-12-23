@@ -17,11 +17,12 @@ router.get('/request', AuthMiddleware.requireLogin, (req: express.Request, res: 
     });
 });
 
-router.get('/request/search', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
+router.get('/request/:type', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
 
+    let type = req.params;
     let searchTerm = req.param('searchTerm');
 
-    requestManager.search(searchTerm).then((requests) => {
+    requestManager.searchByType(type, searchTerm, req.user).then((requests) => {
         if (!requests) {
             return res.sendStatus(404);
         }
@@ -31,37 +32,6 @@ router.get('/request/search', AuthMiddleware.requireLogin, (req: express.Request
         console.error(error);
         return res.sendStatus(500);
     });
-});
-
-router.get('/request/my', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
-    let searchTerm = req.param('searchTerm');
-
-    requestManager.search(searchTerm, RequestManager.MY_FILTER(req.user)).then((requests) => {
-        if (!requests) {
-            return res.sendStatus(404);
-        }
-
-        return res.json(requests);
-    }).catch((error) => {
-        console.error(error);
-        return res.sendStatus(500);
-    });
-});
-
-router.get('/request/pending', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
-    let searchTerm = req.param('searchTerm');
-
-    requestManager.search(searchTerm, RequestManager.PENDING_FILTER(req.user)).then((requests) => {
-        if (!requests) {
-            return res.sendStatus(404);
-        }
-
-        return res.json(requests);
-    }).catch((error) => {
-        console.error(error);
-        return res.sendStatus(500);
-    });
-
 });
 
 router.post('/request', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
