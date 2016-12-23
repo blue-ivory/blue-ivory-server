@@ -20,9 +20,6 @@ describe('UserManager', () => {
                 expect(user.roles.length).to.equal(1);
                 expect(user.roles[0]).to.equal('user');
                 done();
-            }).catch((error) => {
-                expect(error).to.not.exist;
-                done();
             });
         });
 
@@ -31,28 +28,20 @@ describe('UserManager', () => {
             userManager.create(newUser1).then((user) => {
                 expect(user).to.exist;
                 let newUser2: User = new User('Test', 'Doe', 'id_1', 'mail1', 'base1');
-                userManager.create(newUser2).then((user2) => {
-                    expect(user2).to.not.exist;
-                    done();
-                }).catch((error) => {
+                userManager.create(newUser2).catch((error) => {
                     expect(error).to.exist;
+                    expect(error).to.have.property('code', 11000);
                     done();
                 })
-            }).catch((error) => {
-                expect(error).to.not.exist;
-                done();
             });
         });
 
         it('Should not create user with wierd roles', (done) => {
             let newUser: User = new User('Ron', 'Borysovski', 'uid', 'mail', 'base', ['admin', 'champ']);
-            userManager.create(newUser).then((user) => {
-                expect(user).to.not.exist;
-                done();
-            }).catch((error) => {
+            userManager.create(newUser).catch((error) => {
                 expect(error).to.exist;
                 done();
-            });
+            })
         });
 
         it('Should create user with specified roles', (done) => {
@@ -63,9 +52,6 @@ describe('UserManager', () => {
                 expect(user.roles.length).to.equal(2);
                 expect(user.roles).to.have.members(['admin', 'approve-car']);
                 done();
-            }).catch((error) => {
-                expect(error).to.not.exist;
-                done();
             });
         });
     });
@@ -75,9 +61,6 @@ describe('UserManager', () => {
         it('Should fetch 0 users when db is empty', (done) => {
             userManager.all().then((users) => {
                 expect(users).to.be.empty;
-                done();
-            }).catch((err) => {
-                expect(err).to.not.exist;
                 done();
             });
         });
@@ -93,14 +76,8 @@ describe('UserManager', () => {
                         userManager.all().then((users) => {
                             expect(users.length).to.equal(5);
                             done();
-                        }).catch((err) => {
-                            expect(err).to.not.exist;
-                            done();
                         });
                     }
-                }).catch((error) => {
-                    expect(error).to.not.exist;
-                    done();
                 });
             }
         });
@@ -110,9 +87,6 @@ describe('UserManager', () => {
         it('Should not return user (if not exists)', (done) => {
             userManager.read("id").then((user) => {
                 expect(user).to.not.exist;
-                done();
-            }).catch((error) => {
-                expect(error).to.not.exist;
                 done();
             });
         });
@@ -126,13 +100,7 @@ describe('UserManager', () => {
                     expect(fetchedUser).to.have.property('_id', 'id_1');
                     expect(fetchedUser).to.have.property('firstName', 'John');
                     done();
-                }).catch((error) => {
-                    expect(error).to.not.exist;
-                    done();
                 });
-            }).catch((error) => {
-                expect(error).to.not.exist;
-                done();
             });
         });
     });
@@ -142,9 +110,6 @@ describe('UserManager', () => {
             let userToUpdate: User = new User('John', 'Doe', 'id1', 'mail1', 'base');
             userManager.update(userToUpdate).then((user) => {
                 expect(user).to.not.exist;
-                done();
-            }).catch((error) => {
-                expect(error).to.not.exist;
                 done();
             });
         });
@@ -156,20 +121,18 @@ describe('UserManager', () => {
                 user.firstName = 'Ron';
                 user.lastName = 'Borysovski';
                 user.mail = 'mail2';
+                user.roles = ['admin'];
 
                 userManager.update(user).then((updatedUser) => {
                     expect(updatedUser).to.exist;
                     expect(updatedUser).to.have.property('firstName', 'Ron');
                     expect(updatedUser).to.have.property('lastName', 'Borysovski');
                     expect(updatedUser).to.have.property('mail', 'mail2');
-                    done();
-                }).catch((error) => {
-                    expect(error).to.not.exist;
+                    expect(updatedUser.roles).to.exist;
+                    expect(updatedUser.roles.length).to.equal(1);
+                    expect(updatedUser.roles).to.have.members(['admin']);
                     done();
                 });
-            }).catch((error) => {
-                expect(error).to.not.exist;
-                done();
             });
 
         });
@@ -180,8 +143,6 @@ describe('UserManager', () => {
             userManager.delete('id').then((user) => {
                 expect(user).to.not.exist;
                 done();
-            }).catch((error) => {
-                expect(error).to.not.exist;
             });
         });
 
@@ -189,23 +150,13 @@ describe('UserManager', () => {
             let newUser: User = new User('John', 'Doe', 'id_1', 'mail1', 'base1');
             userManager.create(newUser).then((user) => {
                 expect(user).to.exist;
-                done();
                 userManager.delete(user._id).then((user) => {
                     expect(user).to.exist;
                     userManager.read('id_1').then((user) => {
                         expect(user).to.not.exist;
                         done();
-                    }).catch((error) => {
-                        expect(error).to.not.exist;
-                        done();
                     });
-                }).catch((error) => {
-                    expect(error).to.not.exist;
-                    done();
                 });
-            }).catch((error) => {
-                expect(error).to.not.exist;
-                done();
             });
         });
     });
