@@ -45,7 +45,7 @@ export class UserManager implements IDAO<User>{
 
     public update(user: User): Promise<any> {
         let deferred = Promise.defer();
-        UserModel.findOneAndUpdate({ _id: user._id }, user, (err, user) => {
+        UserModel.findOneAndUpdate({ _id: user._id }, user, { new: true }, (err, user) => {
             if (err) {
                 deferred.reject(err);
             } else {
