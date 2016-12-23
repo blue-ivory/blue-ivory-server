@@ -45,7 +45,7 @@ export class VisitorManager implements IDAO<Visitor>{
 
     public update(visitor: Visitor): Promise<any> {
         let deferred = Promise.defer();
-        VisitorModel.findOneAndUpdate({ _id: visitor._id }, visitor, { upsert: true }, (err, user) => {
+        VisitorModel.findOneAndUpdate({ _id: visitor._id }, visitor, { new: true, upsert: true }, (err, user) => {
             if (err) {
                 deferred.reject(err);
             } else {
@@ -91,7 +91,7 @@ export class VisitorManager implements IDAO<Visitor>{
     public search(searchTerm: string): Promise<any> {
         let deferred = Promise.defer();
 
-        VisitorModel.find(this.searchFilter(searchTerm), '_id', (err, visitors) => {
+        VisitorModel.find(this.searchFilter(searchTerm), (err, visitors) => {
             if (err) {
                 deferred.reject(err);
             } else {
