@@ -9,7 +9,9 @@ var router: express.Router = express.Router();
 var userManager = new UserManager();
 
 router.get('/user', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
-    userManager.all().then((users) => {
+    let searchTerm = req.param('searchTerm');
+
+    userManager.search(searchTerm).then((users) => {
         return res.json(users);
     }).catch((error) => {
         console.error(error);

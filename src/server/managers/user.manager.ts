@@ -69,4 +69,76 @@ export class UserManager implements IDAO<User>{
 
         return deferred.promise;
     }
+
+    public search(searchTerm?: string): Promise<any> {
+        let deferred = Promise.defer();
+        let re = new RegExp(searchTerm, "i")
+
+
+        UserModel.find({
+            $or: [{
+                _id: re // got uniqueId
+            }, {
+                $or: [{
+                    firstName: re
+                }, {
+                    lastName: re
+                }]
+            },
+            this.filterForName(searchTerm)
+            ]
+        }, (err, users) => {
+            if (err) {
+                deferred.reject(err);
+            } else {
+                deferred.resolve(users);
+            }
+        });
+
+        return deferred.promise;
+    }
+
+    private filterForName(searchTerm?: string): Object {
+        let filter = {};
+
+        if (searchTerm && searchTerm.indexOf(' ') !== -1) {
+            let term: string[] = searchTerm.split(' ');
+            let term1: RegExp = new RegExp(term[0], "i");
+            let term2: RegExp = new RegExp(term[1], "i");
+            filter = {
+                $or: [
+                    {
+                        $and: [
+                            {
+                                firstName: term1
+                            },
+                            {
+                                lastName: term2
+                            }
+                        ]
+                    }, {
+                        $and: [
+                            {
+                                firstName: term2
+                            },
+                            {
+                                lastName: term1
+                            }
+                        ]
+                    }
+                ]
+            };
+        } else { // Single word
+            let term: RegExp = new RegExp(searchTerm, "i");
+
+            filter = {
+                $or: [{
+                    firstName: term
+                }, {
+                    lastName: term
+                }]
+            }
+        }
+        return filter;
+    }
 }

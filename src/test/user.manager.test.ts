@@ -160,4 +160,111 @@ describe('UserManager', () => {
             });
         });
     });
+
+    describe('#search', () => {
+        it('Should return 0 users when not found', done => {
+            userManager.search('test').then(users => {
+                expect(users).to.exist;
+                expect(users).to.be.an('array');
+                expect(users.length).to.eq(0);
+                done();
+            });
+        });
+
+        it('Should return all users if empty search term', done => {
+            userManager.create(new User('John', 'Test', 'unique@ID', 'mail1')).then(() => {
+                userManager.create(new User('Jon', 'last', 'unique', 'mail2')).then(() => {
+                    userManager.search().then(users => {
+                        expect(users).to.exist;
+                        expect(users).to.be.an('array');
+                        expect(users.length).to.eq(2);
+
+                        done();
+                    });
+                });
+            });
+        });
+
+        it('Should find users by firstName, lastName or unique id (Single word)', done => {
+            userManager.create(new User('John', 'Test', 'unique@ID', 'mail1')).then(() => {
+                userManager.create(new User('Jon', 'last', 'unique', 'mail2')).then(() => {
+                    userManager.search('john').then(users => {
+                        expect(users).to.exist;
+                        expect(users).to.be.an('array');
+                        expect(users.length).to.eq(1);
+                        expect(users[0]).to.have.property('firstName', 'John');
+
+                        userManager.search('joN').then(users => {
+                            expect(users).to.exist;
+                            expect(users).to.be.an('array');
+                            expect(users.length).to.eq(1);
+                            expect(users[0]).to.have.property('firstName', 'Jon');
+
+                            userManager.search('jO').then(users => {
+                                expect(users).to.exist;
+                                expect(users).to.be.an('array');
+                                expect(users.length).to.eq(2);
+
+                                userManager.search('ES').then(users => {
+                                    expect(users).to.exist;
+                                    expect(users).to.be.an('array');
+                                    expect(users.length).to.eq(1);
+                                    expect(users[0]).to.have.property('lastName', 'Test');
+
+                                    userManager.search('st').then(users => {
+                                        expect(users).to.exist;
+                                        expect(users).to.be.an('array');
+                                        expect(users.length).to.eq(2);
+
+                                        userManager.search('@').then(users => {
+                                            expect(users).to.exist;
+                                            expect(users).to.be.an('array');
+                                            expect(users.length).to.eq(1);
+                                            expect(users[0]).to.have.property('_id', 'unique@ID');
+
+                                            userManager.search('unique').then(users => {
+                                                expect(users).to.exist;
+                                                expect(users).to.be.an('array');
+                                                expect(users.length).to.eq(2);
+
+                                                done();
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+
+        it('Should find users either by firstName or by lastName (two words)', done => {
+            userManager.create(new User('John', 'Test', 'unique@ID', 'mail1')).then(() => {
+                userManager.create(new User('Jon', 'last', 'unique', 'mail2')).then(() => {
+                    userManager.search('john te').then(users => {
+                        expect(users).to.exist;
+                        expect(users).to.be.an('array');
+                        expect(users.length).to.eq(1);
+                        expect(users[0]).to.have.property('_id', 'unique@ID');
+
+                        userManager.search('las on').then(users => {
+                            expect(users).to.exist;
+                            expect(users).to.be.an('array');
+                            expect(users.length).to.eq(1);
+                            expect(users[0]).to.have.property('_id', 'unique');
+
+                            userManager.search('jo st').then(users => {
+                                expect(users).to.exist;
+                                expect(users).to.be.an('array');
+                                expect(users.length).to.eq(2);
+
+                                done();
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
 });
