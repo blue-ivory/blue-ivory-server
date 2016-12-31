@@ -2,6 +2,7 @@
 
 import * as mongoose from 'mongoose';
 import { User } from './../classes/user';
+import { Permission } from './../classes/permission';
 
 var userSchema: mongoose.Schema = new mongoose.Schema({
     _id: {
@@ -23,17 +24,19 @@ var userSchema: mongoose.Schema = new mongoose.Schema({
     base: {
         type: String
     },
-    roles: {
+    permissions: {
         type: [{
             type: String,
-            enum: ['user',
-                'admin',
-                'approve-car',
-                'approve-civilian',
-                'approve-solider',
-                'base-owner'],
+            enum: [
+                Permission.ADMIN,
+                Permission.APPROVE_CAR,
+                Permission.APPROVE_CIVILIAN,
+                Permission.APPROVE_SOLDIER,
+                Permission.EDIT_USER_PERMISSIONS,
+                Permission.NORMAL_USER
+            ]
         }],
-        default: ['user']
+        default: [Permission.NORMAL_USER]
     }
 });
 

@@ -1,6 +1,7 @@
 /// <reference path="../../typings/index.d.ts" />
 import { UserManager } from './../server/managers/user.manager';
 import { User } from './../server/classes/user';
+import { Permission } from './../server/classes/permission';
 import { expect } from 'chai';
 
 describe('UserManager', () => {
@@ -16,9 +17,9 @@ describe('UserManager', () => {
                 expect(user).to.have.property('_id', 'id_1');
                 expect(user).to.have.property('mail', 'mail1');
                 expect(user).to.have.property('base', 'base1');
-                expect(user.roles).to.exist;
-                expect(user.roles.length).to.equal(1);
-                expect(user.roles[0]).to.equal('user');
+                expect(user.permissions).to.exist;
+                expect(user.permissions.length).to.equal(1);
+                expect(user.permissions[0]).to.equal(Permission.NORMAL_USER);
                 done();
             });
         });
@@ -26,6 +27,7 @@ describe('UserManager', () => {
         it('Should throw an error when same ID or mail is given', (done) => {
             let newUser1: User = new User('John', 'Doe', 'id_1', 'mail1', 'base1');
             userManager.create(newUser1).then((user) => {
+                console.log(user);
                 expect(user).to.exist;
                 let newUser2: User = new User('Test', 'Doe', 'id_1', 'mail1', 'base1');
                 userManager.create(newUser2).catch((error) => {
@@ -36,21 +38,13 @@ describe('UserManager', () => {
             });
         });
 
-        it('Should not create user with wierd roles', (done) => {
-            let newUser: User = new User('Ron', 'Borysovski', 'uid', 'mail', 'base', ['admin', 'champ']);
-            userManager.create(newUser).catch((error) => {
-                expect(error).to.exist;
-                done();
-            })
-        });
-
-        it('Should create user with specified roles', (done) => {
-            let newUser: User = new User('Ron', 'Borysovski', 'uid', 'mail', 'base', ['admin', 'approve-car']);
+        it('Should create user with specified permissions', (done) => {
+            let newUser: User = new User('Ron', 'Borysovski', 'uid', 'mail', 'base', [Permission.APPROVE_CAR, Permission.EDIT_USER_PERMISSIONS]);
             userManager.create(newUser).then((user) => {
                 expect(user).to.exist;
-                expect(user.roles).to.exist;
-                expect(user.roles.length).to.equal(2);
-                expect(user.roles).to.have.members(['admin', 'approve-car']);
+                expect(user.permissions).to.exist;
+                expect(user.permissions.length).to.equal(2);
+                expect(user.permissions).to.have.members([Permission.APPROVE_CAR, Permission.EDIT_USER_PERMISSIONS]);
                 done();
             });
         });
@@ -121,16 +115,16 @@ describe('UserManager', () => {
                 user.firstName = 'Ron';
                 user.lastName = 'Borysovski';
                 user.mail = 'mail2';
-                user.roles = ['admin'];
+                user.permissions = [Permission.ADMIN];
 
                 userManager.update(user).then((updatedUser) => {
                     expect(updatedUser).to.exist;
                     expect(updatedUser).to.have.property('firstName', 'Ron');
                     expect(updatedUser).to.have.property('lastName', 'Borysovski');
                     expect(updatedUser).to.have.property('mail', 'mail2');
-                    expect(updatedUser.roles).to.exist;
-                    expect(updatedUser.roles.length).to.equal(1);
-                    expect(updatedUser.roles).to.have.members(['admin']);
+                    expect(updatedUser.permissions).to.exist;
+                    expect(updatedUser.permissions.length).to.equal(1);
+                    expect(updatedUser.permissions).to.have.members([Permission.ADMIN]);
                     done();
                 });
             });
