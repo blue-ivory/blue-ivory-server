@@ -4,6 +4,7 @@ import * as UserModel from './../models/user.model';
 import * as Promise from 'bluebird';
 
 export class PermissionManager {
+
     public hasPermissions(user: User, permissions: Permission[]): boolean {
         if (!permissions) {
             return true;
@@ -21,5 +22,20 @@ export class PermissionManager {
         });
 
         return hasPermissions;
+    }
+
+    public addPermissions(user: User, ...permissions: Permission[]): Promise<any> {
+        let deferred = Promise.defer();
+        UserModel.findOneAndUpdate({ _id: user._id },
+            { $addToSet: { permissions: { $each: permissions } } },
+            { new: true }, (err, user: User) => {
+                if (err) {
+                    deferred.reject(err);
+                } else {
+                    deferred.resolve(user);
+                }
+            });
+
+        return deferred.promise;
     }
 }

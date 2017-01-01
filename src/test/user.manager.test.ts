@@ -27,7 +27,6 @@ describe('UserManager', () => {
         it('Should throw an error when same ID or mail is given', (done) => {
             let newUser1: User = new User('John', 'Doe', 'id_1', 'mail1', 'base1');
             userManager.create(newUser1).then((user) => {
-                console.log(user);
                 expect(user).to.exist;
                 let newUser2: User = new User('Test', 'Doe', 'id_1', 'mail1', 'base1');
                 userManager.create(newUser2).catch((error) => {
