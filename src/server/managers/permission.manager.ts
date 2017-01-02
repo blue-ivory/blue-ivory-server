@@ -38,4 +38,20 @@ export class PermissionManager {
 
         return deferred.promise;
     }
+
+    public removePermissions(user: User, ...permissions: Permission[]): Promise<any> {
+        let deferred = Promise.defer();
+
+        UserModel.findOneAndUpdate({ _id: user._id },
+            { $pullAll: { permissions: permissions } },
+            { new: true }, (err, user: User) => {
+                if (err) {
+                    deferred.reject(err);
+                } else {
+                    deferred.resolve(user);
+                }
+            });
+
+        return deferred.promise;
+    }
 }

@@ -120,7 +120,7 @@ describe('PermissionManager', () => {
                 expect(user.permissions.length).to.eql(1);
                 expect(user.permissions[0]).to.eql(Permission.NORMAL_USER);
 
-                permissionManager.addPermissions(user, Permission.APPROVE_CAR, Permission.EDIT_USER_PERMISSIONS, Permission.APPROVE_CIVILIAN).then((user: User) => {
+                permissionManager.addPermissions(user, ...[Permission.APPROVE_CAR, Permission.EDIT_USER_PERMISSIONS, Permission.APPROVE_CIVILIAN]).then((user: User) => {
                     expect(user).to.exist;
                     expect(user.permissions).to.exist;
                     expect(user.permissions).to.have.length(4);
@@ -145,6 +145,66 @@ describe('PermissionManager', () => {
                     expect(user.permissions).to.have.members([Permission.NORMAL_USER, Permission.ADMIN]);
 
                     done();
+                });
+            });
+        });
+    });
+
+    describe('#removePermissions', () => {
+        it('Should do nothing when user not exists in DB', done => {
+            let user: User = new User('Ron', 'Borysovski', '123', 'mail', 'base');
+            permissionManager.removePermissions(user, Permission.ADMIN).then((user: User) => {
+                expect(user).to.not.exist;
+                done();
+            });
+        });
+
+        it('Should do nothing when user doesn\'t have the permissions to delete', done => {
+            userManager.create(new User('Ron', 'Borysovski', '123', 'mail', 'base')).then((user: User) => {
+                permissionManager.removePermissions(user, Permission.ADMIN).then((user: User) => {
+                    expect(user).to.exist;
+                    expect(user).to.have.property('permissions');
+                    expect(user.permissions).to.have.length(1);
+                    expect(user.permissions).to.have.members([Permission.NORMAL_USER]);
+                    done();
+                });
+            });
+        });
+
+        it('Should remove a single permission when exists', done => {
+            userManager.create(new User('Ron', 'Borysovski', '123', 'mail', 'base')).then((user: User) => {
+                permissionManager.addPermissions(user, Permission.ADMIN, Permission.APPROVE_CAR).then((user: User) => {
+                    expect(user).to.exist;
+                    expect(user.permissions).to.exist;
+                    expect(user.permissions).to.have.length(3); // NORMAL_USER too.
+
+                    permissionManager.removePermissions(user, Permission.ADMIN).then((user: User) => {
+                        expect(user).to.exist;
+                        expect(user.permissions).to.exist;
+                        expect(user.permissions).to.have.length(2);
+                        expect(user.permissions).to.not.have.members([Permission.ADMIN]);
+
+                        done();
+                    });
+                });
+            });
+        });
+
+        it('Should remove multiple permission when exists', done => {
+            userManager.create(new User('Ron', 'Borysovski', '123', 'mail', 'base')).then((user: User) => {
+                permissionManager.addPermissions(user, Permission.EDIT_USER_PERMISSIONS, Permission.ADMIN, Permission.APPROVE_CAR).then((user: User) => {
+                    expect(user).to.exist;
+                    expect(user.permissions).to.exist;
+                    expect(user.permissions).to.have.length(4); // NORMAL_USER too.
+
+                    permissionManager.removePermissions(user, Permission.ADMIN, Permission.EDIT_USER_PERMISSIONS).then((user: User) => {
+                        expect(user).to.exist;
+                        expect(user.permissions).to.exist;
+                        expect(user.permissions).to.have.length(2);
+                        expect(user.permissions).to.not.have.members([Permission.ADMIN, Permission.EDIT_USER_PERMISSIONS]);
+
+                        done();
+                    });
                 });
             });
         });
