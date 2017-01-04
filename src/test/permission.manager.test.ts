@@ -81,14 +81,12 @@ describe('PermissionManager', () => {
             userManager.create(new User('Ron', 'Borysovski', '123', 'mail', 'base')).then((user: User) => {
                 expect(user).to.exist;
                 expect(user.permissions).to.exist;
-                expect(user.permissions.length).to.eql(1);
-                expect(user.permissions[0]).to.eql(Permission.NORMAL_USER);
+                expect(user.permissions.length).to.eql(0);
 
                 permissionManager.addPermissions(user).then((user: User) => {
                     expect(user).to.exist;
                     expect(user.permissions).to.exist;
-                    expect(user.permissions).to.have.length(1);
-                    expect(user.permissions).to.have.members([Permission.NORMAL_USER]);
+                    expect(user.permissions).to.have.length(0);
 
                     done();
                 });
@@ -99,14 +97,13 @@ describe('PermissionManager', () => {
             userManager.create(new User('Ron', 'Borysovski', '123', 'mail', 'base')).then((user: User) => {
                 expect(user).to.exist;
                 expect(user.permissions).to.exist;
-                expect(user.permissions.length).to.eql(1);
-                expect(user.permissions[0]).to.eql(Permission.NORMAL_USER);
+                expect(user.permissions.length).to.eql(0);
 
                 permissionManager.addPermissions(user, Permission.APPROVE_CAR).then((user: User) => {
                     expect(user).to.exist;
                     expect(user.permissions).to.exist;
-                    expect(user.permissions).to.have.length(2);
-                    expect(user.permissions).to.have.members([Permission.NORMAL_USER, Permission.APPROVE_CAR]);
+                    expect(user.permissions).to.have.length(1);
+                    expect(user.permissions).to.have.members([Permission.APPROVE_CAR]);
 
                     done();
                 });
@@ -117,14 +114,13 @@ describe('PermissionManager', () => {
             userManager.create(new User('Ron', 'Borysovski', '123', 'mail', 'base')).then((user: User) => {
                 expect(user).to.exist;
                 expect(user.permissions).to.exist;
-                expect(user.permissions.length).to.eql(1);
-                expect(user.permissions[0]).to.eql(Permission.NORMAL_USER);
+                expect(user.permissions.length).to.eql(0);
 
                 permissionManager.addPermissions(user, ...[Permission.APPROVE_CAR, Permission.EDIT_USER_PERMISSIONS, Permission.APPROVE_CIVILIAN]).then((user: User) => {
                     expect(user).to.exist;
                     expect(user.permissions).to.exist;
-                    expect(user.permissions).to.have.length(4);
-                    expect(user.permissions).to.have.members([Permission.NORMAL_USER, Permission.EDIT_USER_PERMISSIONS, Permission.APPROVE_CIVILIAN, Permission.APPROVE_CAR]);
+                    expect(user.permissions).to.have.length(3);
+                    expect(user.permissions).to.have.members([Permission.EDIT_USER_PERMISSIONS, Permission.APPROVE_CIVILIAN, Permission.APPROVE_CAR]);
 
                     done();
                 });
@@ -135,14 +131,13 @@ describe('PermissionManager', () => {
             userManager.create(new User('Ron', 'Borysovski', '123', 'mail', 'base')).then((user: User) => {
                 expect(user).to.exist;
                 expect(user.permissions).to.exist;
-                expect(user.permissions.length).to.eql(1);
-                expect(user.permissions[0]).to.eql(Permission.NORMAL_USER);
+                expect(user.permissions.length).to.eql(0);
 
                 permissionManager.addPermissions(user, Permission.ADMIN, Permission.ADMIN).then((user: User) => {
                     expect(user).to.exist;
                     expect(user.permissions).to.exist;
-                    expect(user.permissions).to.have.length(2);
-                    expect(user.permissions).to.have.members([Permission.NORMAL_USER, Permission.ADMIN]);
+                    expect(user.permissions).to.have.length(1);
+                    expect(user.permissions).to.have.members([Permission.ADMIN]);
 
                     done();
                 });
@@ -164,8 +159,7 @@ describe('PermissionManager', () => {
                 permissionManager.removePermissions(user, Permission.ADMIN).then((user: User) => {
                     expect(user).to.exist;
                     expect(user).to.have.property('permissions');
-                    expect(user.permissions).to.have.length(1);
-                    expect(user.permissions).to.have.members([Permission.NORMAL_USER]);
+                    expect(user.permissions).to.have.length(0);
                     done();
                 });
             });
@@ -176,12 +170,12 @@ describe('PermissionManager', () => {
                 permissionManager.addPermissions(user, Permission.ADMIN, Permission.APPROVE_CAR).then((user: User) => {
                     expect(user).to.exist;
                     expect(user.permissions).to.exist;
-                    expect(user.permissions).to.have.length(3); // NORMAL_USER too.
+                    expect(user.permissions).to.have.length(2);
 
                     permissionManager.removePermissions(user, Permission.ADMIN).then((user: User) => {
                         expect(user).to.exist;
                         expect(user.permissions).to.exist;
-                        expect(user.permissions).to.have.length(2);
+                        expect(user.permissions).to.have.length(1);
                         expect(user.permissions).to.not.have.members([Permission.ADMIN]);
 
                         done();
@@ -195,16 +189,60 @@ describe('PermissionManager', () => {
                 permissionManager.addPermissions(user, Permission.EDIT_USER_PERMISSIONS, Permission.ADMIN, Permission.APPROVE_CAR).then((user: User) => {
                     expect(user).to.exist;
                     expect(user.permissions).to.exist;
-                    expect(user.permissions).to.have.length(4); // NORMAL_USER too.
+                    expect(user.permissions).to.have.length(3);
 
                     permissionManager.removePermissions(user, Permission.ADMIN, Permission.EDIT_USER_PERMISSIONS).then((user: User) => {
                         expect(user).to.exist;
                         expect(user.permissions).to.exist;
-                        expect(user.permissions).to.have.length(2);
+                        expect(user.permissions).to.have.length(1);
                         expect(user.permissions).to.not.have.members([Permission.ADMIN, Permission.EDIT_USER_PERMISSIONS]);
 
                         done();
                     });
+                });
+            });
+        });
+    });
+
+    describe('#setPermissions', () => {
+        it('Should do nothing when user not exists in DB', done => {
+            permissionManager.setPermissions('123', [Permission.ADMIN]).then((user: User) => {
+                expect(user).to.not.exist;
+                done();
+            });
+        });
+
+        it('Should remove all permissions when no permissions passed', done => {
+            userManager.create(new User('Ron', 'Borysovski', '123', 'mail', 'base')).then((user: User) => {
+                permissionManager.addPermissions(user, ...[Permission.ADMIN, Permission.APPROVE_CAR]).then(user => {
+                    expect(user.permissions).to.have.length(2);
+                    permissionManager.setPermissions(user._id, []).then((user: User) => {
+                        expect(user).to.exist;
+                        expect(user.permissions).to.have.length(0);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it('Should set permissions', done => {
+            userManager.create(new User('Ron', 'Borysovski', '123', 'mail', 'base')).then((user: User) => {
+                permissionManager.setPermissions(user._id, [Permission.ADMIN, Permission.APPROVE_CAR, Permission.APPROVE_SOLDIER]).then((user: User) => {
+                    expect(user).to.exist;
+                    expect(user.permissions).to.have.length(3);
+                    expect(user.permissions).to.have.members([Permission.ADMIN, Permission.APPROVE_CAR, Permission.APPROVE_SOLDIER]);
+                    done();
+                });
+            });
+        });
+
+        it('Should not set duplicate permissions', done => {
+            userManager.create(new User('Ron', 'Borysovski', '123', 'mail', 'base')).then((user: User) => {
+                permissionManager.setPermissions(user._id, [Permission.ADMIN, Permission.APPROVE_CAR, Permission.ADMIN]).then((user: User) => {
+                    expect(user).to.exist;
+                    expect(user.permissions).to.have.length(2);
+                    expect(user.permissions).to.have.members([Permission.ADMIN, Permission.APPROVE_CAR]);
+                    done();
                 });
             });
         });

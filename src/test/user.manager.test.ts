@@ -18,8 +18,7 @@ describe('UserManager', () => {
                 expect(user).to.have.property('mail', 'mail1');
                 expect(user).to.have.property('base', 'base1');
                 expect(user.permissions).to.exist;
-                expect(user.permissions.length).to.equal(1);
-                expect(user.permissions[0]).to.equal(Permission.NORMAL_USER);
+                expect(user.permissions.length).to.equal(0);
                 done();
             });
         });

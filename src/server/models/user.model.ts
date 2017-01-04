@@ -36,7 +36,7 @@ var userSchema: mongoose.Schema = new mongoose.Schema({
                 Permission.NORMAL_USER
             ]
         }],
-        default: [Permission.NORMAL_USER]
+        default: []
     }
 });
 

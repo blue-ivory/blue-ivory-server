@@ -54,4 +54,23 @@ export class PermissionManager {
 
         return deferred.promise;
     }
+
+    public setPermissions(userId: string, permissions: Permission[]): Promise<any> {
+        let deferred = Promise.defer();
+        
+        // Remove duplicates
+        let uniquePermissions = Array.from(new Set(permissions));
+
+        UserModel.findOneAndUpdate({ _id: userId },
+            { $set: { permissions: uniquePermissions } },
+            { new: true }, (err, user: User) => {
+                if (err) {
+                    deferred.reject(err);
+                } else {
+                    deferred.resolve(user);
+                }
+            });
+
+        return deferred.promise;
+    }
 }

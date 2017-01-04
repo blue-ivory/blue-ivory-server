@@ -2,11 +2,14 @@
 
 import * as express from 'express';
 import { UserManager } from './../managers/user.manager';
+import { PermissionManager } from './../managers/permission.manager';
 import { User } from './../classes/user';
+import { Permission } from './../classes/permission';
 import { AuthMiddleware } from './../middlewares/auth.middleware';
 
 var router: express.Router = express.Router();
 var userManager = new UserManager();
+var permissionManager = new PermissionManager();
 
 router.get('/user', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
     let searchTerm = req.param('searchTerm');
@@ -38,6 +41,18 @@ router.post('/user', AuthMiddleware.requireLogin, (req: express.Request, res: ex
     userManager.create(req.body.user).then((user) => {
         return res.json(user);
     }).catch((error) => {
+        console.error(error);
+        return res.sendStatus(500);
+    });
+});
+
+router.put('/user/:id/permissions', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
+    let userId = req.params.id;
+    let permissions: Permission[] = req.body.permissions;
+
+    permissionManager.setPermissions(userId, permissions).then((user: User) => {
+        return res.json(user);
+    }).catch(error => {
         console.error(error);
         return res.sendStatus(500);
     });
