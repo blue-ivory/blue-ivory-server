@@ -14,7 +14,7 @@ export class Request {
     public needEscort: boolean;
     public hasCar: boolean;
 
-    constructor(_id,
+    constructor(
         startDate: Date,
         endDate: Date,
         visitor: Visitor,
@@ -24,7 +24,6 @@ export class Request {
         needEscort: boolean,
         hasCar: boolean) {
         
-        this._id = _id;
         this.requestDate = new Date();
         this.startDate = startDate;
         this.endDate = endDate;
