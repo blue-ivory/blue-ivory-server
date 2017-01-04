@@ -45,7 +45,6 @@ export class RequestManager implements IDAO<Request>{
         let visitorManager = new VisitorManager();
 
         visitorManager.readOrCreate(request.visitor).then(visitor => {
-            console.log(visitor);
             request.visitor = visitor;
             let requestModel = new RequestModel(request);
             requestModel.save((err, request) => {
