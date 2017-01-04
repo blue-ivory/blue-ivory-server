@@ -69,21 +69,25 @@ export class VisitorManager implements IDAO<Visitor>{
 
     public readOrCreate(visitor: Visitor): Promise<any> {
         let deferred = Promise.defer();
-        this.read(visitor._id).then(newVisitor => {
-            if (newVisitor) {
-                deferred.resolve(newVisitor);
-            }
-            else {
-                this.create(visitor).then(visitor => {
-                    deferred.resolve(visitor);
-                }).catch(err => {
-                    deferred.reject(err);
-                });
-            }
-        }).catch(err => {
-            console.log(err);
-            deferred.reject(err);
-        });
+        if (!visitor) {
+            deferred.reject('Visitor is a required field');
+        } else {
+            this.read(visitor._id).then(newVisitor => {
+                if (newVisitor) {
+                    deferred.resolve(newVisitor);
+                }
+                else {
+                    this.create(visitor).then(visitor => {
+                        deferred.resolve(visitor);
+                    }).catch(err => {
+                        deferred.reject(err);
+                    });
+                }
+            }).catch(err => {
+                console.error(err);
+                deferred.reject(err);
+            });
+        }
 
         return deferred.promise;
     }
