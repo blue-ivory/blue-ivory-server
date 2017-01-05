@@ -8,7 +8,8 @@ import { Base } from './../classes/base';
 var baseSchema: mongoose.Schema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     }
 });
 
