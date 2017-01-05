@@ -1,5 +1,7 @@
 /// <reference path="./../../../typings/index.d.ts" />
 
+// TODO : Add workflow to schema
+
 import * as mongoose from 'mongoose';
 import { Base } from './../classes/base';
 
