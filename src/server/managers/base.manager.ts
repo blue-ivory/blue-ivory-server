@@ -47,7 +47,7 @@ export class BaseManager implements IDAO<Base>{
     public update(base: Base): Promise<any> {
         let deferred = Promise.defer();
 
-        BaseModel.findOneAndUpdate({ name: base.name }, base,
+        BaseModel.findByIdAndUpdate(base._id, base,
             { new: true }, (err, base) => {
                 if (err) {
                     deferred.reject(err);
