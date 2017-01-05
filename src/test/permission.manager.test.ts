@@ -61,7 +61,6 @@ describe('PermissionManager', () => {
             expect(hasPermission).to.be.false;
 
             hasPermission = permissionManager.hasPermissions(user, [Permission.APPROVE_CAR, Permission.APPROVE_SOLDIER, Permission.NORMAL_USER]);
-            console.log(hasPermission);
             expect(hasPermission).to.be.false;
 
             done();
