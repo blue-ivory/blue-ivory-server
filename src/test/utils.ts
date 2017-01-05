@@ -2,10 +2,12 @@
 'use strict';
 
 var config = require('./../../config');
-var mongoose = require('mongoose');
+import * as mongoose from 'mongoose';
+//var mongoose = require('mongoose');
 
 beforeEach((done) => {
     function clearDB() {
+        
         for (let i in mongoose.connection.collections) {
             mongoose.connection.collections[i].remove(function() {});
         }
@@ -25,7 +27,10 @@ beforeEach((done) => {
     }
 });
 
-afterEach(function(done) {
+after(function(done){
     mongoose.disconnect();
+    
+    console.log('-------------- Tests done --------------');
+
     return done();
-});
+})
