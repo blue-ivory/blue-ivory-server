@@ -8,6 +8,8 @@ import * as mongoose from 'mongoose';
 import * as bluebird from 'bluebird';
 import * as requestRouter from './controllers/request.controller';
 import * as userRouter from './controllers/user.controller';
+import * as baseRouter from './controllers/base.controller';
+
 
 var config = require('./../../config');
 const app: express.Application = express();
@@ -42,6 +44,7 @@ const port: number = 80;
 
 app.use('/api/', requestRouter);
 app.use('/api/', userRouter);
+app.use('/api/', baseRouter);
 
 var server = app.listen(port, () => {
     console.log('Application is running port %s', port);
