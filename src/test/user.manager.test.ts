@@ -1,22 +1,24 @@
 /// <reference path="../../typings/index.d.ts" />
 import { UserManager } from './../server/managers/user.manager';
+import { BaseManager } from './../server/managers/base.manager';
 import { User } from './../server/classes/user';
 import { Permission } from './../server/classes/permission';
+import { Base } from './../server/classes/base';
 import { expect } from 'chai';
 
 describe('UserManager', () => {
     let userManager: UserManager = new UserManager();
+    let baseManager: BaseManager = new BaseManager();
 
     describe('#create', () => {
         it('Should create a user', (done) => {
-            let newUser: User = new User('John', 'Doe', 'id_1', 'mail1', 'base1');
+            let newUser: User = new User('John', 'Doe', 'id_1', 'mail1');
             userManager.create(newUser).then((user) => {
                 expect(user).to.exist;
                 expect(user).to.have.property('firstName', 'John');
                 expect(user).to.have.property('lastName', 'Doe');
                 expect(user).to.have.property('_id', 'id_1');
                 expect(user).to.have.property('mail', 'mail1');
-                expect(user).to.have.property('base', 'base1');
                 expect(user.permissions).to.exist;
                 expect(user.permissions.length).to.equal(0);
                 done();
@@ -24,26 +26,15 @@ describe('UserManager', () => {
         });
 
         it('Should throw an error when same ID or mail is given', (done) => {
-            let newUser1: User = new User('John', 'Doe', 'id_1', 'mail1', 'base1');
+            let newUser1: User = new User('John', 'Doe', 'id_1', 'mail1');
             userManager.create(newUser1).then((user) => {
                 expect(user).to.exist;
-                let newUser2: User = new User('Test', 'Doe', 'id_1', 'mail1', 'base1');
+                let newUser2: User = new User('Test', 'Doe', 'id_1', 'mail1');
                 userManager.create(newUser2).catch((error) => {
                     expect(error).to.exist;
                     expect(error).to.have.property('code', 11000);
                     done();
                 })
-            });
-        });
-
-        it('Should create user with specified permissions', (done) => {
-            let newUser: User = new User('Ron', 'Borysovski', 'uid', 'mail', 'base', [Permission.APPROVE_CAR, Permission.EDIT_USER_PERMISSIONS]);
-            userManager.create(newUser).then((user) => {
-                expect(user).to.exist;
-                expect(user.permissions).to.exist;
-                expect(user.permissions.length).to.equal(2);
-                expect(user.permissions).to.have.members([Permission.APPROVE_CAR, Permission.EDIT_USER_PERMISSIONS]);
-                done();
             });
         });
     });
@@ -60,7 +51,7 @@ describe('UserManager', () => {
         it('Should fetch all users from db', (done) => {
             let temp: number = 0;
             for (let i = 0; i < 5; i++) {
-                let newUser: User = new User('John', 'Doe', 'id_' + i, 'mail' + i, 'base' + i);
+                let newUser: User = new User('John', 'Doe', 'id_' + i, 'mail' + i);
                 userManager.create(newUser).then((user) => {
                     temp++;
 
@@ -84,7 +75,7 @@ describe('UserManager', () => {
         });
 
         it('Should return the user (if exists)', (done) => {
-            let newUser: User = new User('John', 'Doe', 'id_1', 'mail1', 'base1');
+            let newUser: User = new User('John', 'Doe', 'id_1', 'mail1');
             userManager.create(newUser).then((user) => {
                 expect(user).to.exist;
                 userManager.read('id_1').then((fetchedUser) => {
@@ -99,7 +90,7 @@ describe('UserManager', () => {
 
     describe('#update', () => {
         it('Should do nothing when user not exists', (done) => {
-            let userToUpdate: User = new User('John', 'Doe', 'id1', 'mail1', 'base');
+            let userToUpdate: User = new User('John', 'Doe', 'id1', 'mail1');
             userManager.update(userToUpdate).then((user) => {
                 expect(user).to.not.exist;
                 done();
@@ -107,26 +98,33 @@ describe('UserManager', () => {
         });
 
         it('Should update an existing user', (done) => {
-            let newUser: User = new User('John', 'Doe', 'id_1', 'mail1', 'base1');
+            let newUser: User = new User('John', 'Doe', 'id_1', 'mail1');
             userManager.create(newUser).then((user) => {
                 expect(user).to.exist;
-                user.firstName = 'Ron';
-                user.lastName = 'Borysovski';
-                user.mail = 'mail2';
-                user.permissions = [Permission.ADMIN];
 
-                userManager.update(user).then((updatedUser) => {
-                    expect(updatedUser).to.exist;
-                    expect(updatedUser).to.have.property('firstName', 'Ron');
-                    expect(updatedUser).to.have.property('lastName', 'Borysovski');
-                    expect(updatedUser).to.have.property('mail', 'mail2');
-                    expect(updatedUser.permissions).to.exist;
-                    expect(updatedUser.permissions.length).to.equal(1);
-                    expect(updatedUser.permissions).to.have.members([Permission.ADMIN]);
-                    done();
+                baseManager.create(new Base('test')).then(base => {
+                    expect(base).to.exist;
+
+                    user.firstName = 'Ron';
+                    user.lastName = 'Borysovski';
+                    user.mail = 'mail2';
+                    user.base = base;
+                    user.permissions = [Permission.ADMIN];
+
+                    userManager.update(user).then((updatedUser) => {
+                        expect(updatedUser).to.exist;
+                        expect(updatedUser).to.have.property('firstName', 'Ron');
+                        expect(updatedUser).to.have.property('lastName', 'Borysovski');
+                        expect(updatedUser).to.have.property('mail', 'mail2');
+                        expect(updatedUser).to.have.property('base');
+                        expect(updatedUser.base).to.have.property('name', 'test');
+                        expect(updatedUser.permissions).to.exist;
+                        expect(updatedUser.permissions.length).to.equal(1);
+                        expect(updatedUser.permissions).to.have.members([Permission.ADMIN]);
+                        done();
+                    });
                 });
             });
-
         });
     });
 
@@ -139,7 +137,7 @@ describe('UserManager', () => {
         });
 
         it('Should delete user', (done) => {
-            let newUser: User = new User('John', 'Doe', 'id_1', 'mail1', 'base1');
+            let newUser: User = new User('John', 'Doe', 'id_1', 'mail1');
             userManager.create(newUser).then((user) => {
                 expect(user).to.exist;
                 userManager.delete(user._id).then((user) => {
@@ -254,6 +252,52 @@ describe('UserManager', () => {
                                 done();
                             });
                         });
+                    });
+                });
+            });
+        });
+    });
+
+    describe('#setBase', () => {
+        it('Should do nothing when user not exists', done => {
+            let user: User = new User('fName', 'lName', 'uid', 'mail');
+
+            baseManager.create(new Base('base')).then(base => {
+                expect(base).to.exist;
+
+                userManager.setBase(user._id, base).then(user => {
+                    expect(user).to.not.exist;
+                    done();
+                });
+            });
+        });
+        it('Should throw an error when base not exists', done => {
+            let user: User = new User('fName', 'lName', 'uid', 'mail');
+            userManager.create(user).then(user => {
+                expect(user).to.exist;
+
+                userManager.setBase(user._id, new Base('base')).catch(err => {
+                    expect(err).to.exist;
+                    expect(err).to.have.property('name', 'CastError');
+                    expect(err).to.have.property('kind', 'ObjectId');
+                    expect(err).to.have.property('path', 'base');
+                    done();
+                })
+            });
+        });
+        it('Should set user\'s base', done => {
+            let user: User = new User('fName', 'lName', 'uid', 'mail');
+            userManager.create(user).then(user => {
+                expect(user).to.exist;
+                baseManager.create(new Base('base')).then(base => {
+                    expect(base).to.exist;
+
+                    userManager.setBase(user._id, base).then(user => {
+                        expect(user).to.exist;
+                        expect(user).to.have.property('base');
+                        expect(user.base).to.have.property('name', 'base');
+
+                        done();
                     });
                 });
             });
