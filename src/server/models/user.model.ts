@@ -22,7 +22,8 @@ var userSchema: mongoose.Schema = new mongoose.Schema({
         unique: true
     },
     base: {
-        type: String
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Base'
     },
     permissions: {
         type: [{
