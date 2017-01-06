@@ -4,6 +4,7 @@ import * as express from 'express';
 import { UserManager } from './../managers/user.manager';
 import { PermissionManager } from './../managers/permission.manager';
 import { User } from './../classes/user';
+import { Base } from './../classes/base';
 import { Permission } from './../classes/permission';
 import { AuthMiddleware } from './../middlewares/auth.middleware';
 
@@ -51,6 +52,18 @@ router.put('/user/:id/permissions', AuthMiddleware.requireLogin, (req: express.R
     let permissions: Permission[] = req.body.permissions;
 
     permissionManager.setPermissions(userId, permissions).then((user: User) => {
+        return res.json(user);
+    }).catch(error => {
+        console.error(error);
+        return res.sendStatus(500);
+    });
+});
+
+router.put('/user/:id/base', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
+    let userId = req.params.id;
+    let base: Base = req.body.base;
+
+    userManager.setBase(userId, base).then((user: User) => {
         return res.json(user);
     }).catch(error => {
         console.error(error);

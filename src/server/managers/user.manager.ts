@@ -1,12 +1,13 @@
 import { IDAO } from './../interfaces/IDAO';
 import { User } from './../classes/user';
+import { Base } from './../classes/base';
 import * as Promise from 'bluebird';
 import * as UserModel from './../models/user.model';
 
 export class UserManager implements IDAO<User>{
     public all(): Promise<any> {
         let deferred = Promise.defer();
-        UserModel.find((err, users) => {
+        UserModel.find().populate('base').exec((err, users) => {
             if (err) {
                 deferred.reject(err);
             } else {
@@ -36,7 +37,8 @@ export class UserManager implements IDAO<User>{
             if (err) {
                 deferred.reject(err);
             } else {
-                deferred.resolve(user);
+                // deferred.resolve(user);
+                this.populateBaseAndResolve(user, deferred);
             }
         });
 
@@ -49,13 +51,13 @@ export class UserManager implements IDAO<User>{
             if (err) {
                 deferred.reject(err);
             } else {
-                deferred.resolve(user);
+                // deferred.resolve(user);
+                this.populateBaseAndResolve(user, deferred);
             }
         });
 
         return deferred.promise;
     }
-
 
     public delete(id: string): Promise<any> {
         let deferred = Promise.defer();
@@ -87,7 +89,7 @@ export class UserManager implements IDAO<User>{
             },
             this.filterForName(searchTerm)
             ]
-        }, (err, users) => {
+        }).populate('base').exec((err, users) => {
             if (err) {
                 deferred.reject(err);
             } else {
@@ -140,5 +142,29 @@ export class UserManager implements IDAO<User>{
             }
         }
         return filter;
+    }
+
+    public setBase(userId: string, base: Base): Promise<any> {
+        let deferred = Promise.defer();
+
+        UserModel.findByIdAndUpdate(userId, { base: base }, { new: true }).populate('base').exec((err, user) => {
+            if (err) {
+                deferred.reject(err);
+            } else {
+                deferred.resolve(user);
+            }
+        });
+
+        return deferred.promise;
+    }
+
+    private populateBaseAndResolve(user: User, deferred: Promise.Resolver<{}>) {
+        UserModel.populate(user, { path: 'base' }, (err, user) => {
+            if (err) {
+                deferred.reject(err);
+            } else {
+                deferred.resolve(user);
+            }
+        });
     }
 }
