@@ -9,67 +9,9 @@ describe('PermissionManager', () => {
     let permissionManager: PermissionManager = new PermissionManager();
     let userManager: UserManager = new UserManager();
 
-    describe('#hasPermission', () => {
-        it('Should return false if user don\'t have requested permissions', (done) => {
-            let user: User = new User('Ron', 'Borysovski', '123', 'mail', 'base');
-            let hasPermission = permissionManager.hasPermissions(user, [Permission.ADMIN]);
-            expect(hasPermission).to.be.false;
-            done();
-        });
-
-        it('Should return true when no permissions required', done => {
-            let user: User = new User('Ron', 'Borysovski', '123', 'mail', 'base');
-            let hasPermission = permissionManager.hasPermissions(user, []);
-            expect(hasPermission).to.be.true;
-
-            user.permissions = [Permission.APPROVE_CAR];
-            hasPermission = permissionManager.hasPermissions(user, []);
-            expect(hasPermission).to.be.true;
-
-            hasPermission = permissionManager.hasPermissions(user, null);
-            expect(hasPermission).to.be.true;
-
-            done();
-        });
-
-        it('Should return true when user has the right permissions', done => {
-            let user: User = new User('Ron', 'Borysovski', '123', 'mail', 'base', [Permission.APPROVE_CAR, Permission.APPROVE_SOLDIER]);
-            let hasPermission = permissionManager.hasPermissions(user, []);
-            expect(hasPermission).to.be.true;
-
-            hasPermission = permissionManager.hasPermissions(user, [Permission.APPROVE_CAR]);
-            expect(hasPermission).to.be.true;
-
-            hasPermission = permissionManager.hasPermissions(user, [Permission.APPROVE_SOLDIER]);
-            expect(hasPermission).to.be.true;
-
-            hasPermission = permissionManager.hasPermissions(user, [Permission.APPROVE_CAR, Permission.APPROVE_SOLDIER]);
-            expect(hasPermission).to.be.true;
-
-            done();
-        });
-
-        it('Should return false when user don\'t have enough permissions', done => {
-            let user: User = new User('Ron', 'Borysovski', '123', 'mail', 'base', [Permission.APPROVE_CAR, Permission.APPROVE_SOLDIER]);
-            let hasPermission = permissionManager.hasPermissions(user, [Permission.ADMIN]);
-            expect(hasPermission).to.be.false;
-
-            hasPermission = permissionManager.hasPermissions(user, [Permission.APPROVE_CAR, Permission.ADMIN]);
-            expect(hasPermission).to.be.false;
-
-            hasPermission = permissionManager.hasPermissions(user, [Permission.APPROVE_SOLDIER, Permission.APPROVE_CIVILIAN]);
-            expect(hasPermission).to.be.false;
-
-            hasPermission = permissionManager.hasPermissions(user, [Permission.APPROVE_CAR, Permission.APPROVE_SOLDIER, Permission.NORMAL_USER]);
-            expect(hasPermission).to.be.false;
-
-            done();
-        });
-    });
-
     describe('#addPermission', () => {
         it('Should do nothing when user not in DB', done => {
-            let user: User = new User('Ron', 'Borysovski', '123', 'mail', 'base');
+            let user: User = new User('Ron', 'Borysovski', '123', 'mail');
             permissionManager.addPermissions(user, Permission.ADMIN).then((user: User) => {
                 expect(user).to.not.exist;
                 done();
@@ -77,7 +19,7 @@ describe('PermissionManager', () => {
         });
 
         it('Should do nothing when no permissions are passed', done => {
-            userManager.create(new User('Ron', 'Borysovski', '123', 'mail', 'base')).then((user: User) => {
+            userManager.create(new User('Ron', 'Borysovski', '123', 'mail')).then((user: User) => {
                 expect(user).to.exist;
                 expect(user.permissions).to.exist;
                 expect(user.permissions.length).to.eql(0);
@@ -93,7 +35,7 @@ describe('PermissionManager', () => {
         });
 
         it('Should add single permission to existing user', done => {
-            userManager.create(new User('Ron', 'Borysovski', '123', 'mail', 'base')).then((user: User) => {
+            userManager.create(new User('Ron', 'Borysovski', '123', 'mail')).then((user: User) => {
                 expect(user).to.exist;
                 expect(user.permissions).to.exist;
                 expect(user.permissions.length).to.eql(0);
@@ -110,7 +52,7 @@ describe('PermissionManager', () => {
         });
 
         it('Should add multiple permissions to existing user', done => {
-            userManager.create(new User('Ron', 'Borysovski', '123', 'mail', 'base')).then((user: User) => {
+            userManager.create(new User('Ron', 'Borysovski', '123', 'mail')).then((user: User) => {
                 expect(user).to.exist;
                 expect(user.permissions).to.exist;
                 expect(user.permissions.length).to.eql(0);
@@ -127,7 +69,7 @@ describe('PermissionManager', () => {
         });
 
         it('Should not add duplicate permissions if already exists', done => {
-            userManager.create(new User('Ron', 'Borysovski', '123', 'mail', 'base')).then((user: User) => {
+            userManager.create(new User('Ron', 'Borysovski', '123', 'mail')).then((user: User) => {
                 expect(user).to.exist;
                 expect(user.permissions).to.exist;
                 expect(user.permissions.length).to.eql(0);
@@ -146,7 +88,7 @@ describe('PermissionManager', () => {
 
     describe('#removePermissions', () => {
         it('Should do nothing when user not exists in DB', done => {
-            let user: User = new User('Ron', 'Borysovski', '123', 'mail', 'base');
+            let user: User = new User('Ron', 'Borysovski', '123', 'mail');
             permissionManager.removePermissions(user, Permission.ADMIN).then((user: User) => {
                 expect(user).to.not.exist;
                 done();
@@ -154,7 +96,7 @@ describe('PermissionManager', () => {
         });
 
         it('Should do nothing when user doesn\'t have the permissions to delete', done => {
-            userManager.create(new User('Ron', 'Borysovski', '123', 'mail', 'base')).then((user: User) => {
+            userManager.create(new User('Ron', 'Borysovski', '123', 'mail')).then((user: User) => {
                 permissionManager.removePermissions(user, Permission.ADMIN).then((user: User) => {
                     expect(user).to.exist;
                     expect(user).to.have.property('permissions');
@@ -165,7 +107,7 @@ describe('PermissionManager', () => {
         });
 
         it('Should remove a single permission when exists', done => {
-            userManager.create(new User('Ron', 'Borysovski', '123', 'mail', 'base')).then((user: User) => {
+            userManager.create(new User('Ron', 'Borysovski', '123', 'mail')).then((user: User) => {
                 permissionManager.addPermissions(user, Permission.ADMIN, Permission.APPROVE_CAR).then((user: User) => {
                     expect(user).to.exist;
                     expect(user.permissions).to.exist;
@@ -184,7 +126,7 @@ describe('PermissionManager', () => {
         });
 
         it('Should remove multiple permission when exists', done => {
-            userManager.create(new User('Ron', 'Borysovski', '123', 'mail', 'base')).then((user: User) => {
+            userManager.create(new User('Ron', 'Borysovski', '123', 'mail')).then((user: User) => {
                 permissionManager.addPermissions(user, Permission.EDIT_USER_PERMISSIONS, Permission.ADMIN, Permission.APPROVE_CAR).then((user: User) => {
                     expect(user).to.exist;
                     expect(user.permissions).to.exist;
@@ -212,7 +154,7 @@ describe('PermissionManager', () => {
         });
 
         it('Should remove all permissions when no permissions passed', done => {
-            userManager.create(new User('Ron', 'Borysovski', '123', 'mail', 'base')).then((user: User) => {
+            userManager.create(new User('Ron', 'Borysovski', '123', 'mail')).then((user: User) => {
                 permissionManager.addPermissions(user, ...[Permission.ADMIN, Permission.APPROVE_CAR]).then(user => {
                     expect(user.permissions).to.have.length(2);
                     permissionManager.setPermissions(user._id, []).then((user: User) => {
@@ -225,7 +167,7 @@ describe('PermissionManager', () => {
         });
 
         it('Should set permissions', done => {
-            userManager.create(new User('Ron', 'Borysovski', '123', 'mail', 'base')).then((user: User) => {
+            userManager.create(new User('Ron', 'Borysovski', '123', 'mail')).then((user: User) => {
                 permissionManager.setPermissions(user._id, [Permission.ADMIN, Permission.APPROVE_CAR, Permission.APPROVE_SOLDIER]).then((user: User) => {
                     expect(user).to.exist;
                     expect(user.permissions).to.have.length(3);
@@ -236,7 +178,7 @@ describe('PermissionManager', () => {
         });
 
         it('Should not set duplicate permissions', done => {
-            userManager.create(new User('Ron', 'Borysovski', '123', 'mail', 'base')).then((user: User) => {
+            userManager.create(new User('Ron', 'Borysovski', '123', 'mail')).then((user: User) => {
                 permissionManager.setPermissions(user._id, [Permission.ADMIN, Permission.APPROVE_CAR, Permission.ADMIN]).then((user: User) => {
                     expect(user).to.exist;
                     expect(user.permissions).to.have.length(2);
@@ -246,4 +188,66 @@ describe('PermissionManager', () => {
             });
         });
     });
+
+    describe('#hasPermission', () => {
+        it('Should return false if user don\'t have requested permissions', (done) => {
+            let user: User = new User('Ron', 'Borysovski', '123', 'mail');
+            let hasPermission = permissionManager.hasPermissions(user, [Permission.ADMIN]);
+            expect(hasPermission).to.be.false;
+            done();
+        });
+
+        it('Should return true when no permissions required', done => {
+            let user: User = new User('Ron', 'Borysovski', '123', 'mail');
+            let hasPermission = permissionManager.hasPermissions(user, []);
+            expect(hasPermission).to.be.true;
+
+            user.permissions = [Permission.APPROVE_CAR];
+            hasPermission = permissionManager.hasPermissions(user, []);
+            expect(hasPermission).to.be.true;
+
+            hasPermission = permissionManager.hasPermissions(user, null);
+            expect(hasPermission).to.be.true;
+
+            done();
+        });
+
+        it('Should return true when user has the right permissions', done => {
+            let user: User = new User('Ron', 'Borysovski', '123', 'mail');
+            user.permissions = [Permission.APPROVE_CAR, Permission.APPROVE_SOLDIER];
+            
+            let hasPermission = permissionManager.hasPermissions(user, []);
+            expect(hasPermission).to.be.true;
+
+            hasPermission = permissionManager.hasPermissions(user, [Permission.APPROVE_CAR]);
+            expect(hasPermission).to.be.true;
+
+            hasPermission = permissionManager.hasPermissions(user, [Permission.APPROVE_SOLDIER]);
+            expect(hasPermission).to.be.true;
+
+            hasPermission = permissionManager.hasPermissions(user, [Permission.APPROVE_CAR, Permission.APPROVE_SOLDIER]);
+            expect(hasPermission).to.be.true;
+
+            done();
+        });
+
+        it('Should return false when user don\'t have enough permissions', done => {
+            let user: User = new User('Ron', 'Borysovski', '123', 'mail');
+            user.permissions = [Permission.APPROVE_CAR, Permission.APPROVE_SOLDIER];
+            let hasPermission = permissionManager.hasPermissions(user, [Permission.ADMIN]);
+            expect(hasPermission).to.be.false;
+
+            hasPermission = permissionManager.hasPermissions(user, [Permission.APPROVE_CAR, Permission.ADMIN]);
+            expect(hasPermission).to.be.false;
+
+            hasPermission = permissionManager.hasPermissions(user, [Permission.APPROVE_SOLDIER, Permission.APPROVE_CIVILIAN]);
+            expect(hasPermission).to.be.false;
+
+            hasPermission = permissionManager.hasPermissions(user, [Permission.APPROVE_CAR, Permission.APPROVE_SOLDIER, Permission.NORMAL_USER]);
+            expect(hasPermission).to.be.false;
+
+            done();
+        });
+    });
+
 });
