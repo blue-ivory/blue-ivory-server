@@ -1,6 +1,6 @@
 {
   "name": "blue-ivory",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "description": "",
   "main": "build/server/server.js",
   "scripts": {
