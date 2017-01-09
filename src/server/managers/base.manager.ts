@@ -76,7 +76,13 @@ export class BaseManager implements IDAO<Base>{
         let deferred = Promise.defer();
         let re = new RegExp(searchTerm, 'i');
 
-        BaseModel.find({ name: re }, (err, bases) => {
+
+        BaseModel.aggregate().match({ name: re }).lookup({
+            from: "users",
+            localField: "_id",
+            foreignField: "base",
+            as: "users"
+        }).project({ name: 1, users: { $size: "$users" } }).exec((err, bases) => {
             if (err) {
                 deferred.reject(err);
             } else {
