@@ -147,7 +147,7 @@ export class UserManager implements IDAO<User>{
     public setBase(userId: string, base: Base): Promise<any> {
         let deferred = Promise.defer();
 
-        UserModel.findByIdAndUpdate(userId, { base: base }, { new: true }).populate('base').exec((err, user) => {
+        UserModel.findByIdAndUpdate(userId, { base: base, permissions: [] }, { new: true }).populate('base').exec((err, user) => {
             if (err) {
                 deferred.reject(err);
             } else {

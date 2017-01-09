@@ -1,6 +1,7 @@
 /// <reference path="../../typings/index.d.ts" />
 import { UserManager } from './../server/managers/user.manager';
 import { BaseManager } from './../server/managers/base.manager';
+import { PermissionManager } from './../server/managers/permission.manager';
 import { User } from './../server/classes/user';
 import { Permission } from './../server/classes/permission';
 import { Base } from './../server/classes/base';
@@ -9,6 +10,7 @@ import { expect } from 'chai';
 describe('UserManager', () => {
     let userManager: UserManager = new UserManager();
     let baseManager: BaseManager = new BaseManager();
+    let permissionManager: PermissionManager = new PermissionManager();
 
     describe('#create', () => {
         it('Should create a user', (done) => {
@@ -298,6 +300,33 @@ describe('UserManager', () => {
                         expect(user.base).to.have.property('name', 'base');
 
                         done();
+                    });
+                });
+            });
+        });
+        it('Should remove user\'s permission when changing base', done => {
+            let user: User = new User('fName', 'lName', 'uid', 'mail');
+            userManager.create(user).then(user => {
+                expect(user).to.exist;
+                permissionManager.setPermissions(user._id, [Permission.APPROVE_CIVILIAN, Permission.APPROVE_CAR]).then(user => {
+                    expect(user).to.exist;
+                    expect(user).to.have.property('permissions');
+                    expect(user.permissions).to.be.an('array');
+                    expect(user.permissions).to.have.length(2);
+
+                    baseManager.create(new Base('base')).then(base => {
+                        expect(base).to.exist;
+
+                        userManager.setBase(user._id, base).then(user => {
+                            expect(user).to.exist;
+                            expect(user).to.have.property('base');
+                            expect(user.base).to.have.property('name', 'base');
+                            expect(user).to.have.property('permissions');
+                            expect(user.permissions).to.be.an('array');
+                            expect(user.permissions).to.have.length(0);
+
+                            done();
+                        });
                     });
                 });
             });
