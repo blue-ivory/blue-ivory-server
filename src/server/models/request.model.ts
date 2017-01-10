@@ -51,7 +51,9 @@ var requestSchema: mongoose.Schema = new mongoose.Schema({
         default: false
     },
     base: {
-        type: String
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Base',
+        required: true
     }
 });
 

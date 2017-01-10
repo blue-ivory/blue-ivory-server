@@ -82,7 +82,16 @@ export class BaseManager implements IDAO<Base>{
             localField: "_id",
             foreignField: "base",
             as: "users"
-        }).project({ name: 1, users: { $size: "$users" } }).exec((err, bases) => {
+        }).lookup({
+            from: "requests",
+            localField: "_id",
+            foreignField: "base",
+            as: "requests"
+        }).project({
+            name: 1,
+            users: { $size: "$users" },
+            requests: { $size: "$requests" }
+        }).exec((err, bases) => {
             if (err) {
                 deferred.reject(err);
             } else {

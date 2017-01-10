@@ -229,6 +229,8 @@ describe('BaseManager', () => {
                                         expect(bases[0]).to.have.property('name', 'Dolphin');
                                         expect(bases[0]).to.have.property('users');
                                         expect(bases[0].users).to.eql(2);
+                                        expect(bases[0]).to.have.property('requests');
+                                        expect(bases[0].requests).to.eql(0);                                        
 
                                         done();
                                     })
