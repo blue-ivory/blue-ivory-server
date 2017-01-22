@@ -1,13 +1,13 @@
 import { IDAO } from './../interfaces/IDAO';
 import { User } from './../classes/user';
-import { Base } from './../classes/base';
+import { Organization } from './../classes/organization';
 import * as Promise from 'bluebird';
 import * as UserModel from './../models/user.model';
 
 export class UserManager implements IDAO<User>{
     public all(): Promise<any> {
         let deferred = Promise.defer();
-        UserModel.find().populate('base').exec((err, users) => {
+        UserModel.find().populate('organization').exec((err, users) => {
             if (err) {
                 deferred.reject(err);
             } else {
@@ -38,7 +38,7 @@ export class UserManager implements IDAO<User>{
                 deferred.reject(err);
             } else {
                 // deferred.resolve(user);
-                this.populateBaseAndResolve(user, deferred);
+                this.populateOrganizationAndResolve(user, deferred);
             }
         });
 
@@ -52,7 +52,7 @@ export class UserManager implements IDAO<User>{
                 deferred.reject(err);
             } else {
                 // deferred.resolve(user);
-                this.populateBaseAndResolve(user, deferred);
+                this.populateOrganizationAndResolve(user, deferred);
             }
         });
 
@@ -89,7 +89,7 @@ export class UserManager implements IDAO<User>{
             },
             this.filterForName(searchTerm)
             ]
-        }).populate('base').exec((err, users) => {
+        }).populate('organization').exec((err, users) => {
             if (err) {
                 deferred.reject(err);
             } else {
@@ -144,10 +144,10 @@ export class UserManager implements IDAO<User>{
         return filter;
     }
 
-    public setBase(userId: string, base: Base): Promise<any> {
+    public setOrganization(userId: string, organization: Organization): Promise<any> {
         let deferred = Promise.defer();
 
-        UserModel.findByIdAndUpdate(userId, { base: base, permissions: [] }, { new: true }).populate('base').exec((err, user) => {
+        UserModel.findByIdAndUpdate(userId, { organization: organization, permissions: [] }, { new: true }).populate('organization').exec((err, user) => {
             if (err) {
                 deferred.reject(err);
             } else {
@@ -158,8 +158,8 @@ export class UserManager implements IDAO<User>{
         return deferred.promise;
     }
 
-    private populateBaseAndResolve(user: User, deferred: Promise.Resolver<{}>) {
-        UserModel.populate(user, { path: 'base' }, (err, user) => {
+    private populateOrganizationAndResolve(user: User, deferred: Promise.Resolver<{}>) {
+        UserModel.populate(user, { path: 'organization' }, (err, user) => {
             if (err) {
                 deferred.reject(err);
             } else {

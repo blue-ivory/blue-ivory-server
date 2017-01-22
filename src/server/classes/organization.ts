@@ -1,4 +1,4 @@
-export class Base {
+export class Organization {
     // TODO : Add workflow to data members
 
     public name: string;

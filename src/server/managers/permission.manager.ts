@@ -63,7 +63,7 @@ export class PermissionManager {
 
         UserModel.findOneAndUpdate({ _id: userId },
             { $set: { permissions: uniquePermissions } },
-            { new: true }).populate('base')
+            { new: true }).populate('organization')
             .exec((err, user: User) => {
                 if (err) {
                     deferred.reject(err);

@@ -1,31 +1,31 @@
-import { Base } from './../classes/base';
+import { Organization } from './../classes/organization';
 import { IDAO } from '../interfaces/IDAO';
-import * as BaseModel from './../models/base.model';
+import * as OrganizationModel from './../models/organization.model';
 import * as Promise from 'bluebird';
 
-export class BaseManager implements IDAO<Base>{
+export class OrganizationManager implements IDAO<Organization>{
     public all(): Promise<any> {
         let deferred = Promise.defer();
 
-        BaseModel.find({}, (err, bases) => {
+        OrganizationModel.find({}, (err, organizations) => {
             if (err) {
                 deferred.reject(err);
             } else {
-                deferred.resolve(bases);
+                deferred.resolve(organizations);
             }
         });
 
         return deferred.promise;
     }
-    public create(base: Base): Promise<any> {
+    public create(organization: Organization): Promise<any> {
         let deferred = Promise.defer();
-        let baseModel = new BaseModel(base);
+        let organizationModel = new OrganizationModel(organization);
 
-        baseModel.save((err, base) => {
+        organizationModel.save((err, organization) => {
             if (err) {
                 deferred.reject(err);
             } else {
-                deferred.resolve(base);
+                deferred.resolve(organization);
             }
         });
 
@@ -34,25 +34,25 @@ export class BaseManager implements IDAO<Base>{
     public read(id): Promise<any> {
         let deferred = Promise.defer();
 
-        BaseModel.findById(id, (err, base) => {
+        OrganizationModel.findById(id, (err, organization) => {
             if (err) {
                 deferred.reject(err);
             } else {
-                deferred.resolve(base);
+                deferred.resolve(organization);
             }
         });
 
         return deferred.promise;
     }
-    public update(base: Base): Promise<any> {
+    public update(organization: Organization): Promise<any> {
         let deferred = Promise.defer();
 
-        BaseModel.findByIdAndUpdate(base._id, base,
-            { new: true }, (err, base) => {
+        OrganizationModel.findByIdAndUpdate(organization._id, organization,
+            { new: true }, (err, organization) => {
                 if (err) {
                     deferred.reject(err);
                 } else {
-                    deferred.resolve(base);
+                    deferred.resolve(organization);
                 }
             });
 
@@ -61,11 +61,11 @@ export class BaseManager implements IDAO<Base>{
     public delete(id): Promise<any> {
         let deferred = Promise.defer();
 
-        BaseModel.findByIdAndRemove(id, (err, base) => {
+        OrganizationModel.findByIdAndRemove(id, (err, organization) => {
             if (err) {
                 deferred.reject(err);
             } else {
-                deferred.resolve(base);
+                deferred.resolve(organization);
             }
         });
 
@@ -77,25 +77,25 @@ export class BaseManager implements IDAO<Base>{
         let re = new RegExp(searchTerm, 'i');
 
 
-        BaseModel.aggregate().match({ name: re }).lookup({
+        OrganizationModel.aggregate().match({ name: re }).lookup({
             from: "users",
             localField: "_id",
-            foreignField: "base",
+            foreignField: "organization",
             as: "users"
         }).lookup({
             from: "requests",
             localField: "_id",
-            foreignField: "base",
+            foreignField: "organization",
             as: "requests"
         }).project({
             name: 1,
             users: { $size: "$users" },
             requests: { $size: "$requests" }
-        }).exec((err, bases) => {
+        }).exec((err, organizations) => {
             if (err) {
                 deferred.reject(err);
             } else {
-                deferred.resolve(bases);
+                deferred.resolve(organizations);
             }
         });
 

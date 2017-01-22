@@ -4,7 +4,7 @@ import * as express from 'express';
 import { UserManager } from './../managers/user.manager';
 import { PermissionManager } from './../managers/permission.manager';
 import { User } from './../classes/user';
-import { Base } from './../classes/base';
+import { Organization } from './../classes/organization';
 import { Permission } from './../classes/permission';
 import { AuthMiddleware } from './../middlewares/auth.middleware';
 
@@ -21,6 +21,10 @@ router.get('/user', AuthMiddleware.requireLogin, (req: express.Request, res: exp
         console.error(error);
         return res.sendStatus(500);
     });
+});
+
+router.get('/user/current', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
+    return res.json(req.user);
 });
 
 router.get('/user/:id', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
@@ -59,11 +63,11 @@ router.put('/user/:id/permissions', AuthMiddleware.requireLogin, (req: express.R
     });
 });
 
-router.put('/user/:id/base', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
+router.put('/user/:id/organization', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
     let userId = req.params.id;
-    let base: Base = req.body.base;
+    let organization: Organization = req.body.organization;
 
-    userManager.setBase(userId, base).then((user: User) => {
+    userManager.setOrganization(userId, organization).then((user: User) => {
         return res.json(user);
     }).catch(error => {
         console.error(error);

@@ -21,9 +21,9 @@ var userSchema: mongoose.Schema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    base: {
+    organization: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Base'
+        ref: 'Organization'
     },
     permissions: {
         type: [{

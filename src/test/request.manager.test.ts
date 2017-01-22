@@ -4,7 +4,7 @@ import { RequestManager } from './../server/managers/request.manager';
 import { User } from './../server/classes/user';
 import { Request } from './../server/classes/request';
 import { Visitor } from './../server/classes/visitor';
-import { Base } from './../server/classes/base';
+import { Organization } from './../server/classes/organization';
 import { expect } from 'chai';
 
 describe('RequestManager', () => {
@@ -19,7 +19,7 @@ describe('RequestManager', () => {
             requestManager.create(request).catch(error => {
                 expect(error).to.exist;
                 expect(error).to.have.property('errors');
-                // expect(error.errors).to.have.property('base');
+                // expect(error.errors).to.have.property('organization');
                 expect(error.errors).to.have.property('requestor');
                 expect(error.errors).to.have.property('startDate');
                 expect(error.errors).to.have.property('endDate');

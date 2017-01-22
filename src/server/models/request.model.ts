@@ -50,9 +50,9 @@ var requestSchema: mongoose.Schema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    base: {
+    organization: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Base',
+        ref: 'Organization',
         required: true
     }
 });

@@ -41,7 +41,7 @@ router.post('/request', AuthMiddleware.requireLogin, (req: express.Request, res:
 
     // Set requestor as current user
     request.requestor = req.user._id;
-    request.base = req.user.base._id;
+    request.organization = req.user.organization._id;
 
     // Create request
     requestManager.create(request).then((request) => {

@@ -1,12 +1,12 @@
 import { Permission } from './permission';
-import { Base } from './base';
+import { Organization } from './organization';
 
 export class User {
     public firstName: string;
     public lastName: string;
     public _id: string;
     public mail: string;
-    public base: Base;
+    public organization: Organization;
     public permissions: Permission[];
 
     constructor(firstName: string, lastName: string, uniqueId: string, mail: string) {

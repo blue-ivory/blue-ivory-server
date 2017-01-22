@@ -1,15 +1,15 @@
 /// <reference path="../../typings/index.d.ts" />
 import { UserManager } from './../server/managers/user.manager';
-import { BaseManager } from './../server/managers/base.manager';
+import { OrganizationManager } from './../server/managers/organization.manager';
 import { PermissionManager } from './../server/managers/permission.manager';
 import { User } from './../server/classes/user';
 import { Permission } from './../server/classes/permission';
-import { Base } from './../server/classes/base';
+import { Organization } from './../server/classes/organization';
 import { expect } from 'chai';
 
 describe('UserManager', () => {
     let userManager: UserManager = new UserManager();
-    let baseManager: BaseManager = new BaseManager();
+    let organizationManager: OrganizationManager = new OrganizationManager();
     let permissionManager: PermissionManager = new PermissionManager();
 
     describe('#create', () => {
@@ -104,13 +104,13 @@ describe('UserManager', () => {
             userManager.create(newUser).then((user) => {
                 expect(user).to.exist;
 
-                baseManager.create(new Base('test')).then(base => {
-                    expect(base).to.exist;
+                organizationManager.create(new Organization('test')).then(organization => {
+                    expect(organization).to.exist;
 
                     user.firstName = 'Ron';
                     user.lastName = 'Borysovski';
                     user.mail = 'mail2';
-                    user.base = base;
+                    user.organization = organization;
                     user.permissions = [Permission.ADMIN];
 
                     userManager.update(user).then((updatedUser) => {
@@ -118,8 +118,8 @@ describe('UserManager', () => {
                         expect(updatedUser).to.have.property('firstName', 'Ron');
                         expect(updatedUser).to.have.property('lastName', 'Borysovski');
                         expect(updatedUser).to.have.property('mail', 'mail2');
-                        expect(updatedUser).to.have.property('base');
-                        expect(updatedUser.base).to.have.property('name', 'test');
+                        expect(updatedUser).to.have.property('organization');
+                        expect(updatedUser.organization).to.have.property('name', 'test');
                         expect(updatedUser.permissions).to.exist;
                         expect(updatedUser.permissions.length).to.equal(1);
                         expect(updatedUser.permissions).to.have.members([Permission.ADMIN]);
@@ -260,51 +260,51 @@ describe('UserManager', () => {
         });
     });
 
-    describe('#setBase', () => {
+    describe('#setOrganization', () => {
         it('Should do nothing when user not exists', done => {
             let user: User = new User('fName', 'lName', 'uid', 'mail');
 
-            baseManager.create(new Base('base')).then(base => {
-                expect(base).to.exist;
+            organizationManager.create(new Organization('organization')).then(organization => {
+                expect(organization).to.exist;
 
-                userManager.setBase(user._id, base).then(user => {
+                userManager.setOrganization(user._id, organization).then(user => {
                     expect(user).to.not.exist;
                     done();
                 });
             });
         });
-        it('Should throw an error when base not exists', done => {
+        it('Should throw an error when organization not exists', done => {
             let user: User = new User('fName', 'lName', 'uid', 'mail');
             userManager.create(user).then(user => {
                 expect(user).to.exist;
 
-                userManager.setBase(user._id, new Base('base')).catch(err => {
+                userManager.setOrganization(user._id, new Organization('organization')).catch(err => {
                     expect(err).to.exist;
                     expect(err).to.have.property('name', 'CastError');
                     expect(err).to.have.property('kind', 'ObjectId');
-                    expect(err).to.have.property('path', 'base');
+                    expect(err).to.have.property('path', 'organization');
                     done();
                 })
             });
         });
-        it('Should set user\'s base', done => {
+        it('Should set user\'s organization', done => {
             let user: User = new User('fName', 'lName', 'uid', 'mail');
             userManager.create(user).then(user => {
                 expect(user).to.exist;
-                baseManager.create(new Base('base')).then(base => {
-                    expect(base).to.exist;
+                organizationManager.create(new Organization('organization')).then(organization => {
+                    expect(organization).to.exist;
 
-                    userManager.setBase(user._id, base).then(user => {
+                    userManager.setOrganization(user._id, organization).then(user => {
                         expect(user).to.exist;
-                        expect(user).to.have.property('base');
-                        expect(user.base).to.have.property('name', 'base');
+                        expect(user).to.have.property('organization');
+                        expect(user.organization).to.have.property('name', 'organization');
 
                         done();
                     });
                 });
             });
         });
-        it('Should remove user\'s permission when changing base', done => {
+        it('Should remove user\'s permission when changing organization', done => {
             let user: User = new User('fName', 'lName', 'uid', 'mail');
             userManager.create(user).then(user => {
                 expect(user).to.exist;
@@ -314,13 +314,13 @@ describe('UserManager', () => {
                     expect(user.permissions).to.be.an('array');
                     expect(user.permissions).to.have.length(2);
 
-                    baseManager.create(new Base('base')).then(base => {
-                        expect(base).to.exist;
+                    organizationManager.create(new Organization('organization')).then(organization => {
+                        expect(organization).to.exist;
 
-                        userManager.setBase(user._id, base).then(user => {
+                        userManager.setOrganization(user._id, organization).then(user => {
                             expect(user).to.exist;
-                            expect(user).to.have.property('base');
-                            expect(user.base).to.have.property('name', 'base');
+                            expect(user).to.have.property('organization');
+                            expect(user.organization).to.have.property('name', 'organization');
                             expect(user).to.have.property('permissions');
                             expect(user.permissions).to.be.an('array');
                             expect(user.permissions).to.have.length(0);
