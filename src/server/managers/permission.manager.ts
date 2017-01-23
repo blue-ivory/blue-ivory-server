@@ -37,20 +37,15 @@ export class PermissionManager {
             } else if (!user) {
                 deferred.reject('User not found');
             } else {
-                let organizationPermissionsExists: boolean = true;
-                let organizationPermissions = user.permissions
-                    .find(permission => {
-                        return permission.organization._id.equals(organization._id);
-                    });
+                let organizationPermissionsExists: boolean = false;
 
+                user.permissions.forEach(permission => {
+                    if (permission.organization._id.equals(organization._id)) {
+                        organizationPermissionsExists = true;
+                    }
+                });
 
-                if (!organizationPermissions) {
-                    organizationPermissionsExists = false;
-                    organizationPermissions = { organization: organization, permissions: [] };
-                }
-
-                organizationPermissions.permissions = uniquePermissions;
-
+                let organizationPermissions = { organization: organization, permissions: uniquePermissions };
                 let updateFilter = {
                     _id: userId
                 };
@@ -62,13 +57,11 @@ export class PermissionManager {
                 let updateValue = {};
 
                 if (uniquePermissions.length === 0) {
-                    updateValue = {
-                        '$pull': {
-                            'permissions': {
-                                'organization': organization._id
-                            }
+                    updateValue['$pull'] = {
+                        'permissions': {
+                            'organization': organization._id
                         }
-                    }
+                    };
                 } else {
                     if (organizationPermissionsExists) {
                         updateValue['$set'] = {
