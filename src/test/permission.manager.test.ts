@@ -103,6 +103,30 @@ describe('PermissionManager', () => {
             });
         });
 
+        it('Should do nothing when no permissions are given', done => {
+            organizationManager.create(new Organization('test')).then(organization => {
+                expect(organization).to.exist;
+
+                userManager.create(new User('fName', 'lName', 'uid', 'mail')).then((user: User) => {
+                    expect(user).to.exist;
+
+                    userManager.setOrganization('uid', organization).then((user: User) => {
+                        expect(user).to.exist;
+
+                        permissionManager.setPermissions('uid', organization, []).then((user: User) => {
+                            expect(user).to.exist;
+
+                            expect(user).to.have.property('permissions');
+                            expect(user.permissions).to.be.an('array');
+                            expect(user.permissions).to.have.length(0);
+
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+
         it('Should remove all permissions when no permissions passed', done => {
             organizationManager.create(new Organization('test1')).then((organization: Organization) => {
                 expect(organization).to.exist;
