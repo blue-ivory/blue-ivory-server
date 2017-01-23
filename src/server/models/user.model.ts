@@ -4,6 +4,26 @@ import * as mongoose from 'mongoose';
 import { User } from './../classes/user';
 import { Permission } from './../classes/permission';
 
+var permissionSchema: mongoose.Schema = new mongoose.Schema({
+    organization: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Organization'
+    },
+    permissions: {
+        type: [{
+            type: String,
+            enum: [
+                Permission.ADMIN,
+                Permission.APPROVE_CAR,
+                Permission.APPROVE_CIVILIAN,
+                Permission.APPROVE_SOLDIER,
+                Permission.EDIT_USER_PERMISSIONS,
+                Permission.NORMAL_USER
+            ]
+        }],
+    }
+}, { _id: false });
+
 var userSchema: mongoose.Schema = new mongoose.Schema({
     _id: {
         type: String
@@ -25,20 +45,7 @@ var userSchema: mongoose.Schema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Organization'
     },
-    permissions: {
-        type: [{
-            type: String,
-            enum: [
-                Permission.ADMIN,
-                Permission.APPROVE_CAR,
-                Permission.APPROVE_CIVILIAN,
-                Permission.APPROVE_SOLDIER,
-                Permission.EDIT_USER_PERMISSIONS,
-                Permission.NORMAL_USER
-            ]
-        }],
-        default: []
-    }
+    permissions: [permissionSchema]
 });
 
 userSchema.virtual('uniqueId').get(() => {
