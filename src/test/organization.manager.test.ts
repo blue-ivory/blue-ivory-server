@@ -161,7 +161,6 @@ describe('OrganizationManager', () => {
                 organizationManager.create(new Organization('name2')).then(() => {
                     organizationManager.create(new Organization('name3')).then(() => {
                         organizationManager.search('').then(organizations => {
-                            console.log(organizations);
                             expect(organizations).to.exist;
                             expect(organizations).to.be.an('array');
                             expect(organizations).to.have.length(3);
