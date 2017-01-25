@@ -147,7 +147,7 @@ export class UserManager implements IDAO<User>{
     public setOrganization(userId: string, organization: Organization): Promise<any> {
         let deferred = Promise.defer();
 
-        UserModel.findByIdAndUpdate(userId, { organization: organization, permissions: [] }, { new: true }).populate('organization').exec((err, user) => {
+        UserModel.findByIdAndUpdate(userId, { organization: organization }, { new: true }).populate('organization').exec((err, user) => {
             if (err) {
                 deferred.reject(err);
             } else {
