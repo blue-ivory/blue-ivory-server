@@ -55,7 +55,7 @@ router.put('/user/:id/permissions', AuthMiddleware.requireLogin, (req: express.R
     let userId = req.params.id;
     let permissions: Permission[] = req.body.permissions;
 
-    permissionManager.setPermissions(userId, permissions).then((user: User) => {
+    permissionManager.setPermissions(userId, req.user.organization, permissions).then((user: User) => {
         return res.json(user);
     }).catch(error => {
         console.error(error);
