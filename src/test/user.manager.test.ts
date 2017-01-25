@@ -104,27 +104,17 @@ describe('UserManager', () => {
             userManager.create(newUser).then((user) => {
                 expect(user).to.exist;
 
-                organizationManager.create(new Organization('test')).then(organization => {
-                    expect(organization).to.exist;
+                user.firstName = 'Ron';
+                user.lastName = 'Borysovski';
+                user.mail = 'mail2';
 
-                    user.firstName = 'Ron';
-                    user.lastName = 'Borysovski';
-                    user.mail = 'mail2';
-                    user.organization = organization;
-                    user.permissions = [Permission.ADMIN];
+                userManager.update(user).then((updatedUser) => {
+                    expect(updatedUser).to.exist;
+                    expect(updatedUser).to.have.property('firstName', 'Ron');
+                    expect(updatedUser).to.have.property('lastName', 'Borysovski');
+                    expect(updatedUser).to.have.property('mail', 'mail2');
 
-                    userManager.update(user).then((updatedUser) => {
-                        expect(updatedUser).to.exist;
-                        expect(updatedUser).to.have.property('firstName', 'Ron');
-                        expect(updatedUser).to.have.property('lastName', 'Borysovski');
-                        expect(updatedUser).to.have.property('mail', 'mail2');
-                        expect(updatedUser).to.have.property('organization');
-                        expect(updatedUser.organization).to.have.property('name', 'test');
-                        expect(updatedUser.permissions).to.exist;
-                        expect(updatedUser.permissions.length).to.equal(1);
-                        expect(updatedUser.permissions).to.have.members([Permission.ADMIN]);
-                        done();
-                    });
+                    done();
                 });
             });
         });
@@ -300,33 +290,6 @@ describe('UserManager', () => {
                         expect(user.organization).to.have.property('name', 'organization');
 
                         done();
-                    });
-                });
-            });
-        });
-        it('Should remove user\'s permission when changing organization', done => {
-            let user: User = new User('fName', 'lName', 'uid', 'mail');
-            userManager.create(user).then(user => {
-                expect(user).to.exist;
-                permissionManager.setPermissions(user._id, [Permission.APPROVE_CIVILIAN, Permission.APPROVE_CAR]).then(user => {
-                    expect(user).to.exist;
-                    expect(user).to.have.property('permissions');
-                    expect(user.permissions).to.be.an('array');
-                    expect(user.permissions).to.have.length(2);
-
-                    organizationManager.create(new Organization('organization')).then(organization => {
-                        expect(organization).to.exist;
-
-                        userManager.setOrganization(user._id, organization).then(user => {
-                            expect(user).to.exist;
-                            expect(user).to.have.property('organization');
-                            expect(user.organization).to.have.property('name', 'organization');
-                            expect(user).to.have.property('permissions');
-                            expect(user.permissions).to.be.an('array');
-                            expect(user.permissions).to.have.length(0);
-
-                            done();
-                        });
                     });
                 });
             });
