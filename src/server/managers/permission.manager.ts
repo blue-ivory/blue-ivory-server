@@ -45,7 +45,7 @@ export class PermissionManager {
                     }
                 });
 
-                let organizationPermissions = { organization: organization, permissions: uniquePermissions };
+                let organizationPermissions = { organization: organization, organizationPermissions: uniquePermissions };
                 let updateFilter = {
                     _id: userId
                 };
@@ -65,7 +65,7 @@ export class PermissionManager {
                 } else {
                     if (organizationPermissionsExists) {
                         updateValue['$set'] = {
-                            'permissions.$.permissions': uniquePermissions
+                            'permissions.$.organizationPermissions': uniquePermissions
                         };
                     } else {
                         updateValue['$push'] = {

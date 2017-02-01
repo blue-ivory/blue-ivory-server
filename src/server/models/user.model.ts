@@ -9,7 +9,7 @@ var permissionSchema: mongoose.Schema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Organization'
     },
-    permissions: {
+    organizationPermissions: {
         type: [{
             type: String,
             enum: [

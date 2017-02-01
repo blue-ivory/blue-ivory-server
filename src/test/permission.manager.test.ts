@@ -44,14 +44,14 @@ describe('PermissionManager', () => {
                                     expect(user.permissions).to.have.length(2);
                                     expect(user.permissions[0]).to.have.property('organization');
                                     expect(user.permissions[0].organization).to.have.property('name', organization1.name);
-                                    expect(user.permissions[0]).to.have.property('permissions');
-                                    expect(user.permissions[0].permissions).to.have.length(2);
-                                    expect(user.permissions[0].permissions).to.have.members([Permission.ADMIN, Permission.APPROVE_CIVILIAN]);
+                                    expect(user.permissions[0]).to.have.property('organizationPermissions');
+                                    expect(user.permissions[0].organizationPermissions).to.have.length(2);
+                                    expect(user.permissions[0].organizationPermissions).to.have.members([Permission.ADMIN, Permission.APPROVE_CIVILIAN]);
                                     expect(user.permissions[1]).to.have.property('organization');
                                     expect(user.permissions[1].organization).to.have.property('name', organization2.name);
-                                    expect(user.permissions[1]).to.have.property('permissions');
-                                    expect(user.permissions[1].permissions).to.have.length(2);
-                                    expect(user.permissions[1].permissions).to.have.members([Permission.EDIT_USER_PERMISSIONS, Permission.NORMAL_USER]);
+                                    expect(user.permissions[1]).to.have.property('organizationPermissions');
+                                    expect(user.permissions[1].organizationPermissions).to.have.length(2);
+                                    expect(user.permissions[1].organizationPermissions).to.have.members([Permission.EDIT_USER_PERMISSIONS, Permission.NORMAL_USER]);
 
                                     done();
 
@@ -84,14 +84,14 @@ describe('PermissionManager', () => {
                                         expect(user.permissions).to.have.length(2);
                                         expect(user.permissions[0]).to.have.property('organization');
                                         expect(user.permissions[0].organization).to.have.property('name', organization.name);
-                                        expect(user.permissions[0]).to.have.property('permissions');
-                                        expect(user.permissions[0].permissions).to.have.length(1);
-                                        expect(user.permissions[0].permissions).to.have.members([Permission.APPROVE_CAR]);
+                                        expect(user.permissions[0]).to.have.property('organizationPermissions');
+                                        expect(user.permissions[0].organizationPermissions).to.have.length(1);
+                                        expect(user.permissions[0].organizationPermissions).to.have.members([Permission.APPROVE_CAR]);
                                         expect(user.permissions[1]).to.have.property('organization');
                                         expect(user.permissions[1].organization).to.have.property('name', organization2.name);
-                                        expect(user.permissions[1]).to.have.property('permissions');
-                                        expect(user.permissions[1].permissions).to.have.length(1);
-                                        expect(user.permissions[1].permissions).to.have.members([Permission.ADMIN]);
+                                        expect(user.permissions[1]).to.have.property('organizationPermissions');
+                                        expect(user.permissions[1].organizationPermissions).to.have.length(1);
+                                        expect(user.permissions[1].organizationPermissions).to.have.members([Permission.ADMIN]);
 
                                         done();
                                     });
@@ -148,9 +148,9 @@ describe('PermissionManager', () => {
                                         expect(user.permissions).to.have.length(1);
                                         expect(user.permissions[0]).to.have.property('organization');
                                         expect(user.permissions[0].organization).to.have.property('name', organization2.name);
-                                        expect(user.permissions[0]).to.have.property('permissions');
-                                        expect(user.permissions[0].permissions).to.have.length(2);
-                                        expect(user.permissions[0].permissions).to.have.members([Permission.EDIT_USER_PERMISSIONS, Permission.NORMAL_USER]);
+                                        expect(user.permissions[0]).to.have.property('organizationPermissions');
+                                        expect(user.permissions[0].organizationPermissions).to.have.length(2);
+                                        expect(user.permissions[0].organizationPermissions).to.have.members([Permission.EDIT_USER_PERMISSIONS, Permission.NORMAL_USER]);
 
                                         done();
                                     });

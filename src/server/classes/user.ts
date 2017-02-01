@@ -7,7 +7,7 @@ export class User {
     public _id: string;
     public mail: string;
     public organization: Organization;
-    public permissions: [{ organization: Organization, permissions: Permission[] }];
+    public permissions: [{ organization: Organization, organizationPermissions: Permission[] }];
 
     constructor(firstName: string, lastName: string, uniqueId: string, mail: string) {
         this.firstName = firstName;
