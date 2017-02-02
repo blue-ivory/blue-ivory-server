@@ -89,7 +89,7 @@ export class UserManager implements IDAO<User>{
             },
             this.filterForName(searchTerm)
             ]
-        }).populate('organization').exec((err, users) => {
+        }).populate('organization').populate('permissions.organization').exec((err, users) => {
             if (err) {
                 deferred.reject(err);
             } else {
