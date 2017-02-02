@@ -3,11 +3,13 @@
 import * as mongoose from 'mongoose';
 import { User } from './../classes/user';
 import { Permission } from './../classes/permission';
+import * as autopopulate from 'mongoose-autopopulate';
 
 var permissionSchema: mongoose.Schema = new mongoose.Schema({
     organization: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Organization'
+        ref: 'Organization',
+        autopopulate: true
     },
     organizationPermissions: {
         type: [{
@@ -51,6 +53,8 @@ var userSchema: mongoose.Schema = new mongoose.Schema({
 userSchema.virtual('uniqueId').get(() => {
     return this._id;
 });
+
+userSchema.plugin(autopopulate);
 
 var UserModel = mongoose.model<User>("User", userSchema);
 
