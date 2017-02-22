@@ -7,16 +7,16 @@ import * as mongoose from 'mongoose';
 
 beforeEach((done) => {
     function clearDB() {
-        
+
         for (let i in mongoose.connection.collections) {
-            mongoose.connection.collections[i].remove(function() {});
+            mongoose.connection.collections[i].remove(function () { });
         }
 
         return done();
     }
 
     if (mongoose.connection.readyState === 0) {
-        mongoose.connect(config.db.test.url, function(err) {
+        mongoose.connect(config.db.test.url, function (err) {
             if (err) {
                 throw err;
             }
@@ -27,10 +27,8 @@ beforeEach((done) => {
     }
 });
 
-after(function(done){
+afterEach(function (done) {
     mongoose.disconnect();
-    
-    console.log('-------------- Tests done --------------');
 
     return done();
 })

@@ -54,8 +54,9 @@ router.post('/user', AuthMiddleware.requireLogin, (req: express.Request, res: ex
 router.put('/user/:id/permissions', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
     let userId = req.params.id;
     let permissions: Permission[] = req.body.permissions;
+    let organization: Organization = req.body.organization;
 
-    permissionManager.setPermissions(userId, req.user.organization, permissions).then((user: User) => {
+    permissionManager.setPermissions(userId, organization || req.user.organization, permissions).then((user: User) => {
         return res.json(user);
     }).catch(error => {
         console.error(error);

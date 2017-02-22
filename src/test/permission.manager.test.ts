@@ -165,65 +165,126 @@ describe('PermissionManager', () => {
 
     });
 
-    // describe('#hasPermission', () => {
-    //     it('Should return false if user don\'t have requested permissions', (done) => {
-    //         let user: User = new User('Ron', 'Borysovski', '123', 'mail');
-    //         let hasPermission = permissionManager.hasPermissions(user, [Permission.ADMIN]);
-    //         expect(hasPermission).to.be.false;
-    //         done();
-    //     });
+    describe('#hasPermission', () => {
+        it('Should return false if user don\'t have requested permissions', (done) => {
+            let user: User = new User('Ron', 'Borysovski', '123', 'mail');
+            organizationManager.create(new Organization('org')).then(organization => {
+                userManager.create(user).then(user => {
+                    userManager.setOrganization(user._id, organization).then(user => {
+                        permissionManager.hasPermissions(user._id, [Permission.ADMIN]).then(hasPermission => {
+                            expect(hasPermission).to.be.false;
 
-    //     it('Should return true when no permissions required', done => {
-    //         let user: User = new User('Ron', 'Borysovski', '123', 'mail');
-    //         let hasPermission = permissionManager.hasPermissions(user, []);
-    //         expect(hasPermission).to.be.true;
+                            done();
+                        });
+                    });
+                });
+            });
 
-    //         user.permissions = [Permission.APPROVE_CAR];
-    //         hasPermission = permissionManager.hasPermissions(user, []);
-    //         expect(hasPermission).to.be.true;
+        });
 
-    //         hasPermission = permissionManager.hasPermissions(user, null);
-    //         expect(hasPermission).to.be.true;
+        it('Should return true when no permissions required', done => {
+            let user: User = new User('Ron', 'Borysovski', '123', 'mail');
+            organizationManager.create(new Organization('org')).then(organization => {
+                userManager.create(user).then(user => {
+                    userManager.setOrganization(user._id, organization).then(user => {
+                        permissionManager.hasPermissions(user._id, []).then(hasPermission => {
+                            expect(hasPermission).to.be.true;
 
-    //         done();
-    //     });
+                            done();
+                        });
+                    });
+                });
+            });
 
-    //     it('Should return true when user has the right permissions', done => {
-    //         let user: User = new User('Ron', 'Borysovski', '123', 'mail');
-    //         user.permissions = [Permission.APPROVE_CAR, Permission.APPROVE_SOLDIER];
+        });
 
-    //         let hasPermission = permissionManager.hasPermissions(user, []);
-    //         expect(hasPermission).to.be.true;
+        it('Should return true when user has the required permissions', done => {
+            let user: User = new User('Ron', 'Borysovski', '123', 'mail');
+            // Create org1
+            organizationManager.create(new Organization('test')).then(organization => {
 
-    //         hasPermission = permissionManager.hasPermissions(user, [Permission.APPROVE_CAR]);
-    //         expect(hasPermission).to.be.true;
+                // Create org2
+                organizationManager.create(new Organization('test2')).then(organization2 => {
 
-    //         hasPermission = permissionManager.hasPermissions(user, [Permission.APPROVE_SOLDIER]);
-    //         expect(hasPermission).to.be.true;
+                    // Create user
+                    userManager.create(user).then(user => {
 
-    //         hasPermission = permissionManager.hasPermissions(user, [Permission.APPROVE_CAR, Permission.APPROVE_SOLDIER]);
-    //         expect(hasPermission).to.be.true;
+                        // Set user organization to org1
+                        userManager.setOrganization(user._id, organization).then(user => {
 
-    //         done();
-    //     });
+                            // Assign permissions for user's org1
+                            permissionManager.setPermissions(user._id, organization,
+                                [Permission.APPROVE_CAR,
+                                Permission.APPROVE_CIVILIAN,
+                                Permission.APPROVE_SOLDIER]).then(user => {
 
-    //     it('Should return false when user don\'t have enough permissions', done => {
-    //         let user: User = new User('Ron', 'Borysovski', '123', 'mail');
-    //         user.permissions = [Permission.APPROVE_CAR, Permission.APPROVE_SOLDIER];
-    //         let hasPermission = permissionManager.hasPermissions(user, [Permission.ADMIN]);
-    //         expect(hasPermission).to.be.false;
+                                    // Assign permissions for user's org2
+                                    permissionManager.setPermissions(user._id, organization2,
+                                        [Permission.EDIT_USER_PERMISSIONS]).then(user => {
 
-    //         hasPermission = permissionManager.hasPermissions(user, [Permission.APPROVE_CAR, Permission.ADMIN]);
-    //         expect(hasPermission).to.be.false;
+                                            // Check if user has permissions required to org1
+                                            permissionManager.hasPermissions(user._id,
+                                                [Permission.APPROVE_CAR,
+                                                Permission.APPROVE_CIVILIAN]).then(hasPermission => {
+                                                    expect(hasPermission).to.be.true;
 
-    //         hasPermission = permissionManager.hasPermissions(user, [Permission.APPROVE_SOLDIER, Permission.APPROVE_CIVILIAN]);
-    //         expect(hasPermission).to.be.false;
+                                                    // Check if user has some permissions required for org2                                                    
+                                                    permissionManager.hasPermissions(user._id,
+                                                        [Permission.ADMIN,
+                                                        Permission.EDIT_USER_PERMISSIONS], organization2, true).then(hasPermission => {
+                                                            expect(hasPermission).to.be.true;
 
-    //         hasPermission = permissionManager.hasPermissions(user, [Permission.APPROVE_CAR, Permission.APPROVE_SOLDIER, Permission.NORMAL_USER]);
-    //         expect(hasPermission).to.be.false;
+                                                            done();
+                                                        });
+                                                });
+                                        });
+                                });
+                        });
+                    });
+                });
 
-    //         done();
-    //     });
-    // });
+            });
+        });
 
+        it('Should return false when user don\'t have enough permissions', done => {
+
+            let user: User = new User('Ron', 'Borysovski', '123', 'mail');
+            let organization1: Organization = null;
+            let organization2: Organization = null;
+
+            organizationManager.create(new Organization('org1')).then((org1: Organization) => {
+                organization1 = org1;
+                organizationManager.create(new Organization('org2')).then((org2: Organization) => {
+                    organization2 = org2;
+                });
+            }).then(() => {
+                userManager.create(user).then((user: User) => {
+                    return userManager.setOrganization(user._id, organization1);
+                }).then((user: User) => {
+                    return permissionManager.setPermissions(user._id, organization1, [Permission.APPROVE_SOLDIER]);
+                }).then((user: User) => {
+                    return permissionManager.setPermissions(user._id, organization2, [Permission.EDIT_USER_PERMISSIONS, Permission.APPROVE_CIVILIAN]);
+                }).then((user: User) => {
+                    let permissionPromises: Promise<any>[] = [];
+                    permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.APPROVE_CAR, Permission.APPROVE_SOLDIER]));
+                    permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.APPROVE_CAR, Permission.APPROVE_SOLDIER], organization1));
+                    permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.ADMIN, Permission.EDIT_USER_PERMISSIONS], null, true));
+                    permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.ADMIN, Permission.EDIT_USER_PERMISSIONS], organization1, true));
+                    permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.APPROVE_SOLDIER], organization2));
+                    permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.APPROVE_SOLDIER], organization2, true));
+                    permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.EDIT_USER_PERMISSIONS, Permission.APPROVE_CIVILIAN, Permission.APPROVE_CAR], organization2));
+                    permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.APPROVE_SOLDIER, Permission.ADMIN, Permission.APPROVE_CAR], organization2, true));
+
+                    Promise.all(permissionPromises).then((values: boolean[]) => {
+                        values.forEach(value => {
+                            expect(value).to.be.false;
+                        });
+
+                        done();
+                    });
+                });
+            });
+
+        });
+    });
 });

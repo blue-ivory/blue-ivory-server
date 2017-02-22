@@ -6,23 +6,46 @@ import * as Promise from 'bluebird';
 
 export class PermissionManager {
 
-    public hasPermissions(user: User, permissions: Permission[]): boolean {
-        if (!permissions) {
-            return true;
-        }
-        if (!user.permissions) {
-            return permissions.length === 0;
-        }
+    public hasPermissions(userId: string, permissions: Permission[], organization?: Organization, some?: boolean): Promise<any> {
+        let deferred = Promise.defer();
 
-        let hasPermissions: boolean = true;
+        UserModel.findById(userId).populate('organization').populate('permissions.organization').exec((err, user: User) => {
+            if (err) {
+                console.error(err);
+                deferred.reject(err);
+            }
+            else if (!user) {
+                deferred.reject("User " + userId + " not found");
+            } else {
+                let hasPermissions = permissions.length === 0;
+                if (user.permissions) {
+                    if (!organization) {
+                        organization = user.organization;
+                    }
 
-        permissions.forEach(permission => {
-            if (user.permissions.indexOf(permission) <= -1) {
-                hasPermissions = false;
+                    // Extract user's permission for selected organization
+                    let userPermissions = user.permissions.find(permission => {
+                        return permission.organization._id.equals(organization._id);
+                    });
+
+                    let organizationPermissions = userPermissions ? userPermissions.organizationPermissions : [];
+
+                    // If not all permissions are required (at least one is enough)
+                    if (some) {
+                        hasPermissions = organizationPermissions.some(permission => permissions.indexOf(permission) > -1);
+                    } else {
+
+                        // Check whether user has all required permissions
+                        hasPermissions = permissions.every(permission => organizationPermissions.indexOf(permission) > -1);
+                    }
+                }
+
+                deferred.resolve(hasPermissions);
+
             }
         });
 
-        return hasPermissions;
+        return deferred.promise;
     }
 
     public setPermissions(userId: string, organization: Organization, permissions: Permission[]): Promise<any> {
@@ -31,7 +54,7 @@ export class PermissionManager {
         // Remove duplicates
         let uniquePermissions = Array.from(new Set(permissions));
 
-        UserModel.findById(userId).populate('permissions.organization').exec((err, user: User) => {
+        UserModel.findById(userId).populate('organization').populate('permissions.organization').exec((err, user: User) => {
             if (err) {
                 deferred.reject(err);
             } else if (!user) {
