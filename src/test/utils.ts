@@ -6,7 +6,7 @@ import * as mongoose from 'mongoose';
 //var mongoose = require('mongoose');
 
 beforeEach((done) => {
-    function clearDB() {
+    function dropDatabase() {
 
         for (let i in mongoose.connection.collections) {
             mongoose.connection.collections[i].remove(function () { });
@@ -20,15 +20,15 @@ beforeEach((done) => {
             if (err) {
                 throw err;
             }
-            return clearDB();
+            return dropDatabase();
         });
     } else {
-        return clearDB();
+        return dropDatabase();
     }
 });
 
-afterEach(function (done) {
+after(function (done) {
     mongoose.disconnect();
 
     return done();
-})
+});

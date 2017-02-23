@@ -7,40 +7,50 @@ import { User } from './../classes/user';
 import { Organization } from './../classes/organization';
 import { Permission } from './../classes/permission';
 import { AuthMiddleware } from './../middlewares/auth.middleware';
+import { PermissionsMiddleware } from './../middlewares/permissions.middleware';
+
 
 var router: express.Router = express.Router();
 var userManager = new UserManager();
 var permissionManager = new PermissionManager();
 
-router.get('/user', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
-    let searchTerm = req.param('searchTerm');
+router.get('/user',
+    AuthMiddleware.requireLogin,
+    PermissionsMiddleware.hasPermissions([Permission.EDIT_USER_PERMISSIONS]),
+    (req: express.Request, res: express.Response) => {
+        let searchTerm = req.param('searchTerm');
 
-    userManager.search(searchTerm).then((users) => {
-        return res.json(users);
-    }).catch((error) => {
-        console.error(error);
-        return res.sendStatus(500);
+        userManager.search(searchTerm).then((users) => {
+            return res.json(users);
+        }).catch((error) => {
+            console.error(error);
+            return res.sendStatus(500);
+        });
     });
-});
 
-router.get('/user/current', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
-    return res.json(req.user);
-});
-
-router.get('/user/:id', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
-
-    userManager.read(req.params.id).then((user) => {
-        if (!user) {
-            return res.sendStatus(404);
-        }
-
-        return res.json(user);
-
-    }).catch((error) => {
-        console.error(error);
-        return res.sendStatus(500);
+router.get('/user/current',
+    AuthMiddleware.requireLogin,
+    (req: express.Request, res: express.Response) => {
+        return res.json(req.user);
     });
-});
+
+router.get('/user/:id',
+    AuthMiddleware.requireLogin,
+    PermissionsMiddleware.hasPermissions([Permission.EDIT_USER_PERMISSIONS]),
+    (req: express.Request, res: express.Response) => {
+
+        userManager.read(req.params.id).then((user) => {
+            if (!user) {
+                return res.sendStatus(404);
+            }
+
+            return res.json(user);
+
+        }).catch((error) => {
+            console.error(error);
+            return res.sendStatus(500);
+        });
+    });
 
 router.post('/user', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
     userManager.create(req.body.user).then((user) => {
@@ -51,42 +61,35 @@ router.post('/user', AuthMiddleware.requireLogin, (req: express.Request, res: ex
     });
 });
 
-router.put('/user/:id/permissions', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
-    let userId = req.params.id;
-    let permissions: Permission[] = req.body.permissions;
-    let organization: Organization = req.body.organization;
+router.put('/user/:id/permissions',
+    AuthMiddleware.requireLogin,
+    PermissionsMiddleware.hasPermissions([Permission.EDIT_USER_PERMISSIONS]),
+    (req: express.Request, res: express.Response) => {
+        let userId = req.params.id;
+        let permissions: Permission[] = req.body.permissions;
+        let organization: Organization = req.body.organization;
 
-    permissionManager.setPermissions(userId, organization || req.user.organization, permissions).then((user: User) => {
-        return res.json(user);
-    }).catch(error => {
-        console.error(error);
-        return res.sendStatus(500);
+        permissionManager.setPermissions(userId, organization || req.user.organization, permissions).then((user: User) => {
+            return res.json(user);
+        }).catch(error => {
+            console.error(error);
+            return res.sendStatus(500);
+        });
     });
-});
 
-router.put('/user/:id/organization', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
-    let userId = req.params.id;
-    let organization: Organization = req.body.organization;
+router.put('/user/:id/organization',
+    AuthMiddleware.requireLogin,
+    PermissionsMiddleware.hasPermissions([Permission.EDIT_USER_PERMISSIONS]),
+    (req: express.Request, res: express.Response) => {
+        let userId = req.params.id;
+        let organization: Organization = req.body.organization;
 
-    userManager.setOrganization(userId, organization).then((user: User) => {
-        return res.json(user);
-    }).catch(error => {
-        console.error(error);
-        return res.sendStatus(500);
+        userManager.setOrganization(userId, organization).then((user: User) => {
+            return res.json(user);
+        }).catch(error => {
+            console.error(error);
+            return res.sendStatus(500);
+        });
     });
-});
-
-router.delete('/user/:id', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
-    userManager.delete(req.params.id).then((user) => {
-        if (!user) {
-            return res.sendStatus(404);
-        }
-
-        return res.json(user);
-    }).catch((error) => {
-        console.error(error);
-        return res.sendStatus(500);
-    });
-});
 
 export = router;
