@@ -18,7 +18,7 @@ export class PermissionManager {
             else if (!user) {
                 deferred.reject("User " + userId + " not found");
             } else {
-                let hasPermissions = permissions.length === 0;
+                let hasPermissions = false;
 
                 let userPermissions = this.getPermissionsForAllOrganization(user);
 
@@ -32,7 +32,7 @@ export class PermissionManager {
                 }
 
 
-                deferred.resolve(hasPermissions);
+                deferred.resolve(hasPermissions || permissions.length === 0);
 
             }
         });
@@ -72,7 +72,7 @@ export class PermissionManager {
                     }
                 }
 
-                deferred.resolve(hasPermissions);
+                deferred.resolve(hasPermissions || permissions.length === 0);
 
             }
         });
@@ -148,7 +148,7 @@ export class PermissionManager {
         let permissions: Permission[] = [];
         if (user && user.permissions) {
             user.permissions.forEach(permission => {
-                permissions.concat(permission.organizationPermissions);
+                permissions = permissions.concat(permission.organizationPermissions);
             });
 
             permissions = this.uniqueArrayValues(permissions);
