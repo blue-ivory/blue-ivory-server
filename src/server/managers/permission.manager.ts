@@ -21,7 +21,7 @@ export class PermissionManager {
                 let hasPermissions = false;
 
                 let userPermissions = this.getPermissionsForAllOrganization(user);
-
+                
                 // If not all permissions are required (at least one is enough)
                 if (some) {
                     hasPermissions = userPermissions.some(permission => permissions.indexOf(permission) > -1);
