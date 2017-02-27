@@ -68,12 +68,12 @@ var userSchema: mongoose.Schema = new mongoose.Schema({
                 }
 
                 if (canModifyUserSettings(uniquePermissions)) {
-                    ret.permittedRoutes.push({ resource: 'users', title: 'manage_users', route: 'users/' });
+                    ret.permittedRoutes.push({ resource: 'users', title: 'users', route: 'users/' });
                 }
 
                 // TODO : Change to admin permission                
                 if (isAdmin(uniquePermissions)) {
-                    ret.permittedRoutes.push({ resource: 'organizations', title: 'manage_organizations', route: 'organizations/' });
+                    ret.permittedRoutes.push({ resource: 'organizations', title: 'organizations', route: 'organizations/' });
                 }
             }
 
