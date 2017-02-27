@@ -21,7 +21,7 @@ export class PermissionManager {
                 let hasPermissions = false;
 
                 let userPermissions = this.getPermissionsForAllOrganization(user);
-                
+
                 // If not all permissions are required (at least one is enough)
                 if (some) {
                     hasPermissions = userPermissions.some(permission => permissions.indexOf(permission) > -1);
@@ -41,7 +41,7 @@ export class PermissionManager {
     }
 
     // Check if user has permission for specific organization    
-    public hasPermissionForOrganization(userId: string, permissions: Permission[], organization: Organization, some?: boolean): Promise<any> {
+    public hasPermissionForOrganization(userId: string, permissions: Permission[], organizationId: any, some?: boolean): Promise<any> {
         let deferred = Promise.defer();
 
         UserModel.findById(userId).populate('organization').populate('permissions.organization').exec((err, user: User) => {
@@ -57,7 +57,7 @@ export class PermissionManager {
 
                     // Extract user's permission for selected organization
                     let userPermissions = user.permissions.find(permission => {
-                        return permission.organization._id.equals(organization._id);
+                        return permission.organization._id.toHexString() == organizationId;
                     });
 
                     let organizationPermissions = userPermissions ? userPermissions.organizationPermissions : [];

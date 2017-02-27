@@ -301,8 +301,8 @@ describe('PermissionManager', () => {
 
         it('Should return true when no permissions required', (done: MochaDone) => {
             let permissionPromises = [
-                permissionManager.hasPermissionForOrganization(user._id, [], organization1),
-                permissionManager.hasPermissionForOrganization(user._id, [], organization2, true)
+                permissionManager.hasPermissionForOrganization(user._id, [], organization1._id),
+                permissionManager.hasPermissionForOrganization(user._id, [], organization2._id, true)
             ];
 
             Promise.all(permissionPromises).then(hasPermissions => {
@@ -316,11 +316,11 @@ describe('PermissionManager', () => {
 
         it('Should return false when user don\'t have required permissions', (done: MochaDone) => {
             let permissionPromises = [
-                permissionManager.hasPermissionForOrganization(user._id, [Permission.APPROVE_SOLDIER], organization1),
-                permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_USER_PERMISSIONS], organization2, true),
-                permissionManager.hasPermissionForOrganization(user._id, [Permission.ADMIN, Permission.APPROVE_CIVILIAN], organization2, true),
-                permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_USER_PERMISSIONS, Permission.APPROVE_CAR], organization1),
-                permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_USER_PERMISSIONS, Permission.APPROVE_SOLDIER], organization2)
+                permissionManager.hasPermissionForOrganization(user._id, [Permission.APPROVE_SOLDIER], organization1._id),
+                permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_USER_PERMISSIONS], organization2._id, true),
+                permissionManager.hasPermissionForOrganization(user._id, [Permission.ADMIN, Permission.APPROVE_CIVILIAN], organization2._id, true),
+                permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_USER_PERMISSIONS, Permission.APPROVE_CAR], organization1._id),
+                permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_USER_PERMISSIONS, Permission.APPROVE_SOLDIER], organization2._id)
             ];
 
             Promise.all(permissionPromises).then(hasPermissions => {
@@ -334,10 +334,10 @@ describe('PermissionManager', () => {
 
         it('Should return false when user has permission but not for required organization', (done: MochaDone) => {
             let permissionPromises = [
-                permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_USER_PERMISSIONS], organization2, true),
-                permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_USER_PERMISSIONS], organization2),
-                permissionManager.hasPermissionForOrganization(user._id, [Permission.APPROVE_SOLDIER], organization1, true),
-                permissionManager.hasPermissionForOrganization(user._id, [Permission.APPROVE_SOLDIER], organization1),
+                permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_USER_PERMISSIONS], organization2._id, true),
+                permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_USER_PERMISSIONS], organization2._id),
+                permissionManager.hasPermissionForOrganization(user._id, [Permission.APPROVE_SOLDIER], organization1._id, true),
+                permissionManager.hasPermissionForOrganization(user._id, [Permission.APPROVE_SOLDIER], organization1._id),
             ];
 
             Promise.all(permissionPromises).then(hasPermissions => {
@@ -351,11 +351,11 @@ describe('PermissionManager', () => {
 
         it('Should return true when user has required permissions', (done: MochaDone) => {
             let permissionPromises = [
-                permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_USER_PERMISSIONS], organization1),
-                permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_USER_PERMISSIONS, Permission.ADMIN], organization1, true),
-                permissionManager.hasPermissionForOrganization(user._id, [Permission.APPROVE_SOLDIER], organization2, true),
-                permissionManager.hasPermissionForOrganization(user._id, [Permission.APPROVE_SOLDIER, Permission.EDIT_USER_PERMISSIONS], organization1, true),
-                permissionManager.hasPermissionForOrganization(user._id, [Permission.APPROVE_SOLDIER, Permission.EDIT_USER_PERMISSIONS], organization2, true),              
+                permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_USER_PERMISSIONS], organization1._id),
+                permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_USER_PERMISSIONS, Permission.ADMIN], organization1._id, true),
+                permissionManager.hasPermissionForOrganization(user._id, [Permission.APPROVE_SOLDIER], organization2._id, true),
+                permissionManager.hasPermissionForOrganization(user._id, [Permission.APPROVE_SOLDIER, Permission.EDIT_USER_PERMISSIONS], organization1._id, true),
+                permissionManager.hasPermissionForOrganization(user._id, [Permission.APPROVE_SOLDIER, Permission.EDIT_USER_PERMISSIONS], organization2._id, true),
             ];
 
             Promise.all(permissionPromises).then(hasPermissions => {
