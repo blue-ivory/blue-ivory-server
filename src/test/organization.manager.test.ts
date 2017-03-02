@@ -156,89 +156,100 @@ describe('OrganizationManager', () => {
     });
 
     describe('#search', () => {
-        it('Should return all organizations when no searchTerm provided', done => {
-            organizationManager.create(new Organization('name1')).then(() => {
-                organizationManager.create(new Organization('name2')).then(() => {
-                    organizationManager.create(new Organization('name3')).then(() => {
-                        organizationManager.search('').then(organizations => {
-                            expect(organizations).to.exist;
-                            expect(organizations).to.be.an('array');
-                            expect(organizations).to.have.length(3);
-
-                            done();
-                        });
-                    });
+        beforeEach((done: MochaDone) => {
+            Promise.all([
+                organizationManager.create(new Organization('org one')),
+                organizationManager.create(new Organization('org two')),
+                organizationManager.create(new Organization('org three')),
+                organizationManager.create(new Organization('org four'))
+            ]).then(values => {
+                userManager.create(new User('t', 'e', 's', 't')).then(user => {
+                    userManager.setOrganization('s', values[0]);
+                    done();
                 });
+            });
+        });
+
+        it('Should return all organizations when no searchTerm provided', done => {
+            organizationManager.search('').then(result => {
+                expect(result).to.exist;
+                expect(result).to.have.property('totalCount', 4);
+                expect(result).to.have.property('organizations');
+                expect(result.organizations).to.be.an('array');
+                expect(result.organizations).to.have.length(4);
+
+                done();
             });
         });
         it('Should return nothing when searchTerm don\'t match any name', done => {
-            organizationManager.create(new Organization('name1')).then(() => {
-                organizationManager.create(new Organization('name2')).then(() => {
-                    organizationManager.create(new Organization('name3')).then(() => {
-                        organizationManager.search('test').then(organizations => {
-                            expect(organizations).to.exist;
-                            expect(organizations).to.be.an('array');
-                            expect(organizations).to.have.length(0);
+            organizationManager.search('test').then(result => {
+                expect(result).to.exist;
+                expect(result).to.have.property('totalCount', 0);
+                expect(result).to.have.property('organizations');
+                expect(result.organizations).to.be.an('array');
+                expect(result.organizations).to.have.length(0);
 
-                            done();
-                        });
-                    });
-                });
+                done();
             });
         });
         it('Should return organizations filtered by searchTerm', done => {
-            organizationManager.create(new Organization('test')).then(() => {
-                organizationManager.create(new Organization('rtst')).then(() => {
-                    organizationManager.create(new Organization('ees21s')).then(() => {
-                        organizationManager.search('st').then(organizations => {
-                            expect(organizations).to.exist;
-                            expect(organizations).to.be.an('array');
-                            expect(organizations).to.have.length(2);
 
-                            organizationManager.search('21').then(organizations => {
-                                expect(organizations).to.exist;
-                                expect(organizations).to.be.an('array');
-                                expect(organizations).to.have.length(1);
-
-                                organizationManager.search('es').then(organizations => {
-                                    expect(organizations).to.exist;
-                                    expect(organizations).to.be.an('array');
-                                    expect(organizations).to.have.length(2);
-
-                                    done();
-                                });
-                            });
-                        });
-                    });
+            Promise.all(['org', 'org ', 'o', 'r', 'g'].map(name => {
+                return organizationManager.search(name);
+            })).then(values => {
+                values.forEach(value => {
+                    expect(value).to.exist;
+                    expect(value).to.have.property('totalCount', 4);
+                    expect(value).to.have.property('organizations');
+                    expect(value.organizations).to.be.an('array');
+                    expect(value.organizations).to.have.length(4);
                 });
+
+                return Promise.all(['one', 'two', 'three', 'four', 'n', 'u', 'f'].map(name => {
+                    return organizationManager.search(name);
+                }))
+            }).then(values => {
+                values.forEach(value => {
+                    expect(value).to.exist;
+                    expect(value).to.have.property('totalCount', 1);
+                    expect(value).to.have.property('organizations');
+                    expect(value.organizations).to.be.an('array');
+                    expect(value.organizations).to.have.length(1);
+                });
+
+                return Promise.all(['e', 't'].map(name => {
+                    return organizationManager.search(name);
+                }))
+            }).then(values => {
+                values.forEach(value => {
+                    expect(value).to.exist;
+                    expect(value).to.have.property('totalCount', 2);
+                    expect(value).to.have.property('organizations');
+                    expect(value.organizations).to.be.an('array');
+                    expect(value.organizations).to.have.length(2);
+                });
+
+                done();
             });
         });
 
         it('Should return organization with amount of users', done => {
-            organizationManager.create(new Organization('Dolphin')).then((organization1: Organization) => {
-                organizationManager.create(new Organization('Misha')).then((organization2: Organization) => {
-                    userManager.create(new User('12', '22', 'id1', '42')).then(() => {
-                        userManager.create(new User('1', '2', 'id2', '4')).then(() => {
-                            userManager.setOrganization('id1', organization1).then(() => {
-                                userManager.setOrganization('id2', organization1).then(() => {
-                                    organizationManager.search('dol').then(organizations => {
-                                        expect(organizations).to.exist;
-                                        expect(organizations).to.be.an('array');
-                                        expect(organizations).to.have.length(1);
-                                        expect(organizations[0]).to.have.property('name', 'Dolphin');
-                                        expect(organizations[0]).to.have.property('users');
-                                        expect(organizations[0].users).to.eql(2);
-                                        expect(organizations[0]).to.have.property('requests');
-                                        expect(organizations[0].requests).to.eql(0);                                        
 
-                                        done();
-                                    })
-                                });
-                            });
-                        });
+            organizationManager.search('').then(result => {
+                expect(result).to.exist;
+                expect(result).to.have.property('totalCount', 4);
+                expect(result).to.have.property('organizations');
+                expect(result.organizations).to.be.an('array');
+                expect(result.organizations).to.have.length(4);
+                expect(result.organizations).to.satisfy((organizations) => {
+                    return organizations.some(organization => {
+                        return organization.users === 1;
                     });
                 });
+
+
+                done();
             });
         });
-    })
+    });
 });

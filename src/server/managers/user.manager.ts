@@ -74,10 +74,8 @@ export class UserManager implements IDAO<User>{
 
     public search(searchTerm?: string): Promise<any> {
         let deferred = Promise.defer();
-        let re = new RegExp(searchTerm, "i")
-
-
-        UserModel.find({
+        let re = new RegExp(searchTerm, "i");
+        let filter = {
             $or: [{
                 _id: re // got uniqueId
             }, {
@@ -89,12 +87,20 @@ export class UserManager implements IDAO<User>{
             },
             this.filterForName(searchTerm)
             ]
-        }).populate('organization').populate('permissions.organization').exec((err, users) => {
-            if (err) {
-                deferred.reject(err);
-            } else {
-                deferred.resolve(users);
-            }
+        };
+
+        let usersPromise = UserModel.find(filter).populate('organization').populate('permissions.organization');
+        let countPromise = UserModel.count(filter);
+
+        Promise.all([usersPromise, countPromise]).then(values => {
+            let result = {
+                users: values[0],
+                totalCount: values[1]
+            };
+
+            deferred.resolve(result);
+        }).catch(error => {
+            deferred.reject(error);
         });
 
         return deferred.promise;

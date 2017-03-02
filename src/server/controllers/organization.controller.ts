@@ -16,8 +16,17 @@ router.get('/organization',
     PermissionsMiddleware.hasPermissions([Permission.EDIT_USER_PERMISSIONS]),
     (req: express.Request, res: express.Response) => {
         let searchTerm = req.param('searchTerm');
+        let page = +req.param('page');
+        let pageSize = +req.param('pageSize');
+        let paginationOptions = null;
+        if (page && pageSize) {
+            paginationOptions = {
+                skip: (page - 1) * pageSize,
+                limit: pageSize
+            };
+        }
 
-        organizationManager.search(searchTerm).then((organization) => {
+        organizationManager.search(searchTerm, paginationOptions).then((organization) => {
             return res.json(organization);
         }).catch((error) => {
             console.error(error);

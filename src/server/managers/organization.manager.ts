@@ -72,12 +72,12 @@ export class OrganizationManager implements IDAO<Organization>{
         return deferred.promise;
     }
 
-    public search(searchTerm: string): Promise<any> {
+    public search(searchTerm: string, paginationOptions?: { skip: number, limit: number }): Promise<any> {
         let deferred = Promise.defer();
         let re = new RegExp(searchTerm, 'i');
 
-
-        OrganizationModel.aggregate().match({ name: re }).lookup({
+        let countPromise = OrganizationModel.count({ name: re });
+        let organizationsPromise = OrganizationModel.aggregate().match({ name: re }).lookup({
             from: "users",
             localField: "_id",
             foreignField: "organization",
@@ -91,12 +91,21 @@ export class OrganizationManager implements IDAO<Organization>{
             name: 1,
             users: { $size: "$users" },
             requests: { $size: "$requests" }
-        }).exec((err, organizations) => {
-            if (err) {
-                deferred.reject(err);
-            } else {
-                deferred.resolve(organizations);
-            }
+        });
+
+        if (paginationOptions) {
+            organizationsPromise = organizationsPromise.skip(paginationOptions.skip).limit(paginationOptions.limit);
+        }
+
+        Promise.all([countPromise, organizationsPromise]).then(values => {
+            let result = {
+                totalCount: values[0],
+                organizations: values[1]
+            };
+
+            deferred.resolve(result);
+        }).catch(error => {
+            deferred.reject(error);
         });
 
         return deferred.promise;

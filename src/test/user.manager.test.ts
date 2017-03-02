@@ -144,106 +144,133 @@ describe('UserManager', () => {
     });
 
     describe('#search', () => {
+
+        beforeEach((done: MochaDone) => {
+            let userAPromise = userManager.create(new User('John', 'Test', 'unique@ID', 'mail1'));
+            let userBPromise = userManager.create(new User('Jon', 'last', 'unique', 'mail2'));
+
+            Promise.all([userAPromise, userBPromise]).then(() => {
+                done();
+            });
+        });
+
         it('Should return 0 users when not found', done => {
-            userManager.search('test').then(users => {
-                expect(users).to.exist;
-                expect(users).to.be.an('array');
-                expect(users.length).to.eq(0);
+            userManager.search('abcd').then(result => {
+                expect(result).to.exist;
+                expect(result).to.have.property('users');
+                expect(result).to.have.property('totalCount', 0);
+                expect(result.users).to.be.an('array');
+                expect(result.users).to.have.length(0);
+
                 done();
             });
         });
 
         it('Should return all users if empty search term', done => {
-            userManager.create(new User('John', 'Test', 'unique@ID', 'mail1')).then(() => {
-                userManager.create(new User('Jon', 'last', 'unique', 'mail2')).then(() => {
-                    userManager.search().then(users => {
-                        expect(users).to.exist;
-                        expect(users).to.be.an('array');
-                        expect(users.length).to.eq(2);
+            userManager.search().then(result => {
+                expect(result).to.exist;
+                expect(result).to.have.property('users');
+                expect(result).to.have.property('totalCount', 2);
+                expect(result.users).to.be.an('array');
+                expect(result.users).to.have.length(2);
 
-                        done();
-                    });
-                });
+                done();
             });
         });
 
         it('Should find users by firstName, lastName or unique id (Single word)', done => {
-            userManager.create(new User('John', 'Test', 'unique@ID', 'mail1')).then(() => {
-                userManager.create(new User('Jon', 'last', 'unique', 'mail2')).then(() => {
-                    userManager.search('john').then(users => {
-                        expect(users).to.exist;
-                        expect(users).to.be.an('array');
-                        expect(users.length).to.eq(1);
-                        expect(users[0]).to.have.property('firstName', 'John');
 
-                        userManager.search('joN').then(users => {
-                            expect(users).to.exist;
-                            expect(users).to.be.an('array');
-                            expect(users.length).to.eq(1);
-                            expect(users[0]).to.have.property('firstName', 'Jon');
+            userManager.search('john').then(result => {
+                expect(result).to.exist;
+                expect(result).to.have.property('users');
+                expect(result).to.have.property('totalCount', 1);
+                expect(result.users).to.be.an('array');
+                expect(result.users).to.have.length(1);
+                expect(result.users[0]).to.have.property('firstName', 'John');
 
-                            userManager.search('jO').then(users => {
-                                expect(users).to.exist;
-                                expect(users).to.be.an('array');
-                                expect(users.length).to.eq(2);
 
-                                userManager.search('ES').then(users => {
-                                    expect(users).to.exist;
-                                    expect(users).to.be.an('array');
-                                    expect(users.length).to.eq(1);
-                                    expect(users[0]).to.have.property('lastName', 'Test');
+                userManager.search('joN').then(result => {
+                    expect(result).to.exist;
+                    expect(result).to.have.property('users');
+                    expect(result).to.have.property('totalCount', 1);
+                    expect(result.users).to.be.an('array');
+                    expect(result.users).to.have.length(1);
+                    expect(result.users[0]).to.have.property('firstName', 'Jon');
 
-                                    userManager.search('st').then(users => {
-                                        expect(users).to.exist;
-                                        expect(users).to.be.an('array');
-                                        expect(users.length).to.eq(2);
+                    userManager.search('jO').then(result => {
+                        expect(result).to.exist;
+                        expect(result).to.have.property('users');
+                        expect(result).to.have.property('totalCount', 2);
+                        expect(result.users).to.be.an('array');
+                        expect(result.users).to.have.length(2);
 
-                                        userManager.search('@').then(users => {
-                                            expect(users).to.exist;
-                                            expect(users).to.be.an('array');
-                                            expect(users.length).to.eq(1);
-                                            expect(users[0]).to.have.property('_id', 'unique@ID');
+                        userManager.search('ES').then(result => {
+                            expect(result).to.exist;
+                            expect(result).to.have.property('users');
+                            expect(result).to.have.property('totalCount', 1);
+                            expect(result.users).to.be.an('array');
+                            expect(result.users).to.have.length(1);
+                            expect(result.users[0]).to.have.property('lastName', 'Test');
 
-                                            userManager.search('unique').then(users => {
-                                                expect(users).to.exist;
-                                                expect(users).to.be.an('array');
-                                                expect(users.length).to.eq(2);
+                            userManager.search('st').then(result => {
+                                expect(result).to.exist;
+                                expect(result).to.have.property('users');
+                                expect(result).to.have.property('totalCount', 2);
+                                expect(result.users).to.be.an('array');
+                                expect(result.users).to.have.length(2);
 
-                                                done();
-                                            });
-                                        });
+                                userManager.search('@').then(result => {
+                                    expect(result).to.exist;
+                                    expect(result).to.have.property('users');
+                                    expect(result).to.have.property('totalCount', 1);
+                                    expect(result.users).to.be.an('array');
+                                    expect(result.users).to.have.length(1);
+                                    expect(result.users[0]).to.have.property('_id', 'unique@ID');
+
+                                    userManager.search('unique').then(result => {
+                                        expect(result).to.exist;
+                                        expect(result).to.have.property('users');
+                                        expect(result).to.have.property('totalCount', 2);
+                                        expect(result.users).to.be.an('array');
+                                        expect(result.users).to.have.length(2);
+
+                                        done();
                                     });
                                 });
                             });
                         });
                     });
                 });
+
             });
         });
 
         it('Should find users either by firstName or by lastName (two words)', done => {
-            userManager.create(new User('John', 'Test', 'unique@ID', 'mail1')).then(() => {
-                userManager.create(new User('Jon', 'last', 'unique', 'mail2')).then(() => {
-                    userManager.search('john te').then(users => {
-                        expect(users).to.exist;
-                        expect(users).to.be.an('array');
-                        expect(users.length).to.eq(1);
-                        expect(users[0]).to.have.property('_id', 'unique@ID');
 
-                        userManager.search('las on').then(users => {
-                            expect(users).to.exist;
-                            expect(users).to.be.an('array');
-                            expect(users.length).to.eq(1);
-                            expect(users[0]).to.have.property('_id', 'unique');
+            userManager.search('john te').then(result => {
+                expect(result).to.exist;
+                expect(result).to.have.property('users');
+                expect(result).to.have.property('totalCount', 1);
+                expect(result.users).to.be.an('array');
+                expect(result.users).to.have.length(1);
+                expect(result.users[0]).to.have.property('_id', 'unique@ID');
 
-                            userManager.search('jo st').then(users => {
-                                expect(users).to.exist;
-                                expect(users).to.be.an('array');
-                                expect(users.length).to.eq(2);
+                userManager.search('las on').then(result => {
+                    expect(result).to.exist;
+                    expect(result).to.have.property('users');
+                    expect(result).to.have.property('totalCount', 1);
+                    expect(result.users).to.be.an('array');
+                    expect(result.users).to.have.length(1);
+                    expect(result.users[0]).to.have.property('_id', 'unique');
 
-                                done();
-                            });
-                        });
+                    userManager.search('jo st').then(result => {
+                        expect(result).to.exist;
+                        expect(result).to.have.property('users');
+                        expect(result).to.have.property('totalCount', 2);
+                        expect(result.users).to.be.an('array');
+                        expect(result.users).to.have.length(2);
+
+                        done();
                     });
                 });
             });
