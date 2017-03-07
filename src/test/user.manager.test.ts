@@ -284,7 +284,7 @@ describe('UserManager', () => {
             organizationManager.create(new Organization('organization')).then(organization => {
                 expect(organization).to.exist;
 
-                userManager.setOrganization(user._id, organization).then(user => {
+                userManager.setOrganization(user._id, organization._id).then(user => {
                     expect(user).to.not.exist;
                     done();
                 });
@@ -295,11 +295,9 @@ describe('UserManager', () => {
             userManager.create(user).then(user => {
                 expect(user).to.exist;
 
-                userManager.setOrganization(user._id, new Organization('organization')).catch(err => {
+                userManager.setOrganization(user._id, '000000000000000000000000').catch(err => {
                     expect(err).to.exist;
-                    expect(err).to.have.property('name', 'CastError');
-                    expect(err).to.have.property('kind', 'ObjectId');
-                    expect(err).to.have.property('path', 'organization');
+                    expect(err).to.eql('Organization not found');
                     done();
                 })
             });
@@ -311,7 +309,7 @@ describe('UserManager', () => {
                 organizationManager.create(new Organization('organization')).then(organization => {
                     expect(organization).to.exist;
 
-                    userManager.setOrganization(user._id, organization).then(user => {
+                    userManager.setOrganization(user._id, organization._id).then(user => {
                         expect(user).to.exist;
                         expect(user).to.have.property('organization');
                         expect(user.organization).to.have.property('name', 'organization');

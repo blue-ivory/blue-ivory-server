@@ -19,8 +19,17 @@ router.get('/user',
     PermissionsMiddleware.hasPermissions([Permission.EDIT_USER_PERMISSIONS]),
     (req: express.Request, res: express.Response) => {
         let searchTerm = req.param('searchTerm');
+        let page = +req.param('page');
+        let pageSize = +req.param('pageSize');
+        let paginationOptions = null;
+        if (page && pageSize) {
+            paginationOptions = {
+                skip: (page - 1) * pageSize,
+                limit: pageSize
+            };
+        }
 
-        userManager.search(searchTerm).then((users) => {
+        userManager.search(searchTerm, paginationOptions).then((users) => {
             return res.json(users);
         }).catch((error) => {
             console.error(error);
@@ -82,9 +91,9 @@ router.put('/user/:id/organization',
     PermissionsMiddleware.hasPermissions([Permission.EDIT_USER_PERMISSIONS]),
     (req: express.Request, res: express.Response) => {
         let userId = req.params.id;
-        let organization: Organization = req.body.organization;
+        let organizationId: any = req.body.organizationId;
 
-        userManager.setOrganization(userId, organization).then((user: User) => {
+        userManager.setOrganization(userId, organizationId).then((user: User) => {
             return res.json(user);
         }).catch(error => {
             console.error(error);

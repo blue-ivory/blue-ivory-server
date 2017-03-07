@@ -31,7 +31,7 @@ describe('PermissionManager', () => {
                     expect(organization2).to.exist;
                     userManager.create(new User('fName', 'lName', 'uid', 'mail')).then((user: User) => {
                         expect(user).to.exist;
-                        userManager.setOrganization('uid', organization1).then((user: User) => {
+                        userManager.setOrganization('uid', organization1._id).then((user: User) => {
                             expect(user).to.exist;
                             permissionManager.setPermissions('uid', organization1, [Permission.ADMIN, Permission.APPROVE_CIVILIAN]).then((user: User) => {
                                 expect(user).to.exist;
@@ -68,7 +68,7 @@ describe('PermissionManager', () => {
                 expect(organization).to.exist;
                 userManager.create(new User('fName', 'lName', 'uid', 'mail')).then((user: User) => {
                     expect(user).to.exist;
-                    userManager.setOrganization('uid', organization).then((user: User) => {
+                    userManager.setOrganization('uid', organization._id).then((user: User) => {
                         expect(user).to.exist;
                         permissionManager.setPermissions('uid', organization, [Permission.ADMIN, Permission.APPROVE_SOLDIER]).then((user: User) => {
                             expect(user).to.exist;
@@ -110,7 +110,7 @@ describe('PermissionManager', () => {
                 userManager.create(new User('fName', 'lName', 'uid', 'mail')).then((user: User) => {
                     expect(user).to.exist;
 
-                    userManager.setOrganization('uid', organization).then((user: User) => {
+                    userManager.setOrganization('uid', organization._id).then((user: User) => {
                         expect(user).to.exist;
 
                         permissionManager.setPermissions('uid', organization, []).then((user: User) => {
@@ -135,7 +135,7 @@ describe('PermissionManager', () => {
 
                     userManager.create(new User('fName', 'lName', 'uid', 'mail')).then((user: User) => {
                         expect(user).to.exist;
-                        userManager.setOrganization('uid', organization).then((user: User) => {
+                        userManager.setOrganization('uid', organization._id).then((user: User) => {
                             expect(user).to.exist;
                             permissionManager.setPermissions('uid', organization, [Permission.ADMIN, Permission.APPROVE_SOLDIER]).then((user: User) => {
                                 expect(user).to.exist;

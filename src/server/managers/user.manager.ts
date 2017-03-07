@@ -3,6 +3,7 @@ import { User } from './../classes/user';
 import { Organization } from './../classes/organization';
 import * as Promise from 'bluebird';
 import * as UserModel from './../models/user.model';
+import { OrganizationManager } from './../managers/organization.manager';
 
 export class UserManager implements IDAO<User>{
     public all(): Promise<any> {
@@ -72,7 +73,7 @@ export class UserManager implements IDAO<User>{
         return deferred.promise;
     }
 
-    public search(searchTerm?: string): Promise<any> {
+    public search(searchTerm?: string, paginationOptions?: { skip: number, limit: number }): Promise<any> {
         let deferred = Promise.defer();
         let re = new RegExp(searchTerm, "i");
         let filter = {
@@ -90,6 +91,13 @@ export class UserManager implements IDAO<User>{
         };
 
         let usersPromise = UserModel.find(filter).populate('organization').populate('permissions.organization');
+
+        if (paginationOptions) {
+            usersPromise = usersPromise
+                .skip(paginationOptions.skip)
+                .limit(paginationOptions.limit);
+        }
+
         let countPromise = UserModel.count(filter);
 
         Promise.all([usersPromise, countPromise]).then(values => {
@@ -150,15 +158,24 @@ export class UserManager implements IDAO<User>{
         return filter;
     }
 
-    public setOrganization(userId: string, organization: Organization): Promise<any> {
+    public setOrganization(userId: string, organizationId: any): Promise<any> {
         let deferred = Promise.defer();
+        let organizationManger = new OrganizationManager();
 
-        UserModel.findByIdAndUpdate(userId, { organization: organization }, { new: true }).populate('organization').exec((err, user) => {
-            if (err) {
-                deferred.reject(err);
+        organizationManger.read(organizationId).then((organization: Organization) => {
+            if (organization) {
+                UserModel.findByIdAndUpdate(userId, { organization: organization }, { new: true }).populate('organization').exec((err, user) => {
+                    if (err) {
+                        deferred.reject(err);
+                    } else {
+                        deferred.resolve(user);
+                    }
+                });
             } else {
-                deferred.resolve(user);
+                deferred.reject("Organization not found");
             }
+        }).catch(error => {
+            deferred.reject(error);
         });
 
         return deferred.promise;

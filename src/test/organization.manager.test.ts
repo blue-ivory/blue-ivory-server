@@ -164,8 +164,7 @@ describe('OrganizationManager', () => {
                 organizationManager.create(new Organization('org four'))
             ]).then(values => {
                 userManager.create(new User('t', 'e', 's', 't')).then(user => {
-                    userManager.setOrganization('s', values[0]);
-                    done();
+                    userManager.setOrganization('s', values[0]._id).then(() => done());
                 });
             });
         });
