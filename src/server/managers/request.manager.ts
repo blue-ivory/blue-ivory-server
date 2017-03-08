@@ -26,7 +26,7 @@ export class RequestManager implements IDAO<Request>{
     public all(): Promise<any> {
         let deferred = Promise.defer();
 
-        RequestModel.find({}).populate([{ path: 'requestor' }, { path: 'visitor' }, { path: 'authorizer' }]).exec((err, requests) => {
+        RequestModel.find({})/*.populate([{ path: 'requestor' }, { path: 'visitor' }, { path: 'authorizer' }])*/.exec((err, requests) => {
             if (err) {
                 deferred.reject(err);
             } else {
@@ -74,30 +74,47 @@ export class RequestManager implements IDAO<Request>{
         return deferred.promise;
     }
 
-    public search(searchTerm: string, filter?: Object): Promise<any> {
+    public search(searchTerm?: string, filter?: Object, paginationOptions?: { skip: number, limit: number }): Promise<any> {
         let deferred = Promise.defer();
         let visitorManager = new VisitorManager();
 
-        searchTerm = searchTerm.replace(/[^\s\w\d\u0590-\u05FF]/gi, '');
+        let populateFields = [
+            { path: 'requestor', select: 'firstName lastName mail' },
+            { path: 'authorizer', select: 'firstName lastName mail' },
+            { path: 'visitor' }
+        ];
+
+        searchTerm = searchTerm ? searchTerm.replace(/[^\s\w\d\u0590-\u05FF]/gi, '') : '';
 
         visitorManager.search(searchTerm).then(visitors => {
             let visitorsId = visitors.map(visitor => {
                 return visitor._id;
             });
 
-            RequestModel.find({
+            let queryFilter = {
                 '$and': [
                     { 'visitor': { '$in': visitorsId } },
                     filter ? filter : {}
                 ]
-            }).populate([{ path: 'requestor' }, { path: 'visitor' }, { path: 'authorizer' }])
-                .exec((err, requests) => {
-                    if (err) {
-                        deferred.reject(err);
-                    } else {
-                        deferred.resolve(requests);
-                    }
-                });
+            };
+
+            let requestPromise = RequestModel.find(queryFilter).populate(populateFields);
+            let countPromise = RequestModel.count(queryFilter);
+
+            if (paginationOptions) {
+                requestPromise = requestPromise
+                    .skip(paginationOptions.skip)
+                    .limit(paginationOptions.limit);
+            }
+
+            Promise.all([requestPromise, countPromise]).then(values => {
+                let result = {
+                    requests: values[0],
+                    totalCount: values[1]
+                };
+
+                deferred.resolve(result);
+            }).catch(error => deferred.reject(error));
         }, err => {
             console.error(err);
             deferred.reject(err);
@@ -106,8 +123,8 @@ export class RequestManager implements IDAO<Request>{
         return deferred.promise;
     }
 
-    public searchByType(type: string, searchTerm: string, user: User): Promise<any> {
-        return this.search(searchTerm, this.filterByType(type, user));
+    public searchByType(type: string, searchTerm: string, user: User, paginationOptions?: { skip: number, limit: number }): Promise<any> {
+        return this.search(searchTerm, this.filterByType(type, user), paginationOptions);
     }
 
     public update(request: Request): Promise<any> {

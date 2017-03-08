@@ -10,21 +10,21 @@ import { RequestsMiddleware } from './../middlewares/requests.middleware';
 var router: express.Router = express.Router();
 var requestManager = new RequestManager();
 
-router.get('/request', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
-    requestManager.all().then((requests) => {
-        return res.json(requests);
-    }).catch((error) => {
-        console.error(error);
-        return res.sendStatus(500);
-    });
-});
-
 router.get('/request/:type', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
 
     let type = req.params;
     let searchTerm = req.param('searchTerm');
+    let page = +req.param('page');
+    let pageSize = +req.param('pageSize');
+    let paginationOptions = null;
+    if (page && pageSize) {
+        paginationOptions = {
+            skip: (page - 1) * pageSize,
+            limit: pageSize
+        };
+    }
 
-    requestManager.searchByType(type, searchTerm, req.user).then((requests) => {
+    requestManager.searchByType(type, searchTerm, req.user, paginationOptions).then((requests) => {
         if (!requests) {
             return res.sendStatus(404);
         }

@@ -52,28 +52,31 @@ var userSchema: mongoose.Schema = new mongoose.Schema({
         toJSON: {
             transform: (doc, ret) => {
                 let permissions = ret.permissions;
-                let allPermissions = [];
-                permissions.forEach(permission => {
-                    allPermissions.push(...permission.organizationPermissions);
-                });
+
+                if (permissions) {
+                    let allPermissions = [];
+                    permissions.forEach(permission => {
+                        allPermissions.push(...permission.organizationPermissions);
+                    });
 
 
-                let uniquePermissions = Array.from(new Set(allPermissions));
-                ret.permittedRoutes = [
-                    { resource: 'requests', title: 'all_requests', route: 'requests/all/' },
-                    { resource: 'requests', title: 'my_requests', route: 'requests/my/' }
-                ];
-                if (canApprove(uniquePermissions)) {
-                    ret.permittedRoutes.push({ resource: 'requests', title: 'pending_requests', route: 'requests/pending/' });
-                }
+                    let uniquePermissions = Array.from(new Set(allPermissions));
+                    ret.permittedRoutes = [
+                        { resource: 'requests', title: 'all_requests', route: 'requests/all/' },
+                        { resource: 'requests', title: 'my_requests', route: 'requests/my/' }
+                    ];
+                    if (canApprove(uniquePermissions)) {
+                        ret.permittedRoutes.push({ resource: 'requests', title: 'pending_requests', route: 'requests/pending/' });
+                    }
 
-                if (canModifyUserSettings(uniquePermissions)) {
-                    ret.permittedRoutes.push({ resource: 'users', title: 'users', route: 'users/' });
-                }
+                    if (canModifyUserSettings(uniquePermissions)) {
+                        ret.permittedRoutes.push({ resource: 'users', title: 'users', route: 'users/' });
+                    }
 
-                // TODO : Change to admin permission                
-                if (isAdmin(uniquePermissions)) {
-                    ret.permittedRoutes.push({ resource: 'organizations', title: 'organizations', route: 'organizations/' });
+                    // TODO : Change to admin permission                
+                    if (isAdmin(uniquePermissions)) {
+                        ret.permittedRoutes.push({ resource: 'organizations', title: 'organizations', route: 'organizations/' });
+                    }
                 }
             }
 
