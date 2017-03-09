@@ -1,8 +1,10 @@
 import { IDAO } from './../interfaces/IDAO';
 import { Request } from './../classes/request';
 import { User } from './../classes/user';
+import { Organization } from './../classes/organization';
 import * as RequestModel from './../models/request.model';
 import { VisitorManager } from './../managers/visitor.manager';
+import { OrganizationManager } from './../managers/organization.manager';
 import * as Promise from 'bluebird';
 require('./../models/visitor.model');
 
@@ -43,20 +45,30 @@ export class RequestManager implements IDAO<Request>{
 
 
         let visitorManager = new VisitorManager();
+        let organizationManager = new OrganizationManager();
 
-        visitorManager.readOrCreate(request.visitor).then(visitor => {
-            request.visitor = visitor;
-            let requestModel = new RequestModel(request);
-            requestModel.save((err, request) => {
-                if (err) {
-                    deferred.reject(err);
-                } else {
-                    deferred.resolve(request);
-                }
-            });
-        }).catch(err => {
-            deferred.reject(err);
+        organizationManager.read(request.organization ? request.organization._id : null).then((organization: Organization) => {
+            if (!organization) {
+                deferred.reject('Organization not found');
+            } else {
+                request.organization = organization;
+                visitorManager.readOrCreate(request.visitor).then(visitor => {
+                    request.visitor = visitor;
+                    let requestModel = new RequestModel(request);
+                    requestModel.save().then(request => {
+                        deferred.resolve(request);
+                    }).catch(error => {
+                        deferred.reject(error);
+                    });
+                }).catch(error => {
+                    deferred.reject(error);
+                });;
+            }
+        }).catch(error => {
+            deferred.reject(error);
         });
+
+
 
         return deferred.promise;
     }

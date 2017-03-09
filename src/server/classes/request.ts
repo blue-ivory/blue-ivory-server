@@ -1,5 +1,6 @@
 import { Visitor } from './visitor';
 import { User } from './user';
+import { Organization } from './organization';
 
 export class Request {
     public _id;
@@ -13,6 +14,7 @@ export class Request {
     public isSolider: boolean;
     public needEscort: boolean;
     public hasCar: boolean;
+    public organization: Organization;
 
     constructor(
         startDate: Date,
@@ -22,8 +24,9 @@ export class Request {
         description: string,
         isSoldier: boolean,
         needEscort: boolean,
-        hasCar: boolean) {
-        
+        hasCar: boolean,
+        organization: Organization) {
+
         this.requestDate = new Date();
         this.startDate = startDate;
         this.endDate = endDate;
@@ -34,5 +37,6 @@ export class Request {
         this.isSolider = isSoldier;
         this.needEscort = needEscort;
         this.hasCar = hasCar;
+        this.organization = organization;
     }
 }
