@@ -34,15 +34,15 @@ describe('RequestManager', () => {
         it('Should not create a request when missing data', done => {
             organizationManager.create(organization).then(organization => {
                 visitorManager.create(visitor).then(visitor => {
-                    requestManager.create(new Request(null, null, null, null, null, null, null, null, null)).catch(error => {
+                    requestManager.create(new Request(null, null, null, null, null, null, null, null)).catch(error => {
                         expect(error).to.exist;
                         expect(error).to.eql('Organization not found');
 
-                        requestManager.create(new Request(null, null, null, null, null, null, null, null, organization)).catch(error => {
+                        requestManager.create(new Request(null, null, null, null, null, null, null, organization)).catch(error => {
                             expect(error).to.exist;
                             expect(error).to.eql('Visitor is a required field');
 
-                            requestManager.create(new Request(null, null, visitor, null, null, null, null, null, organization)).catch(error => {
+                            requestManager.create(new Request(null, null, visitor, null, null, null, null, organization)).catch(error => {
                                 expect(error).to.exist;
                                 expect(error).to.have.property('message', 'Request validation failed')
 
@@ -56,7 +56,7 @@ describe('RequestManager', () => {
             })
         });
         it('Should create a request', done => {
-            requestManager.create(new Request(new Date(), new Date(), visitor, user, '', true, true, true, organization)).then(request => {
+            requestManager.create(new Request(new Date(), new Date(), visitor, user, '', true, true, organization)).then(request => {
                 expect(request).to.exist;
                 expect(request).to.have.property('_id');
                 expect(request).to.have.property('visitor');
@@ -66,7 +66,6 @@ describe('RequestManager', () => {
                 expect(request).to.have.property('endDate');
                 expect(request).to.have.property('isSolider', true);
                 expect(request).to.have.property('needEscort', true);
-                expect(request).to.have.property('hasCar', true);
 
                 done();
             });
@@ -81,7 +80,7 @@ describe('RequestManager', () => {
             })
         });
         it('Should return request when exists', done => {
-            requestManager.create(new Request(new Date(), new Date(), visitor, user, '', true, true, true, organization)).then(request => {
+            requestManager.create(new Request(new Date(), new Date(), visitor, user, '', true, true, organization)).then(request => {
                 expect(request).to.exist;
                 requestManager.read(request._id).then(foundRequest => {
                     expect(foundRequest).to.exist;

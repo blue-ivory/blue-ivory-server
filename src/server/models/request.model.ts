@@ -1,7 +1,7 @@
 /// <reference path="./../../../typings/index.d.ts" />
 
 import * as mongoose from 'mongoose';
-import { Request } from './../classes/request';
+import { Request, CarType } from './../classes/request';
 
 var requestSchema: mongoose.Schema = new mongoose.Schema({
     requestDate: {
@@ -42,9 +42,18 @@ var requestSchema: mongoose.Schema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    hasCar: {
-        type: Boolean,
-        default: false
+    car: {
+        type: String,
+        enum: [
+            CarType.NONE,
+            CarType.PRIVATE,
+            CarType.ARMY
+        ],
+        default: CarType.NONE
+    },
+    carNumber: {
+        type: Number,
+        required: false
     },
     needEscort: {
         type: Boolean,

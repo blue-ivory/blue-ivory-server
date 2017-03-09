@@ -13,7 +13,8 @@ export class Request {
     public description: string;
     public isSolider: boolean;
     public needEscort: boolean;
-    public hasCar: boolean;
+    public car: CarType;
+    public carNumber?: number;
     public organization: Organization;
 
     constructor(
@@ -24,7 +25,6 @@ export class Request {
         description: string,
         isSoldier: boolean,
         needEscort: boolean,
-        hasCar: boolean,
         organization: Organization) {
 
         this.requestDate = new Date();
@@ -36,7 +36,12 @@ export class Request {
         this.description = description;
         this.isSolider = isSoldier;
         this.needEscort = needEscort;
-        this.hasCar = hasCar;
         this.organization = organization;
     }
+}
+
+export enum CarType {
+    NONE = <any>"NONE",
+    PRIVATE = <any>"PRIVATE",
+    ARMY = <any>"ARMY"
 }
