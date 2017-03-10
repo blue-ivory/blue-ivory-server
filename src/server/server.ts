@@ -10,6 +10,7 @@ import * as requestRouter from './controllers/request.controller';
 import * as userRouter from './controllers/user.controller';
 import * as organizationRouter from './controllers/organization.controller';
 import * as permissionRouter from './controllers/permission.controller';
+import * as visitorRouter from './controllers/visitor.controller';
 
 
 
@@ -48,6 +49,7 @@ app.use('/api/', requestRouter);
 app.use('/api/', userRouter);
 app.use('/api/', organizationRouter);
 app.use('/api/', permissionRouter);
+app.use('/api/', visitorRouter);
 
 
 var server = app.listen(port, () => {
