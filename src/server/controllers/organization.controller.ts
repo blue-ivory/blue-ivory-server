@@ -13,7 +13,6 @@ var organizationManager = new OrganizationManager();
 
 router.get('/organization',
     AuthMiddleware.requireLogin,
-    PermissionsMiddleware.hasPermissions([Permission.EDIT_USER_PERMISSIONS]),
     (req: express.Request, res: express.Response) => {
         let searchTerm = req.param('searchTerm');
         let page = +req.param('page');

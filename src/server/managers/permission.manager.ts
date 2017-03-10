@@ -17,6 +17,8 @@ export class PermissionManager {
             }
             else if (!user) {
                 deferred.reject("User " + userId + " not found");
+            } else if (true === user.isAdmin) {
+                deferred.resolve(true);
             } else {
                 let hasPermissions = false;
 
@@ -51,6 +53,8 @@ export class PermissionManager {
             }
             else if (!user) {
                 deferred.reject("User " + userId + " not found");
+            } else if (true === user.isAdmin) {
+                deferred.resolve(true);
             } else {
                 let hasPermissions = permissions.length === 0;
                 if (user.permissions) {

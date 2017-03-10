@@ -8,6 +8,7 @@ export class User {
     public mail: string;
     public organization: Organization;
     public permissions: [{ organization: Organization, organizationPermissions: Permission[] }];
+    public isAdmin: boolean;
 
     constructor(firstName: string, lastName: string, uniqueId: string, mail: string) {
         this.firstName = firstName;

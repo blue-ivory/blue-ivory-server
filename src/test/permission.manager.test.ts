@@ -16,7 +16,7 @@ describe('PermissionManager', () => {
         it('Should do nothing when user not exists in DB', done => {
             organizationManager.create(new Organization('test')).then(organization => {
                 expect(organization).to.exist;
-                permissionManager.setPermissions('123', organization, [Permission.ADMIN]).catch(err => {
+                permissionManager.setPermissions('123', organization, [Permission.APPROVE_CAR]).catch(err => {
                     expect(err).to.exist;
                     expect(err).to.eql('User not found');
                     done();
@@ -33,7 +33,7 @@ describe('PermissionManager', () => {
                         expect(user).to.exist;
                         userManager.setOrganization('uid', organization1._id).then((user: User) => {
                             expect(user).to.exist;
-                            permissionManager.setPermissions('uid', organization1, [Permission.ADMIN, Permission.APPROVE_CIVILIAN]).then((user: User) => {
+                            permissionManager.setPermissions('uid', organization1, [Permission.EDIT_WORKFLOW, Permission.APPROVE_CIVILIAN]).then((user: User) => {
                                 expect(user).to.exist;
 
                                 permissionManager.setPermissions('uid', organization2, [Permission.EDIT_USER_PERMISSIONS, Permission.NORMAL_USER]).then((user: User) => {
@@ -46,7 +46,7 @@ describe('PermissionManager', () => {
                                     expect(user.permissions[0].organization).to.have.property('name', organization1.name);
                                     expect(user.permissions[0]).to.have.property('organizationPermissions');
                                     expect(user.permissions[0].organizationPermissions).to.have.length(2);
-                                    expect(user.permissions[0].organizationPermissions).to.have.members([Permission.ADMIN, Permission.APPROVE_CIVILIAN]);
+                                    expect(user.permissions[0].organizationPermissions).to.have.members([Permission.EDIT_WORKFLOW, Permission.APPROVE_CIVILIAN]);
                                     expect(user.permissions[1]).to.have.property('organization');
                                     expect(user.permissions[1].organization).to.have.property('name', organization2.name);
                                     expect(user.permissions[1]).to.have.property('organizationPermissions');
@@ -70,13 +70,13 @@ describe('PermissionManager', () => {
                     expect(user).to.exist;
                     userManager.setOrganization('uid', organization._id).then((user: User) => {
                         expect(user).to.exist;
-                        permissionManager.setPermissions('uid', organization, [Permission.ADMIN, Permission.APPROVE_SOLDIER]).then((user: User) => {
+                        permissionManager.setPermissions('uid', organization, [Permission.EDIT_WORKFLOW, Permission.APPROVE_SOLDIER]).then((user: User) => {
                             expect(user).to.exist;
                             permissionManager.setPermissions('uid', organization, [Permission.APPROVE_CAR]).then((user: User) => {
                                 expect(user).to.exist;
 
                                 organizationManager.create(new Organization('o')).then(organization2 => {
-                                    permissionManager.setPermissions('uid', organization2, [Permission.ADMIN]).then(user => {
+                                    permissionManager.setPermissions('uid', organization2, [Permission.EDIT_WORKFLOW]).then(user => {
                                         expect(user).to.exist;
 
                                         expect(user).to.have.property('permissions');
@@ -91,7 +91,7 @@ describe('PermissionManager', () => {
                                         expect(user.permissions[1].organization).to.have.property('name', organization2.name);
                                         expect(user.permissions[1]).to.have.property('organizationPermissions');
                                         expect(user.permissions[1].organizationPermissions).to.have.length(1);
-                                        expect(user.permissions[1].organizationPermissions).to.have.members([Permission.ADMIN]);
+                                        expect(user.permissions[1].organizationPermissions).to.have.members([Permission.EDIT_WORKFLOW]);
 
                                         done();
                                     });
@@ -137,7 +137,7 @@ describe('PermissionManager', () => {
                         expect(user).to.exist;
                         userManager.setOrganization('uid', organization._id).then((user: User) => {
                             expect(user).to.exist;
-                            permissionManager.setPermissions('uid', organization, [Permission.ADMIN, Permission.APPROVE_SOLDIER]).then((user: User) => {
+                            permissionManager.setPermissions('uid', organization, [Permission.EDIT_WORKFLOW, Permission.APPROVE_SOLDIER]).then((user: User) => {
                                 expect(user).to.exist;
                                 permissionManager.setPermissions('uid', organization2, [Permission.EDIT_USER_PERMISSIONS, Permission.NORMAL_USER]).then((user: User) => {
                                     expect(user).to.exist;
@@ -203,10 +203,10 @@ describe('PermissionManager', () => {
         it('Should return false if user don\'t have requested permissions', (done: MochaDone) => {
 
             let permissionPromises = [];
-            permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.ADMIN]));
+            permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.EDIT_WORKFLOW]));
             permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.APPROVE_CIVILIAN, Permission.APPROVE_SOLDIER]));
             permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.APPROVE_CAR, Permission.APPROVE_SOLDIER]));
-            permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.ADMIN, Permission.APPROVE_CAR, Permission.APPROVE_CIVILIAN], true));
+            permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.EDIT_WORKFLOW, Permission.APPROVE_CAR, Permission.APPROVE_CIVILIAN], true));
 
             Promise.all(permissionPromises).then(hasPermissions => {
                 hasPermissions.forEach(hasPermission => {
@@ -246,10 +246,10 @@ describe('PermissionManager', () => {
 
         it('Should return false when user don\'t have enough permissions', (done: MochaDone) => {
             let permissionPromises = [];
-            permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.ADMIN]));
-            permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.ADMIN], true));
-            permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.EDIT_USER_PERMISSIONS, Permission.ADMIN]));
-            permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.EDIT_USER_PERMISSIONS, Permission.APPROVE_SOLDIER, Permission.ADMIN]));
+            permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.EDIT_WORKFLOW]));
+            permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.EDIT_WORKFLOW], true));
+            permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.EDIT_USER_PERMISSIONS, Permission.EDIT_WORKFLOW]));
+            permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.EDIT_USER_PERMISSIONS, Permission.APPROVE_SOLDIER, Permission.EDIT_WORKFLOW]));
             permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.APPROVE_SOLDIER, Permission.APPROVE_CIVILIAN]));
             permissionPromises.push(permissionManager.hasPermissions(user._id, [Permission.APPROVE_CIVILIAN, Permission.APPROVE_CAR], true));
 
@@ -261,7 +261,38 @@ describe('PermissionManager', () => {
             });
         });
 
-        it('Should return true when user is ADMIN no metter what permission required');
+        it('Should return true when user is EDIT_WORKFLOW no metter what permission required', done => {
+            let admin = new User('admin', 'admin', 'admin', 'admin');
+            admin.isAdmin = true;
+
+            userManager.create(admin).then(user => {
+                expect(user).to.exist;
+                expect(user).to.have.property('isAdmin', true);
+
+                let permissionPromises = [
+                    permissionManager.hasPermissions(user._id, [Permission.NORMAL_USER]),
+                    permissionManager.hasPermissions(user._id, [Permission.APPROVE_CAR]),
+                    permissionManager.hasPermissions(user._id, [Permission.APPROVE_CIVILIAN]),
+                    permissionManager.hasPermissions(user._id, [Permission.APPROVE_SOLDIER]),
+                    permissionManager.hasPermissions(user._id, [Permission.EDIT_USER_PERMISSIONS]),
+                    permissionManager.hasPermissions(user._id, [Permission.EDIT_WORKFLOW]),
+                    permissionManager.hasPermissions(user._id, [Permission.NORMAL_USER]),
+                    permissionManager.hasPermissions(user._id, [Permission.APPROVE_CAR]),
+                    permissionManager.hasPermissions(user._id, [Permission.APPROVE_CIVILIAN]),
+                    permissionManager.hasPermissions(user._id, [Permission.APPROVE_SOLDIER]),
+                    permissionManager.hasPermissions(user._id, [Permission.EDIT_USER_PERMISSIONS]),
+                    permissionManager.hasPermissions(user._id, [Permission.EDIT_WORKFLOW])
+                ];
+
+                Promise.all(permissionPromises).then(hasPermissions => {
+                    hasPermissions.forEach(hasPermission => {
+                        expect(hasPermission).to.be.true;
+                    });
+
+                    done();
+                });
+            });
+        });
     });
 
     describe('#hasPermissionForOrganization', () => {
@@ -318,7 +349,7 @@ describe('PermissionManager', () => {
             let permissionPromises = [
                 permissionManager.hasPermissionForOrganization(user._id, [Permission.APPROVE_SOLDIER], organization1._id),
                 permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_USER_PERMISSIONS], organization2._id, true),
-                permissionManager.hasPermissionForOrganization(user._id, [Permission.ADMIN, Permission.APPROVE_CIVILIAN], organization2._id, true),
+                permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_WORKFLOW, Permission.APPROVE_CIVILIAN], organization2._id, true),
                 permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_USER_PERMISSIONS, Permission.APPROVE_CAR], organization1._id),
                 permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_USER_PERMISSIONS, Permission.APPROVE_SOLDIER], organization2._id)
             ];
@@ -352,7 +383,7 @@ describe('PermissionManager', () => {
         it('Should return true when user has required permissions', (done: MochaDone) => {
             let permissionPromises = [
                 permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_USER_PERMISSIONS], organization1._id),
-                permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_USER_PERMISSIONS, Permission.ADMIN], organization1._id, true),
+                permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_USER_PERMISSIONS, Permission.EDIT_WORKFLOW], organization1._id, true),
                 permissionManager.hasPermissionForOrganization(user._id, [Permission.APPROVE_SOLDIER], organization2._id, true),
                 permissionManager.hasPermissionForOrganization(user._id, [Permission.APPROVE_SOLDIER, Permission.EDIT_USER_PERMISSIONS], organization1._id, true),
                 permissionManager.hasPermissionForOrganization(user._id, [Permission.APPROVE_SOLDIER, Permission.EDIT_USER_PERMISSIONS], organization2._id, true),
@@ -367,6 +398,37 @@ describe('PermissionManager', () => {
             });
         });
 
-        it('Should return true when user is ADMIN no metter what permission required');
+        it('Should return true when user is ADMIN no metter what permission required', done => {
+            let admin = new User('admin', 'admin', 'admin', 'admin');
+            admin.isAdmin = true;
+
+            userManager.create(admin).then(user => {
+                expect(user).to.exist;
+                expect(user).to.have.property('isAdmin', true);
+
+                let permissionPromises = [
+                    permissionManager.hasPermissionForOrganization(user._id, [Permission.NORMAL_USER], organization1._id),
+                    permissionManager.hasPermissionForOrganization(user._id, [Permission.APPROVE_CAR], organization1._id),
+                    permissionManager.hasPermissionForOrganization(user._id, [Permission.APPROVE_CIVILIAN], organization1._id),
+                    permissionManager.hasPermissionForOrganization(user._id, [Permission.APPROVE_SOLDIER], organization1._id),
+                    permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_USER_PERMISSIONS], organization1._id),
+                    permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_WORKFLOW], organization1._id),
+                    permissionManager.hasPermissionForOrganization(user._id, [Permission.NORMAL_USER], organization2._id),
+                    permissionManager.hasPermissionForOrganization(user._id, [Permission.APPROVE_CAR], organization2._id),
+                    permissionManager.hasPermissionForOrganization(user._id, [Permission.APPROVE_CIVILIAN], organization2._id),
+                    permissionManager.hasPermissionForOrganization(user._id, [Permission.APPROVE_SOLDIER], organization2._id),
+                    permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_USER_PERMISSIONS], organization2._id),
+                    permissionManager.hasPermissionForOrganization(user._id, [Permission.EDIT_WORKFLOW], organization2._id)
+                ];
+
+                Promise.all(permissionPromises).then(hasPermissions => {
+                    hasPermissions.forEach(hasPermission => {
+                        expect(hasPermission).to.be.true;
+                    });
+
+                    done();
+                });
+            });
+        });
     });
 });

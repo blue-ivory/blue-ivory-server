@@ -15,11 +15,11 @@ var permissionSchema: mongoose.Schema = new mongoose.Schema({
         type: [{
             type: String,
             enum: [
-                Permission.ADMIN,
                 Permission.APPROVE_CAR,
                 Permission.APPROVE_CIVILIAN,
                 Permission.APPROVE_SOLDIER,
                 Permission.EDIT_USER_PERMISSIONS,
+                Permission.EDIT_WORKFLOW,
                 Permission.NORMAL_USER
             ]
         }],
@@ -47,6 +47,10 @@ var userSchema: mongoose.Schema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Organization'
     },
+    isAdmin: {
+        type: Boolean,
+        default: false
+    },
     permissions: [permissionSchema]
 }, {
         toJSON: {
@@ -65,16 +69,15 @@ var userSchema: mongoose.Schema = new mongoose.Schema({
                         { resource: 'requests', title: 'all_requests', route: 'requests/all/' },
                         { resource: 'requests', title: 'my_requests', route: 'requests/my/' }
                     ];
-                    if (canApprove(uniquePermissions)) {
+                    if (canApprove(uniquePermissions) || ret.isAdmin) {
                         ret.permittedRoutes.push({ resource: 'requests', title: 'pending_requests', route: 'requests/pending/' });
                     }
 
-                    if (canModifyUserSettings(uniquePermissions)) {
+                    if (canModifyUserSettings(uniquePermissions) || ret.isAdmin) {
                         ret.permittedRoutes.push({ resource: 'users', title: 'users', route: 'users/' });
                     }
 
-                    // TODO : Change to admin permission                
-                    if (isAdmin(uniquePermissions)) {
+                    if (ret.isAdmin) {
                         ret.permittedRoutes.push({ resource: 'organizations', title: 'organizations', route: 'organizations/' });
                     }
                 }
@@ -101,8 +104,4 @@ var canApprove = (permissions: Permission[]): boolean => {
 
 var canModifyUserSettings = (permissions: Permission[]): boolean => {
     return permissions.indexOf(Permission.EDIT_USER_PERMISSIONS) !== -1;
-}
-
-var isAdmin = (permissions: Permission[]): boolean => {
-    return permissions.indexOf(Permission.ADMIN) !== -1;
 }

@@ -1,5 +1,5 @@
 export enum Permission {
-    ADMIN = <any>'ADMIN',
+    EDIT_WORKFLOW = <any>'EDIT_WORKFLOW',
     NORMAL_USER = <any>'NORMAL_USER',
     APPROVE_CIVILIAN = <any>'APPROVE_CIVILIAN',
     APPROVE_SOLDIER = <any>'APPROVE_SOLDIER',
