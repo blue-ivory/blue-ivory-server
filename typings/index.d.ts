@@ -13,4 +13,5 @@
 /// <reference path="globals/node/index.d.ts" />
 /// <reference path="globals/promise/index.d.ts" />
 /// <reference path="globals/serve-static/index.d.ts" />
+/// <reference path="globals/express-user.d.ts" />
 /// <reference path="modules/bluebird/index.d.ts" />

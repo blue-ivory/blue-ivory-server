@@ -1,3 +1,4 @@
+import { Workflow } from './../classes/workflow';
 /// <reference path="./../../../typings/index.d.ts" />
 
 // TODO : Add workflow to schema
@@ -10,6 +11,10 @@ var organizationSchema: mongoose.Schema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true
+    },
+    workflow: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Workflow'
     }
 });
 

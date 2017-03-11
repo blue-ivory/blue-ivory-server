@@ -77,6 +77,10 @@ var userSchema: mongoose.Schema = new mongoose.Schema({
                         ret.permittedRoutes.push({ resource: 'users', title: 'users', route: 'users/' });
                     }
 
+                    if (canEditWorkflow(uniquePermissions) || ret.isAdmin) {
+                        ret.permittedRoutes.push({ resource: 'workflow', title: 'manage_workflow', route: 'workflow/' });
+                    }
+
                     if (ret.isAdmin) {
                         ret.permittedRoutes.push({ resource: 'organizations', title: 'organizations', route: 'organizations/' });
                     }
@@ -105,3 +109,7 @@ var canApprove = (permissions: Permission[]): boolean => {
 var canModifyUserSettings = (permissions: Permission[]): boolean => {
     return permissions.indexOf(Permission.EDIT_USER_PERMISSIONS) !== -1;
 }
+
+var canEditWorkflow = (permissions: Permission[]): boolean => {
+    return permissions.indexOf(Permission.EDIT_WORKFLOW) !== -1;
+};

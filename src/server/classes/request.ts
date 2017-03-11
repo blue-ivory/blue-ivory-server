@@ -14,7 +14,7 @@ export class Request {
     public isSolider: boolean;
     public needEscort: boolean;
     public car: CarType;
-    public carNumber?: number;
+    public carNumber: number;
     public organization: Organization;
 
     constructor(

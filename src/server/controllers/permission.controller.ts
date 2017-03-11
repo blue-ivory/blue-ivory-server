@@ -18,7 +18,6 @@ router.post('/has-permissions',
         let some: boolean = req.body.some;
         let user: User = req.user;
 
-        console.log(req.body);
         if (!permissions) {
             return res.status(400).send();
         }
@@ -38,7 +37,6 @@ router.all('/has-permissions/organization', AuthMiddleware.requireLogin,
         let some: boolean = req.body.some;
         let user: User = req.user;
 
-        console.log(req.body);
         if (!permissions || !organizationId) {
             return res.status(400).send();
         }

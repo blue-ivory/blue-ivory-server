@@ -162,7 +162,7 @@ describe('OrganizationManager', () => {
                 organizationManager.create(new Organization('org two')),
                 organizationManager.create(new Organization('org three')),
                 organizationManager.create(new Organization('org four'))
-            ]).then(values => {
+            ]).then((values: Organization[]) => {
                 userManager.create(new User('t', 'e', 's', 't')).then(user => {
                     userManager.setOrganization('s', values[0]._id).then(() => done());
                 });
