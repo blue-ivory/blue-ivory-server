@@ -1,3 +1,4 @@
+import { Task } from './../classes/task';
 import { Organization } from './../classes/organization';
 import { IDAO } from '../interfaces/IDAO';
 import * as OrganizationModel from './../models/organization.model';
@@ -109,5 +110,60 @@ export class OrganizationManager implements IDAO<Organization>{
         });
 
         return deferred.promise;
+    }
+
+    public setWorkflow(organizationId, workflow: Task[]): Promise<any> {
+
+        let deferred = Promise.defer();
+
+        let uniqueWorkflow = workflow ? this.getUniqueTasks(workflow) : workflow;
+
+        OrganizationModel.findByIdAndUpdate(organizationId, { workflow: uniqueWorkflow }, { new: true }).then((organization: Organization) => {
+            if (organization) {
+                deferred.resolve(organization);
+            } else {
+                deferred.reject('Organization not found');
+            }
+        }).catch(error => {
+            console.error(error);
+            deferred.reject(error);
+        });
+
+        return deferred.promise;
+    }
+
+    public getWorkflow(id: any): Promise<any> {
+        let deferred = Promise.defer();
+
+        OrganizationModel.findById(id).populate('workflow.organization', { name: 1 }).then((organization: Organization) => {
+            if (!organization) {
+                deferred.reject('Organization not found');
+            } else {
+                deferred.resolve(organization.workflow);
+            }
+        }).catch(error => {
+            console.error(error);
+            deferred.reject(error);
+        });
+
+        return deferred.promise;
+    }
+
+    private getUniqueTasks(workflow: Task[]): Task[] {
+        let uniqueTasks: Task[] = [];
+
+        workflow.forEach(task1 => {
+            let exists: boolean = false;
+            uniqueTasks.forEach(task2 => {
+                if (task2.equals(task1)) {
+                    exists = true;
+                }
+            });
+            if (!exists) {
+                uniqueTasks.push(task1);
+            }
+        });
+
+        return uniqueTasks;
     }
 }

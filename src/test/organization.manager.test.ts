@@ -3,7 +3,10 @@ import { OrganizationManager } from './../server/managers/organization.manager';
 import { UserManager } from './../server/managers/user.manager';
 import { Organization } from './../server/classes/organization';
 import { User } from './../server/classes/user';
+import { Task, TaskType } from './../server/classes/task';
 import { expect } from 'chai';
+import * as mongoose from 'mongoose';
+import Types = mongoose.Types;
 
 describe('OrganizationManager', () => {
 
@@ -96,7 +99,7 @@ describe('OrganizationManager', () => {
     describe('#update', () => {
         it('Should do nothing when organization not exists', done => {
             let organization: Organization = new Organization('name');
-            organization._id = '000000000000000000000000';
+            organization._id = new Types.ObjectId();
             organizationManager.update(organization).then(organization => {
                 expect(organization).to.not.exist;
                 done();
@@ -248,6 +251,188 @@ describe('OrganizationManager', () => {
 
 
                 done();
+            });
+        });
+    });
+
+    describe('#setWorkflow', () => {
+        let organization: Organization = null;
+        let organization2: Organization = null;
+
+
+        beforeEach(done => {
+            organizationManager.create(new Organization('org')).then(org => {
+                expect(org).to.exist;
+                expect(org).to.have.property('workflow').that.satisfies(value => {
+                    expect(value).to.be.an('array');
+                    expect(value).to.have.length(0);
+                    return true;
+                });
+
+                organization = org;
+
+                return organizationManager.create(new Organization('org2'));
+            }).then(org2 => {
+                expect(org2).to.exist;
+                expect(org2).to.have.property('workflow').that.satisfies(value => {
+                    expect(value).to.be.an('array');
+                    expect(value).to.have.length(0);
+                    return true;
+                });
+
+                organization2 = org2;
+                done();
+            });
+        });
+
+        it('Should throw error when organization not found', done => {
+            organizationManager.setWorkflow('000000000000000000000000', null).catch(error => {
+                expect(error).to.exist;
+                expect(error).to.be.eql('Organization not found');
+
+                done();
+            });
+        });
+
+        it('Should clear workflow when empty workflow is provided', done => {
+            organizationManager.setWorkflow(organization._id, []).then(org => {
+                expect(org).to.exist;
+                expect(org).have.property('workflow').that.satisfies(value => {
+                    expect(value).to.be.an('array');
+                    expect(value).to.have.length(0);
+
+                    return true;
+                });
+
+                done();
+            });
+        });
+
+        it('Should create workflow', done => {
+            let workflow: Task[] = [];
+            workflow.push(new Task(1, organization, TaskType.HUMAN));
+            workflow.push(new Task(2, organization, TaskType.CAR));
+            workflow.push(new Task(3, organization2, TaskType.CAR));
+
+
+            organizationManager.setWorkflow(organization._id, workflow).then((org: Organization) => {
+                expect(org).to.exist;
+                expect(org).to.have.property('workflow').that.satisfies(workflow => {
+                    expect(workflow).to.exist;
+                    expect(workflow).to.be.an('array');
+                    expect(workflow).to.have.length(3);
+                    expect(workflow).to.satisfy(wf => {
+                        wf.forEach(task => {
+                            expect(task).to.exist;
+                            expect(task).to.have.property('order').that.is.a('number');
+                            expect(task).to.have.property('organization').that.is.a('object');
+                            expect(task).to.have.property('type').that.is.a('string');
+                        });
+
+                        return true;
+                    });
+
+                    return true;
+                });
+
+                done();
+            });
+        });
+        it('Should clear workflow duplicates if exists (no duplicate organization + task)', done => {
+            let workflow: Task[] = [];
+            workflow.push(new Task(1, organization, TaskType.HUMAN));
+            workflow.push(new Task(2, organization, TaskType.HUMAN));
+            workflow.push(new Task(3, organization, TaskType.CAR));
+            workflow.push(new Task(4, organization2, TaskType.HUMAN));
+            workflow.push(new Task(5, organization2, TaskType.CAR));
+            workflow.push(new Task(6, organization2, TaskType.CAR));
+
+
+            organizationManager.setWorkflow(organization._id, workflow).then((org: Organization) => {
+                expect(org).to.exist;
+                expect(org).to.have.property('workflow').that.satisfies(workflow => {
+                    expect(workflow).to.exist;
+                    expect(workflow).to.be.an('array');
+                    expect(workflow).to.have.length(4);
+                    expect(workflow).to.satisfy(wf => {
+                        wf.forEach(task => {
+                            expect(task).to.exist;
+                            expect(task).to.have.property('order').that.is.a('number');
+                            expect(task).to.have.property('organization').that.is.a('object');
+                            expect(task).to.have.property('type').that.is.a('string');
+                        });
+
+                        return true;
+                    });
+
+                    return true;
+                });
+
+                done();
+            });
+        });
+    });
+
+    describe('#getWorkflow', () => {
+        let organization = null;
+
+        beforeEach(done => {
+            organizationManager.create(new Organization('org')).then(org => {
+                organization = org;
+
+                done();
+            });
+        });
+
+        it('Should throw error when organization not exists', done => {
+            organizationManager.getWorkflow('000000000000000000000000').catch(error => {
+                expect(error).to.exist;
+                expect(error).to.eql('Organization not found');
+
+                done();
+            });
+        });
+
+        it('Should return empty array when workflow not initialized for organization', done => {
+            organizationManager.getWorkflow(organization._id).then((workflow: Task[]) => {
+                expect(workflow).to.exist;
+                expect(workflow).to.be.an('array');
+                expect(workflow).to.have.length(0);
+
+                done();
+            });
+        });
+
+        it('Should return workflow for the specific organization', done => {
+            let workflow: Task[] = [];
+            workflow.push(new Task(1, organization, TaskType.HUMAN));
+            workflow.push(new Task(2, organization, TaskType.CAR));
+
+            organizationManager.setWorkflow(organization._id, workflow).then((org: Organization) => {
+                expect(org).to.exist;
+                organizationManager.getWorkflow(org._id).then((workflow: Task[]) => {
+                    console.log(workflow);
+                    expect(workflow).to.exist;
+                    expect(workflow).to.be.an('array');
+                    expect(workflow).to.have.length(2);
+                    expect(workflow).to.satisfy((workflow: Task[]) => {
+                        workflow.forEach(task => {
+                            expect(task).to.have.property('order')
+                            expect(task).to.have.property('type');
+                            expect(task).to.have.property('organization').that.satisfies(org => {
+                                expect(org).to.exist;
+                                expect(org).to.have.property('name');
+                                expect(org).to.have.property('_id');
+
+                                return true;
+                            });
+                        });
+
+                        return true;
+                    });
+
+                    done();
+                });
             });
         });
     });

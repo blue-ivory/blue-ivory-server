@@ -1,3 +1,5 @@
+import { PermissionManager } from './../managers/permission.manager';
+import { Task } from './../classes/task';
 /// <reference path="./../../../typings/index.d.ts" />
 
 import * as express from 'express';
@@ -30,6 +32,46 @@ router.get('/organization',
         }).catch((error) => {
             console.error(error);
             return res.sendStatus(500);
+        });
+    });
+
+router.get('/organization/:id/workflow',
+    AuthMiddleware.requireLogin,
+    PermissionsMiddleware.hasPermissions([Permission.EDIT_USER_PERMISSIONS]),
+    (req: express.Request, res: express.Response) => {
+        let organizationId = req.param('id');
+
+        organizationManager.getWorkflow(organizationId).then((workflow: Task[]) => {
+            return res.json(workflow);
+        }).catch(error => {
+            console.error(error);
+            return res.status(500).send();
+        });
+    });
+
+router.post('/organization/:id/workflow',
+    AuthMiddleware.requireLogin,
+    PermissionsMiddleware.hasPermissions([Permission.EDIT_USER_PERMISSIONS]),
+    (req: express.Request, res: express.Response) => {
+        let workflow = req.body.workflow;
+        let organizationId = req.body.organizationId;
+
+        let permissionManager: PermissionManager = new PermissionManager();
+
+        permissionManager.hasPermissionForOrganization(req.user._id, [Permission.EDIT_USER_PERMISSIONS], organizationId).then((hasPermissions: boolean) => {
+            if (hasPermissions) {
+                organizationManager.setWorkflow(organizationId, workflow).then((organization: Organization) => {
+                    return res.json(organization);
+                }).catch(error => {
+                    console.error(error);
+                    return res.status(500).send();
+                });
+            } else {
+                return res.status(403).send();
+            }
+        }).catch(error => {
+            console.error(error);
+            return res.status(500).send();
         });
     });
 
