@@ -53,8 +53,10 @@ router.post('/organization/:id/workflow',
     AuthMiddleware.requireLogin,
     PermissionsMiddleware.hasPermissions([Permission.EDIT_USER_PERMISSIONS]),
     (req: express.Request, res: express.Response) => {
-        let workflow = req.body.workflow;
-        let organizationId = req.body.organizationId;
+        let workflow = <Task[]>req.body.workflow;
+        let organizationId = req.param('id');
+
+        console.log(req.body);
 
         let permissionManager: PermissionManager = new PermissionManager();
 

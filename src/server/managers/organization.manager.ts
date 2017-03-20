@@ -155,7 +155,7 @@ export class OrganizationManager implements IDAO<Organization>{
         workflow.forEach(task1 => {
             let exists: boolean = false;
             uniqueTasks.forEach(task2 => {
-                if (task2.equals(task1)) {
+                if (task2.organization._id === task1.organization._id && task2.type === task1.type) {
                     exists = true;
                 }
             });

@@ -4,7 +4,7 @@ import Types = mongoose.Types;
 
 export class Task {
     public type: TaskType;
-    public organization: Organization;// | Types.ObjectId;
+    public organization: Organization;
     public order: number;
 
     constructor(orderNumber: number, organization: Organization, taskType: TaskType) {
