@@ -1,7 +1,45 @@
-/// <reference path="./../../../typings/index.d.ts" />
-
 import * as mongoose from 'mongoose';
 import { Request, CarType } from './../classes/request';
+import { Task, TaskType, TaskStatus } from './../classes/task';
+import { OrganizationManager } from './../managers/organization.manager';
+
+
+var taskSchema: mongoose.Schema = new mongoose.Schema({
+    order: {
+        type: Number,
+        required: true
+    },
+    type: {
+        type: String,
+        enum: [
+            TaskType.HUMAN,
+            TaskType.CAR
+        ],
+        required: true
+    },
+    organization: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Organization',
+        required: true
+    },
+    authorizer: {
+        type: String,
+        ref: 'User'
+    },
+    lastChangeDate: {
+        type: Date
+    },
+    status: {
+        type: String,
+        enum: [
+            TaskStatus.APPROVED,
+            TaskStatus.DENIED,
+            TaskStatus.PENDING
+        ],
+        required: true,
+        default: TaskStatus.PENDING
+    }
+});
 
 var requestSchema: mongoose.Schema = new mongoose.Schema({
     requestDate: {
@@ -63,7 +101,33 @@ var requestSchema: mongoose.Schema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Organization',
         required: true
+    },
+    workflow: {
+        type: [
+            taskSchema
+        ]
     }
+});
+
+requestSchema.pre('save', function (next) {
+    let organizationManager = new OrganizationManager();
+    let organizationId = this.organization;
+
+    organizationManager.getWorkflow(organizationId).then((workflow: Task[]) => {
+        if (workflow && workflow.length > 0) {
+            this.workflow = workflow;
+        } else {
+            let error = new Error('Cannot save request because workflow not assigned to organization yet');
+            next(error);
+        }
+
+        next();
+    }).catch(err => {
+        let error = new Error(err);
+        console.error(err);
+
+        next(error);
+    });
 });
 
 var RequestModel = mongoose.model<Request>("Request", requestSchema);

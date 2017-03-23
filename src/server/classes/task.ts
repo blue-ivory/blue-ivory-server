@@ -21,3 +21,8 @@ export enum TaskType {
     HUMAN = <any>'HUMAN',
     CAR = <any>'CAR'
 }
+export enum TaskStatus {
+    PENDING = <any>'PENDING',
+    APPROVED = <any>'APPROVED',
+    DENIED = <any>'DENIED'
+}
