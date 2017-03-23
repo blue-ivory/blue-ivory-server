@@ -1,5 +1,3 @@
-/// <reference path="./../../../typings/index.d.ts" />
-
 import * as mongoose from 'mongoose';
 import { User } from './../classes/user';
 import { Permission } from './../classes/permission';

@@ -1,5 +1,3 @@
-/// <reference path="./../../../typings/index.d.ts" />
-
 import * as express from 'express';
 import { VisitorManager } from './../managers/visitor.manager';
 import { Visitor } from './../classes/visitor';
@@ -21,4 +19,4 @@ router.get('/visitor/:id', AuthMiddleware.requireLogin, (req: express.Request, r
     }
 });
 
-export = router;
+export default router;

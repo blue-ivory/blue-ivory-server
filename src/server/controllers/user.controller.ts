@@ -1,5 +1,3 @@
-/// <reference path="./../../../typings/index.d.ts" />
-
 import * as express from 'express';
 import { UserManager } from './../managers/user.manager';
 import { PermissionManager } from './../managers/permission.manager';
@@ -101,4 +99,4 @@ router.put('/user/:id/organization',
         });
     });
 
-export = router;
+export default router;

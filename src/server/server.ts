@@ -1,11 +1,9 @@
-/// <reference path="./../../typings/index.d.ts" />
-
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as morgan from 'morgan';
 import * as methodOverride from 'method-override';
+import * as Promise from 'bluebird';
 import * as mongoose from 'mongoose';
-import * as bluebird from 'bluebird';
 import * as requestRouter from './controllers/request.controller';
 import * as userRouter from './controllers/user.controller';
 import * as organizationRouter from './controllers/organization.controller';
@@ -17,7 +15,8 @@ import * as visitorRouter from './controllers/visitor.controller';
 var config = require('./../../config');
 const app: express.Application = express();
 
-bluebird.promisifyAll(mongoose);
+Promise.promisifyAll(mongoose);
+(<any>mongoose).Promise = Promise;
 
 mongoose.connect(config.db.prod.url);
 
@@ -45,11 +44,11 @@ app.use(function (req, res, next) {
 
 const port: number = 80;
 
-app.use('/api/', requestRouter);
-app.use('/api/', userRouter);
-app.use('/api/', organizationRouter);
-app.use('/api/', permissionRouter);
-app.use('/api/', visitorRouter);
+app.use('/api/', requestRouter.default);
+app.use('/api/', userRouter.default);
+app.use('/api/', organizationRouter.default);
+app.use('/api/', permissionRouter.default);
+app.use('/api/', visitorRouter.default);
 
 
 var server = app.listen(port, () => {

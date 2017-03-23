@@ -1,6 +1,5 @@
 import { PermissionManager } from './../managers/permission.manager';
 import { Task } from './../classes/task';
-/// <reference path="./../../../typings/index.d.ts" />
 
 import * as express from 'express';
 import { OrganizationManager } from './../managers/organization.manager';
@@ -105,4 +104,4 @@ router.delete('/organization/:id',
         });
     });
 
-export = router;
+export default router;

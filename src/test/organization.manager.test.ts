@@ -1,4 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
 import { OrganizationManager } from './../server/managers/organization.manager';
 import { UserManager } from './../server/managers/user.manager';
 import { Organization } from './../server/classes/organization';

@@ -1,4 +1,3 @@
-/// <reference path="../../typings/index.d.ts" />
 import { VisitorManager } from './../server/managers/visitor.manager';
 import { Visitor } from './../server/classes/visitor';
 import { expect } from 'chai';
@@ -90,7 +89,7 @@ describe('VisitorManager', () => {
         });
 
         it('Should delete visitor (when exits)', done => {
-            visitorManager.create(new Visitor('v_name','v_company', '123')).then(visitor => {
+            visitorManager.create(new Visitor('v_name', 'v_company', '123')).then(visitor => {
                 expect(visitor).to.exist;
                 visitorManager.read(visitor._id).then(visitor => {
                     expect(visitor).to.exist;

@@ -1,5 +1,3 @@
-/// <reference path="./../../../typings/index.d.ts" />
-
 import * as express from 'express';
 import { PermissionManager } from './../managers/permission.manager';
 import { Permission } from './../classes/permission';
@@ -49,4 +47,4 @@ router.all('/has-permissions/organization', AuthMiddleware.requireLogin,
         });
     });
 
-export = router;
+export default router;

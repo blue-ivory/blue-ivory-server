@@ -1,3 +1,5 @@
+import * as Promise from 'bluebird';
+
 // Data Access Object - create, read, update and delete generics
 export interface IDAO<T> {
     all(): Promise<any>,

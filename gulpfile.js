@@ -6,35 +6,35 @@ var istanbul = require('gulp-istanbul');
 var nodemon = require('gulp-nodemon');
 
 // compile all the typescript files
-gulp.task('compile', function() {
+gulp.task('compile', function () {
     console.log('-----------------------------------------------');
     console.log('| compiling typescript files to build/**/*.js |');
     console.log('-----------------------------------------------');
     gulp.src('src/**/*.ts')
         .pipe(sourcemaps.init())
         .pipe(typescript({
-            target: 'es5'
+            target: 'es6'
         }))
         .pipe(sourcemaps.write('../build'))
         .pipe(gulp.dest('build'))
 });
 
 // compile test files
-gulp.task('compile-test', function() {
+gulp.task('compile-test', function () {
     console.log('----------------------------------------------------');
     console.log('| compiling typescript files to test/build/**/*.js |');
     console.log('----------------------------------------------------');
     gulp.src('src/test/**/*.ts')
         .pipe(sourcemaps.init())
         .pipe(typescript({
-            target: 'es5'
+            target: 'es6'
         }))
         .pipe(sourcemaps.write('../test'))
         .pipe(gulp.dest('build/test'))
 })
 
 // watch the files for changes and rebuild everything
-gulp.task("watch", function() {
+gulp.task("watch", function () {
     console.log('-------------------------');
     console.log('|  watching src/**/*.ts |');
     console.log('-------------------------');
@@ -44,7 +44,7 @@ gulp.task("watch", function() {
 /**
  * Copy all resources that are not TypeScript files into build directory.
  */
-gulp.task("resources", function() {
+gulp.task("resources", function () {
     return gulp.src(["src/**/*", "!**/*.ts"])
         .pipe(gulp.dest("build"))
 });
@@ -52,28 +52,28 @@ gulp.task("resources", function() {
 /**
  * Copy all required libraries into build directory.
  */
-gulp.task("libs", function() {
+gulp.task("libs", function () {
     return gulp.src([
-            'es6-shim/es6-shim.min.js',
-            'systemjs/dist/system-polyfills.js',
-            'systemjs/dist/system.src.js',
-            'reflect-metadata/Reflect.js',
-            'rxjs/**',
-            'zone.js/dist/**',
-            '@angular/**'
-        ], { cwd: "node_modules/**" }) /* Glob required here. */
+        'es6-shim/es6-shim.min.js',
+        'systemjs/dist/system-polyfills.js',
+        'systemjs/dist/system.src.js',
+        'reflect-metadata/Reflect.js',
+        'rxjs/**',
+        'zone.js/dist/**',
+        '@angular/**'
+    ], { cwd: "node_modules/**" }) /* Glob required here. */
         .pipe(gulp.dest("build/lib"));
 });
 
 /**
  * Build the project.
  */
-gulp.task("build", ['compile', 'resources', 'libs'], function() {
+gulp.task("build", ['compile', 'resources', 'libs'], function () {
     console.log("Building the project ...")
 });
 
 // start the server and listen for changes
-gulp.task('server', function() {
+gulp.task('server', function () {
     // configure nodemon
     nodemon({
         // the script to run the app
@@ -81,7 +81,7 @@ gulp.task('server', function() {
         // this listens to changes in any of these files/routes and restarts the application
         // watch: ["build/server.js", "app.js", "routes/", 'public/*', 'public/*/**'],
         watch: 'build',
-    }).on('restart', function() {
+    }).on('restart', function () {
         gulp.src('build/server/server.js');
 
         console.log('-----------------------');
@@ -90,7 +90,7 @@ gulp.task('server', function() {
     });
 });
 
-gulp.task("istanbul:hook", function() {
+gulp.task("istanbul:hook", function () {
     return gulp.src(['build/test/**/*.js'])
         // Covering files
         .pipe(istanbul())
@@ -98,7 +98,7 @@ gulp.task("istanbul:hook", function() {
         .pipe(istanbul.hookRequire());
 });
 
-gulp.task("test", ['build', 'istanbul:hook'], function() {
+gulp.task("test", ['build', 'istanbul:hook'], function () {
     return gulp.src('build/test/**/*.js')
         .pipe(mocha({ ui: 'bdd' }))
         .pipe(istanbul.writeReports());

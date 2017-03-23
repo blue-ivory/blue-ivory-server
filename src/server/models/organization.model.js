@@ -1,20 +1,16 @@
-import { TaskType } from './../classes/task';
-
+"use strict";
+const task_1 = require("./../classes/task");
 // TODO : Add workflow to schema
-
-import * as mongoose from 'mongoose';
-import { Organization } from './../classes/organization';
-
-
-var taskSchema: mongoose.Schema = new mongoose.Schema({
+const mongoose = require("mongoose");
+var taskSchema = new mongoose.Schema({
     type: {
         type: String,
         required: true,
         enum: [
-            TaskType.HUMAN,
-            TaskType.CAR
+            task_1.TaskType.HUMAN,
+            task_1.TaskType.CAR
         ],
-        default: TaskType.HUMAN
+        default: task_1.TaskType.HUMAN
     },
     organization: {
         type: mongoose.Schema.Types.ObjectId,
@@ -26,8 +22,7 @@ var taskSchema: mongoose.Schema = new mongoose.Schema({
         required: true
     }
 }, { _id: false });
-
-var organizationSchema: mongoose.Schema = new mongoose.Schema({
+var organizationSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
@@ -40,7 +35,5 @@ var organizationSchema: mongoose.Schema = new mongoose.Schema({
         default: []
     }
 });
-
-var OrganizationModel = mongoose.model<Organization>("Organization", organizationSchema);
-
-export = OrganizationModel;
+var OrganizationModel = mongoose.model("Organization", organizationSchema);
+module.exports = OrganizationModel;

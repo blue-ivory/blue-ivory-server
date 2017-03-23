@@ -1,5 +1,3 @@
-/// <reference path="./../../../typings/index.d.ts" />
-
 import * as express from 'express';
 import { RequestManager } from './../managers/request.manager';
 import { Request } from './../classes/request';
@@ -83,4 +81,4 @@ router.delete('/request/:id',
         });
     });
 
-export = router;
+export default router;
