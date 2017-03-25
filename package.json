@@ -5,12 +5,13 @@
   "main": "build/server/server.js",
   "scripts": {
     "start": "gulp",
-    "test": "gulp test"
+    "compile": "tsc --pretty",
+    "test": "tsc && mocha dist/**/spec.helper.js dist/**/*.spec.js"
   },
   "author": "Ron Borysovski",
   "license": "ISC",
   "dependencies": {
-    "bluebird": "^3.4.7",
+    "bluebird": "^3.5.0",
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
     "method-override": "^2.3.7",
@@ -20,13 +21,13 @@
     "morgan": "^1.7.0"
   },
   "devDependencies": {
-    "@types/bluebird": "^3.5.1",
+    "@types/bluebird": "^3.5.2",
     "@types/body-parser": "^1.16.0",
     "@types/chai": "^3.4.35",
     "@types/express": "^4.0.35",
     "@types/method-override": "0.0.29",
     "@types/mocha": "^2.2.40",
-    "@types/mongoose": "^4.7.8",
+    "@types/mongoose": "^4.7.9",
     "@types/morgan": "^1.7.32",
     "@types/node": "^7.0.8",
     "@types/passport": "^0.3.3",
