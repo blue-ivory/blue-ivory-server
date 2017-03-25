@@ -2,7 +2,7 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as morgan from 'morgan';
 import * as methodOverride from 'method-override';
-import * as Promise from 'bluebird';
+import * as Bluebird from 'bluebird';
 import * as mongoose from 'mongoose';
 import * as requestRouter from './controllers/request.controller';
 import * as userRouter from './controllers/user.controller';
@@ -15,8 +15,9 @@ import * as visitorRouter from './controllers/visitor.controller';
 var config = require('./../../config');
 const app: express.Application = express();
 
-Promise.promisifyAll(mongoose);
-(<any>mongoose).Promise = Promise;
+global.Promise = Bluebird;
+Bluebird.promisifyAll(mongoose);
+(<any>mongoose).Promise = Bluebird;
 
 mongoose.connect(config.db.prod.url);
 
