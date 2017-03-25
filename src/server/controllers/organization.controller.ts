@@ -1,9 +1,9 @@
 import { PermissionManager } from './../managers/permission.manager';
-import { Task } from './../classes/task';
+import { ITask } from './../classes/task';
 
 import * as express from 'express';
 import { OrganizationManager } from './../managers/organization.manager';
-import { Organization } from './../classes/organization';
+import { IOrganization } from './../classes/organization';
 import { Permission } from './../classes/permission';
 import { AuthMiddleware } from './../middlewares/auth.middleware';
 import { PermissionsMiddleware } from './../middlewares/permissions.middleware';
@@ -40,7 +40,7 @@ router.get('/organization/:id/workflow',
     (req: express.Request, res: express.Response) => {
         let organizationId = req.param('id');
 
-        organizationManager.getWorkflow(organizationId).then((workflow: Task[]) => {
+        organizationManager.getWorkflow(organizationId).then((workflow: ITask[]) => {
             return res.json(workflow);
         }).catch(error => {
             console.error(error);
@@ -52,7 +52,7 @@ router.post('/organization/:id/workflow',
     AuthMiddleware.requireLogin,
     PermissionsMiddleware.hasPermissions([Permission.EDIT_USER_PERMISSIONS]),
     (req: express.Request, res: express.Response) => {
-        let workflow = <Task[]>req.body.workflow;
+        let workflow = <ITask[]>req.body.workflow;
         let organizationId = req.param('id');
 
         console.log(req.body);
@@ -61,7 +61,7 @@ router.post('/organization/:id/workflow',
 
         permissionManager.hasPermissionForOrganization(req.user._id, [Permission.EDIT_USER_PERMISSIONS], organizationId).then((hasPermissions: boolean) => {
             if (hasPermissions) {
-                organizationManager.setWorkflow(organizationId, workflow).then((organization: Organization) => {
+                organizationManager.setWorkflow(organizationId, workflow).then((organization: IOrganization) => {
                     return res.json(organization);
                 }).catch(error => {
                     console.error(error);

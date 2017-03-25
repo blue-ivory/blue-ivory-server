@@ -1,16 +1,26 @@
-import { Task } from './../classes/task';
-import { Organization } from './../classes/organization';
+import { ITask } from './../classes/task';
+import { IOrganization } from './../classes/organization';
 import { IDAO } from '../interfaces/IDAO';
 import * as Promise from 'bluebird';
 import * as OrganizationModel from './../models/organization.model';
 
-export class OrganizationManager implements IDAO<Organization>{
+export class OrganizationManager implements IDAO<IOrganization>{
 
     public all(): Promise<any> {
-        return OrganizationModel.find({});
+        let deferred = Promise.defer();
+        
+        OrganizationModel.find({}, (err, organizations: IOrganization[]) => {
+            if (err) {
+                deferred.reject(err);
+            } else {
+                deferred.resolve(organizations);
+            }
+        });
+
+        return deferred.promise;
     }
 
-    public create(organization: Organization): Promise<any> {
+    public create(organization: IOrganization): Promise<any> {
         let deferred = Promise.defer();
         let organizationModel = new OrganizationModel(organization);
 
@@ -37,7 +47,7 @@ export class OrganizationManager implements IDAO<Organization>{
 
         return deferred.promise;
     }
-    public update(organization: Organization): Promise<any> {
+    public update(organization: IOrganization): Promise<any> {
         let deferred = Promise.defer();
 
         OrganizationModel.findByIdAndUpdate(organization._id, organization,
@@ -104,13 +114,13 @@ export class OrganizationManager implements IDAO<Organization>{
         return deferred.promise;
     }
 
-    public setWorkflow(organizationId, workflow: Task[]): Promise<any> {
+    public setWorkflow(organizationId, workflow: ITask[]): Promise<any> {
 
         let deferred = Promise.defer();
 
         let uniqueWorkflow = workflow ? this.getUniqueTasks(workflow) : workflow;
 
-        OrganizationModel.findByIdAndUpdate(organizationId, { workflow: uniqueWorkflow }, { new: true }).then((organization: Organization) => {
+        OrganizationModel.findByIdAndUpdate(organizationId, { workflow: uniqueWorkflow }, { new: true }).then((organization: IOrganization) => {
             if (organization) {
                 deferred.resolve(organization);
             } else {
@@ -127,7 +137,7 @@ export class OrganizationManager implements IDAO<Organization>{
     public getWorkflow(id: any): Promise<any> {
         let deferred = Promise.defer();
 
-        OrganizationModel.findById(id).populate('workflow.organization', { name: 1 }).then((organization: Organization) => {
+        OrganizationModel.findById(id).populate('workflow.organization', { name: 1 }).then((organization: IOrganization) => {
             if (!organization) {
                 deferred.reject('Organization not found');
             } else {
@@ -141,8 +151,8 @@ export class OrganizationManager implements IDAO<Organization>{
         return deferred.promise;
     }
 
-    private getUniqueTasks(workflow: Task[]): Task[] {
-        let uniqueTasks: Task[] = [];
+    private getUniqueTasks(workflow: ITask[]): ITask[] {
+        let uniqueTasks: ITask[] = [];
 
         workflow.forEach(task1 => {
             let exists: boolean = false;

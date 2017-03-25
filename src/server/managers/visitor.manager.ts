@@ -1,9 +1,9 @@
 import { IDAO } from './../interfaces/IDAO';
-import { Visitor } from './../classes/visitor';
+import { IVisitor } from './../classes/visitor';
 import * as VisitorModel from './../models/visitor.model';
 import * as Promise from 'bluebird';
 
-export class VisitorManager implements IDAO<Visitor>{
+export class VisitorManager implements IDAO<IVisitor>{
     public all(): Promise<any> {
         let deferred = Promise.defer();
         VisitorModel.find((err, visitors) => {
@@ -17,7 +17,7 @@ export class VisitorManager implements IDAO<Visitor>{
         return deferred.promise;
     }
 
-    public create(visitor: Visitor): Promise<any> {
+    public create(visitor: IVisitor): Promise<any> {
         let deferred = Promise.defer();
         let visitorModel = new VisitorModel(visitor);
         visitorModel.save((err, visitor) => {
@@ -43,7 +43,7 @@ export class VisitorManager implements IDAO<Visitor>{
         return deferred.promise;
     }
 
-    public update(visitor: Visitor): Promise<any> {
+    public update(visitor: IVisitor): Promise<any> {
         let deferred = Promise.defer();
         VisitorModel.findOneAndUpdate({ _id: visitor._id }, visitor, { new: true, upsert: true }, (err, user) => {
             if (err) {
@@ -67,7 +67,7 @@ export class VisitorManager implements IDAO<Visitor>{
         return deferred.promise;
     }
 
-    public readOrCreate(visitor: Visitor): Promise<any> {
+    public readOrCreate(visitor: IVisitor): Promise<any> {
         let deferred = Promise.defer();
         if (!visitor) {
             deferred.reject('Visitor is a required field');

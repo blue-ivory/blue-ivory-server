@@ -1,21 +1,21 @@
 import { IDAO } from './../interfaces/IDAO';
-import { Request } from './../classes/request';
-import { User } from './../classes/user';
-import { Organization } from './../classes/organization';
+import { IRequest } from './../classes/request';
+import { IUser } from './../classes/user';
+import { IOrganization } from './../classes/organization';
 import * as RequestModel from './../models/request.model';
 import { VisitorManager } from './../managers/visitor.manager';
 import { OrganizationManager } from './../managers/organization.manager';
 import * as Promise from 'bluebird';
 require('./../models/visitor.model');
 
-export class RequestManager implements IDAO<Request>{
-    public static MY_FILTER(user: User): Object {
+export class RequestManager implements IDAO<IRequest>{
+    public static MY_FILTER(user: IUser): Object {
         return {
             'requestor': user._id
         };
     }
 
-    public static PENDING_FILTER(user: User): Object {
+    public static PENDING_FILTER(user: IUser): Object {
 
         // TODO : Check user role type to create relevant filter
         return {
@@ -39,7 +39,7 @@ export class RequestManager implements IDAO<Request>{
         return deferred.promise;
     }
 
-    public create(request: Request): Promise<any> {
+    public create(request: IRequest): Promise<any> {
 
         let deferred = Promise.defer();
 
@@ -47,7 +47,7 @@ export class RequestManager implements IDAO<Request>{
         let visitorManager = new VisitorManager();
         let organizationManager = new OrganizationManager();
 
-        organizationManager.read(request.organization ? request.organization._id : null).then((organization: Organization) => {
+        organizationManager.read(request.organization ? request.organization._id : null).then((organization: IOrganization) => {
             if (!organization) {
                 deferred.reject('Organization not found');
             } else {
@@ -135,11 +135,11 @@ export class RequestManager implements IDAO<Request>{
         return deferred.promise;
     }
 
-    public searchByType(type: string, searchTerm: string, user: User, paginationOptions?: { skip: number, limit: number }): Promise<any> {
+    public searchByType(type: string, searchTerm: string, user: IUser, paginationOptions?: { skip: number, limit: number }): Promise<any> {
         return this.search(searchTerm, this.filterByType(type, user), paginationOptions);
     }
 
-    public update(request: Request): Promise<any> {
+    public update(request: IRequest): Promise<any> {
         let deferred = Promise.defer();
         console.log(request);
         RequestModel.findOneAndUpdate({ _id: request._id }, request, { upsert: true }, (err, request) => {
@@ -166,7 +166,7 @@ export class RequestManager implements IDAO<Request>{
         return deferred.promise;
     }
 
-    private filterByType(type: string, user: User): Object {
+    private filterByType(type: string, user: IUser): Object {
         let filter: {
             requestor?: string,
             status?: Object

@@ -1,16 +1,16 @@
-import { Visitor } from './visitor';
-import { User } from './user';
+import { IVisitor } from './visitor';
+import { IUser } from './user';
 import { IOrganization } from './organization';
-import * as mongoose from 'mongoose';
+import { Document } from 'mongoose';
 
-export interface IRequest extends mongoose.Document {
+export interface IRequest extends Document {
     _id;
     requestDate: Date;
     startDate: Date;
     endDate: Date;
-    visitor: Visitor;
-    requestor: User;
-    authorizer: User;
+    visitor: IVisitor;
+    requestor: IUser;
+    authorizer: IUser;
     description: string;
     isSolider: boolean;
     needEscort: boolean;

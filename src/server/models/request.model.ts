@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
-import { Request, CarType } from './../classes/request';
-import { Task, TaskType, TaskStatus } from './../classes/task';
+import { IRequest, CarType } from './../classes/request';
+import { ITask, TaskType, TaskStatus } from './../classes/task';
 import { OrganizationManager } from './../managers/organization.manager';
 
 
@@ -113,7 +113,7 @@ requestSchema.pre('save', function (next) {
     let organizationManager = new OrganizationManager();
     let organizationId = this.organization;
 
-    organizationManager.getWorkflow(organizationId).then((workflow: Task[]) => {
+    organizationManager.getWorkflow(organizationId).then((workflow: ITask[]) => {
         if (workflow && workflow.length > 0) {
             this.workflow = workflow;
         } else {
@@ -130,6 +130,6 @@ requestSchema.pre('save', function (next) {
     });
 });
 
-var RequestModel = mongoose.model<Request>("Request", requestSchema);
+var RequestModel = mongoose.model<IRequest>("Request", requestSchema);
 
 export = RequestModel;

@@ -1,7 +1,7 @@
 import * as express from 'express';
 import { PermissionManager } from './../managers/permission.manager';
 import { Permission } from './../classes/permission';
-import { User } from './../classes/user';
+import { IUser } from './../classes/user';
 import { AuthMiddleware } from './../middlewares/auth.middleware';
 import { PermissionsMiddleware } from './../middlewares/permissions.middleware';
 
@@ -14,7 +14,7 @@ router.post('/has-permissions',
     (req: express.Request, res: express.Response) => {
         let permissions: Permission[] = req.body.permissions;
         let some: boolean = req.body.some;
-        let user: User = req.user;
+        let user: IUser = req.user;
 
         if (!permissions) {
             return res.status(400).send();
@@ -33,7 +33,7 @@ router.all('/has-permissions/organization', AuthMiddleware.requireLogin,
         let permissions: Permission[] = req.body.permissions;
         let organizationId: any = req.body.organizationId;
         let some: boolean = req.body.some;
-        let user: User = req.user;
+        let user: IUser = req.user;
 
         if (!permissions || !organizationId) {
             return res.status(400).send();

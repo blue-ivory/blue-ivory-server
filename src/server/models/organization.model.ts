@@ -1,10 +1,6 @@
-import { TaskType } from './../classes/task';
-
-// TODO : Add workflow to schema
-
 import * as mongoose from 'mongoose';
-import { Organization } from './../classes/organization';
-
+import { TaskType } from './../classes/task';
+import { IOrganization } from './../classes/organization';
 
 var taskSchema: mongoose.Schema = new mongoose.Schema({
     type: {
@@ -41,6 +37,6 @@ var organizationSchema: mongoose.Schema = new mongoose.Schema({
     }
 });
 
-var OrganizationModel = mongoose.model<Organization>("Organization", organizationSchema);
+var OrganizationModel = mongoose.model<IOrganization>("Organization", organizationSchema);
 
 export = OrganizationModel;

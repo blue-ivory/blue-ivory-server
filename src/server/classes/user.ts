@@ -1,23 +1,13 @@
+import { Document } from 'mongoose';
 import { Permission } from './permission';
-import { Organization } from './organization';
+import { IOrganization } from './organization';
 
-export class User {
-    public firstName: string;
-    public lastName: string;
-    public _id: string;
-    public mail: string;
-    public organization: Organization;
-    public permissions: [{ organization: Organization, organizationPermissions: Permission[] }];
-    public isAdmin: boolean;
-
-    constructor(firstName: string, lastName: string, uniqueId: string, mail: string) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this._id = uniqueId;
-        this.mail = mail;
-    }
-
-    public get name(): string {
-        return this.firstName + ' ' + this.lastName;
-    }
+export interface IUser extends Document {
+    firstName: string;
+    lastName: string;
+    _id: string;
+    mail: string;
+    organization: IOrganization;
+    permissions: [{ organization: IOrganization, organizationPermissions: Permission[] }];
+    isAdmin: boolean;
 }

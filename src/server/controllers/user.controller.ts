@@ -1,8 +1,8 @@
 import * as express from 'express';
 import { UserManager } from './../managers/user.manager';
 import { PermissionManager } from './../managers/permission.manager';
-import { User } from './../classes/user';
-import { Organization } from './../classes/organization';
+import { IUser } from './../classes/user';
+import { IOrganization } from './../classes/organization';
 import { Permission } from './../classes/permission';
 import { AuthMiddleware } from './../middlewares/auth.middleware';
 import { PermissionsMiddleware } from './../middlewares/permissions.middleware';
@@ -74,9 +74,9 @@ router.put('/user/:id/permissions',
     (req: express.Request, res: express.Response) => {
         let userId = req.params.id;
         let permissions: Permission[] = req.body.permissions;
-        let organization: Organization = req.body.organization;
+        let organization: IOrganization = req.body.organization;
 
-        permissionManager.setPermissions(userId, organization || req.user.organization, permissions).then((user: User) => {
+        permissionManager.setPermissions(userId, organization || req.user.organization, permissions).then((user: IUser) => {
             return res.json(user);
         }).catch(error => {
             console.error(error);
@@ -91,7 +91,7 @@ router.put('/user/:id/organization',
         let userId = req.params.id;
         let organizationId: any = req.body.organizationId;
 
-        userManager.setOrganization(userId, organizationId).then((user: User) => {
+        userManager.setOrganization(userId, organizationId).then((user: IUser) => {
             return res.json(user);
         }).catch(error => {
             console.error(error);

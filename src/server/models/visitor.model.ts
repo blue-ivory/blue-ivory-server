@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import { Visitor } from './../classes/visitor';
+import { IVisitor } from './../classes/visitor';
 
 var visitorSchema: mongoose.Schema = new mongoose.Schema({
     _id: {
@@ -18,6 +18,6 @@ visitorSchema.virtual('pid').get(() => {
     return this._id;
 });
 
-var VisitorModel = mongoose.model<Visitor>("Visitor", visitorSchema);
+var VisitorModel = mongoose.model<IVisitor>("Visitor", visitorSchema);
 
 export = VisitorModel;

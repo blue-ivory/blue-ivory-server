@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import { User } from './../classes/user';
+import { IUser } from './../classes/user';
 import { Permission } from './../classes/permission';
 import * as autopopulate from 'mongoose-autopopulate';
 
@@ -94,7 +94,7 @@ userSchema.virtual('uniqueId').get(() => {
 
 userSchema.plugin(autopopulate);
 
-var UserModel = mongoose.model<User>("User", userSchema);
+var UserModel = mongoose.model<IUser>("User", userSchema);
 
 export = UserModel;
 

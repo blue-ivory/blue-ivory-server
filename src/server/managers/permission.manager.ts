@@ -1,5 +1,5 @@
-import { User } from './../classes/user';
-import { Organization } from './../classes/organization';
+import { IUser } from './../classes/user';
+import { IOrganization } from './../classes/organization';
 import { Permission } from './../classes/permission';
 import * as UserModel from './../models/user.model';
 import * as Promise from 'bluebird';
@@ -10,7 +10,7 @@ export class PermissionManager {
     public hasPermissions(userId: string, permissions: Permission[], some?: boolean): Promise<any> {
         let deferred = Promise.defer();
 
-        UserModel.findById(userId, (err, user: User) => {
+        UserModel.findById(userId, (err, user: IUser) => {
             if (err) {
                 console.error(err);
                 deferred.reject(err);
@@ -46,7 +46,7 @@ export class PermissionManager {
     public hasPermissionForOrganization(userId: string, permissions: Permission[], organizationId: any, some?: boolean): Promise<any> {
         let deferred = Promise.defer();
 
-        UserModel.findById(userId).populate('organization').populate('permissions.organization').exec((err, user: User) => {
+        UserModel.findById(userId).populate('organization').populate('permissions.organization').exec((err, user: IUser) => {
             if (err) {
                 console.error(err);
                 deferred.reject(err);
@@ -84,13 +84,13 @@ export class PermissionManager {
     }
 
     // Set user's permission for specific organization
-    public setPermissions(userId: string, organization: Organization, permissions: Permission[]): Promise<any> {
+    public setPermissions(userId: string, organization: IOrganization, permissions: Permission[]): Promise<any> {
         let deferred = Promise.defer();
 
         // Remove duplicates
         let uniquePermissions = Array.from(new Set(permissions));
 
-        UserModel.findById(userId).populate('organization').populate('permissions.organization').exec((err, user: User) => {
+        UserModel.findById(userId).populate('organization').populate('permissions.organization').exec((err, user: IUser) => {
             if (err) {
                 deferred.reject(err);
             } else if (!user) {
@@ -134,7 +134,7 @@ export class PermissionManager {
                 }
 
                 UserModel.findOneAndUpdate(updateFilter, updateValue, { new: true })
-                    .populate('organization').populate('permissions.organization').exec((err, user: User) => {
+                    .populate('organization').populate('permissions.organization').exec((err, user: IUser) => {
                         if (err) {
                             deferred.reject(err);
                         } else {
@@ -148,7 +148,7 @@ export class PermissionManager {
     }
 
     // Get all user's permissions (for all organization)    
-    private getPermissionsForAllOrganization(user: User): Permission[] {
+    private getPermissionsForAllOrganization(user: IUser): Permission[] {
         let permissions: Permission[] = [];
         if (user && user.permissions) {
             user.permissions.forEach(permission => {

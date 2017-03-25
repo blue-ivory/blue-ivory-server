@@ -1,6 +1,6 @@
 import * as express from 'express';
 import { RequestManager } from './../managers/request.manager';
-import { Request } from './../classes/request';
+import { IRequest } from './../classes/request';
 import { AuthMiddleware } from './../middlewares/auth.middleware';
 import { RequestsMiddleware } from './../middlewares/requests.middleware';
 

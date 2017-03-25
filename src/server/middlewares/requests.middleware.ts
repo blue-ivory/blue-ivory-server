@@ -1,9 +1,9 @@
 import * as express from 'express';
-import { User } from './../classes/user';
+import { IUser } from './../classes/user';
 export class RequestsMiddleware {
     public static requireRequestOwner(req: express.Request, res: express.Response, next: express.NextFunction) {
         let request = req.body.request;
-        let user: User = req.user;
+        let user: IUser = req.user;
 
         if (!user) {
             return res.redirect('/login');

@@ -1,11 +1,11 @@
 import { IDAO } from './../interfaces/IDAO';
-import { User } from './../classes/user';
-import { Organization } from './../classes/organization';
+import { IUser } from './../classes/user';
+import { IOrganization } from './../classes/organization';
 import * as Promise from 'bluebird';
 import * as UserModel from './../models/user.model';
 import { OrganizationManager } from './../managers/organization.manager';
 
-export class UserManager implements IDAO<User>{
+export class UserManager implements IDAO<IUser>{
     public all(): Promise<any> {
         let deferred = Promise.defer();
         UserModel.find().populate('organization').exec((err, users) => {
@@ -19,7 +19,7 @@ export class UserManager implements IDAO<User>{
         return deferred.promise;
     }
 
-    public create(user: User): Promise<any> {
+    public create(user: IUser): Promise<any> {
         let deferred = Promise.defer();
         let userModel = new UserModel(user);
         userModel.save((err, user) => {
@@ -46,7 +46,7 @@ export class UserManager implements IDAO<User>{
         return deferred.promise;
     }
 
-    public update(user: User): Promise<any> {
+    public update(user: IUser): Promise<any> {
         let deferred = Promise.defer();
         UserModel.findOneAndUpdate({ _id: user._id }, user, { new: true }, (err, user) => {
             if (err) {
@@ -162,7 +162,7 @@ export class UserManager implements IDAO<User>{
         let deferred = Promise.defer();
         let organizationManger = new OrganizationManager();
 
-        organizationManger.read(organizationId).then((organization: Organization) => {
+        organizationManger.read(organizationId).then((organization: IOrganization) => {
             if (organization) {
                 UserModel.findByIdAndUpdate(userId, { organization: organization }, { new: true }).populate('organization').exec((err, user) => {
                     if (err) {
@@ -181,7 +181,7 @@ export class UserManager implements IDAO<User>{
         return deferred.promise;
     }
 
-    private populateOrganizationAndResolve(user: User, deferred: Promise.Resolver<{}>) {
+    private populateOrganizationAndResolve(user: IUser, deferred: Promise.Resolver<{}>) {
         UserModel.populate(user, { path: 'organization' }, (err, user) => {
             if (err) {
                 deferred.reject(err);

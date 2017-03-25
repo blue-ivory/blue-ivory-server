@@ -1,8 +1,8 @@
 import * as express from 'express';
 
 import { Permission } from './../classes/permission';
-import { Organization } from './../classes/organization';
-import { User } from './../classes/user';
+import { IOrganization } from './../classes/organization';
+import { IUser } from './../classes/user';
 
 import { PermissionManager } from './../managers/permission.manager';
 
@@ -12,7 +12,7 @@ export class PermissionsMiddleware {
         return (req: express.Request, res: express.Response, next: express.NextFunction) => {
             let permissionManager = new PermissionManager();
 
-            let user: User = req.user;
+            let user: IUser = req.user;
 
             if (!user) {
                 return res.redirect('/login');
@@ -29,13 +29,13 @@ export class PermissionsMiddleware {
     }
 
     public static hasPermissionForOrganization(permissions: Permission[],
-        organization: Organization,
+        organization: IOrganization,
         some?: boolean): express.RequestHandler {
 
         return (req: express.Request, res: express.Response, next: express.NextFunction) => {
             let permissionManager = new PermissionManager();
 
-            let user: User = req.user;
+            let user: IUser = req.user;
 
             if (!user) {
                 return res.redirect('/login');

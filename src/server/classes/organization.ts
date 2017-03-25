@@ -1,9 +1,9 @@
 import { ITask } from './task';
-import * as mongoose from 'mongoose';
+import { Document, Types } from 'mongoose';
 
-export interface IOrganization extends mongoose.Document {
+export interface IOrganization extends Document {
 
     name: string;
-    _id: mongoose.Types.ObjectId;
+    _id: Types.ObjectId;
     workflow: ITask[];
 }

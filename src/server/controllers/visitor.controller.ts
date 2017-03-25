@@ -1,6 +1,6 @@
 import * as express from 'express';
 import { VisitorManager } from './../managers/visitor.manager';
-import { Visitor } from './../classes/visitor';
+import { IVisitor } from './../classes/visitor';
 import { AuthMiddleware } from './../middlewares/auth.middleware';
 
 
