@@ -1,9 +1,11 @@
 import * as Promise from 'bluebird';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { UserModel } from './user.model';
 import { RepositoryBase } from '../helpers/repository';
 import { IUser } from './user.interface';
 import { ICollection } from "../helpers/collection";
+import { Organization } from "../organization/organization.class";
+import { IOrganization } from "../organization/organization.interface";
 
 export class UserRepository extends RepositoryBase<IUser> {
     constructor() {
@@ -78,5 +80,18 @@ export class UserRepository extends RepositoryBase<IUser> {
         return {
             $or: basicFilter.concat(advancedFilter)
         };
+    }
+
+    setOrganization(userId: string, organizationId: Types.ObjectId):Promise<Document>{
+        return new Promise<Document>((resolve, reject) => {
+            Organization.findOrganization(organizationId).then((organization: IOrganization) => {
+                let user = <IUser> {
+                    _id: userId,
+                    organization: organization
+                };
+
+                this.update(user, 'organization').then(resolve).catch(reject);
+            }).catch(reject);
+        });
     }
 }

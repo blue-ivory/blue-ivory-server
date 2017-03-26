@@ -1,5 +1,5 @@
 import * as Promise from 'bluebird';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { IUser } from './user.interface';
 import { IOrganization } from '../classes/organization';
 import { Permission } from '../classes/permission';
@@ -65,5 +65,9 @@ export class User {
 
     static searchUsers(searchTerm?: string, paginationOptions?: { skip: number, limit: number }): Promise<ICollection<IUser>> {
         return User._userRepository.search(searchTerm, paginationOptions);
+    }
+    
+    static setOrganization(userId: string, organizationId: Types.ObjectId): Promise<Document> {
+        return User._userRepository.setOrganization(userId, organizationId);
     }
 }

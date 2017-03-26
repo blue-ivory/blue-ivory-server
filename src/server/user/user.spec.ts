@@ -4,6 +4,7 @@ import { ICollection } from '../helpers/collection';
 import { IUser } from "./user.interface";
 import { Organization } from "./../organization/organization.class";
 import { User } from "./user.class";
+import { IOrganization } from "../organization/organization.interface";
 
 describe('User', () => {
 
@@ -222,5 +223,55 @@ describe('User', () => {
                 done();
             });
         });
+    });
+
+    describe('#setOrganization', () => {
+
+        let organization: IOrganization;
+        let user: IUser;
+
+        beforeEach(done => {
+            Organization.createOrganization('organization').then((org: IOrganization) => {
+                expect(org).to.exist;
+                organization = org;
+
+                return User.createUser('Ron', 'Borysovski', '123456', 'roni537@gmail.com');
+            }).then((u: IUser) => {
+                expect(u).to.exist;
+                user = u;
+
+                done();
+            });
+        });
+
+        it('Should do nothing when user not exists', done => {
+            User.setOrganization('unique@id', null).then((user: IUser) => {
+                expect(user).to.not.exist;
+
+                done();
+            });
+        });
+
+        it('Should remove user\'s organization if organization not exists', done => {
+            User.setOrganization(user._id, null).then((user: IUser) => {
+                expect(user).to.exist;
+                expect(user).to.have.property('organization', null);
+                done();
+            });
+        });
+
+        it('Should set user\'s organization', done => {
+            User.setOrganization(user._id, organization._id).then((user: IUser) => {
+                expect(user).to.exist;
+                expect(user).to.have.property('organization').that.satisfies((organization: IOrganization) => {
+                    expect(organization).to.exist;
+                    expect(organization).to.have.property('name', 'organization');
+
+                    return true;
+                });
+
+                done();
+            });
+        })
     });
 });
