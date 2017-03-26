@@ -10,20 +10,24 @@ Promise.promisifyAll(mongoose);
 before(done => {
     mongoose.connect(config.db.test.url);
 
+    let removeCollectionPromises = [];
+
     for (let i in mongoose.connection.collections) {
-        mongoose.connection.collections[i].remove(function () { });
+        removeCollectionPromises.push(mongoose.connection.collections[i].remove({}));
     }
 
-    done();
+    Promise.all(removeCollectionPromises).then(() => done());
 });
 
 beforeEach(done => {
 
+    let removeCollectionPromises = [];
+
     for (let i in mongoose.connection.collections) {
-        mongoose.connection.collections[i].remove(function () { });
+        removeCollectionPromises.push(mongoose.connection.collections[i].remove({}));
     }
 
-    done();
+    Promise.all(removeCollectionPromises).then(() => done());
 });
 
 after(done => {
