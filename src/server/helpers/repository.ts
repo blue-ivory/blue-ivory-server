@@ -30,9 +30,11 @@ export abstract class RepositoryBase<T extends mongoose.Document> implements IRe
 
   findById(_id: any, populateOptions?: string | Object): Promise<mongoose.Document> {
     let findQuery = this._model.findById(_id);
+
     if (populateOptions) {
       findQuery = findQuery.populate(populateOptions);
     }
+
     return findQuery.exec();
   }
 

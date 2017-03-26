@@ -9,7 +9,7 @@ Promise.promisifyAll(mongoose);
 
 before(done => {
     mongoose.connect(config.db.test.url);
-    
+
     for (let i in mongoose.connection.collections) {
         mongoose.connection.collections[i].remove(function () { });
     }

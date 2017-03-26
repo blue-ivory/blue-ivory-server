@@ -44,4 +44,12 @@ export class Organization {
     static searchOrganizations(searchTerm?: string, paginationOptions?: { skip: number, limit: number }): Promise<ICollection<IOrganization>> {
         return Organization._organizationRepository.search(searchTerm, paginationOptions);
     }
+
+    static setWorkflow(organizationId: Types.ObjectId, workflow: ITask[]): Promise<Document> {
+        return Organization._organizationRepository.setWorkflow(organizationId, workflow);
+    }
+
+    static getWorkflow(organizationId: Types.ObjectId): Promise<ITask[]> {
+        return Organization._organizationRepository.getWorkflow(organizationId);
+    }
 }

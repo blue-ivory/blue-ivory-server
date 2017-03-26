@@ -1,3 +1,5 @@
+import { ITask } from './../classes/task';
+import { Types, Document } from 'mongoose';
 import * as Promise from 'bluebird';
 import { RepositoryBase } from "../helpers/repository";
 import { IOrganization } from "./organization.interface";
@@ -46,5 +48,40 @@ export class OrganizationRepository extends RepositoryBase<IOrganization> {
                 reject(err);
             });
         });
+    }
+
+    setWorkflow(organizationId: Types.ObjectId, workflow: ITask[]): Promise<Document> {
+        let organization = <IOrganization>{
+            _id: organizationId,
+            workflow: workflow ? this.getUniqueTasks(workflow) : workflow
+        }
+
+        return this.update(organization)
+    }
+
+    getWorkflow(organizationId: Types.ObjectId): Promise<ITask[]> {
+        return new Promise<ITask[]>((resolve, reject) => {
+            this.findById(organizationId, { path: 'workflow.organization', select: 'name' }).then((organization: IOrganization) => {
+                resolve(organization ? organization.workflow : null);
+            }).catch(reject);
+        });
+    }
+
+    private getUniqueTasks(workflow: ITask[]): ITask[] {
+        let uniqueTasks: ITask[] = [];
+
+        workflow.forEach((firstTask: ITask) => {
+            let exists: boolean = false;
+            uniqueTasks.forEach((secondTask: ITask) => {
+                if (secondTask.organization._id === firstTask.organization._id && secondTask.type === firstTask.type) {
+                    exists = true;
+                }
+            });
+            if (!exists) {
+                uniqueTasks.push(firstTask);
+            }
+        });
+
+        return uniqueTasks;
     }
 }

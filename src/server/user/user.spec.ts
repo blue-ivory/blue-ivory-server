@@ -188,6 +188,7 @@ describe('User', () => {
                 done();
             });
         });
+
         it('Should find users either by firstName or by lastName (two words)', done => {
             User.searchUsers('ron ory').then((collection: ICollection<IUser>) => {
                 expect(collection).to.exist;
