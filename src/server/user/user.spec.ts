@@ -1,10 +1,12 @@
 import * as mongoose from 'mongoose';
+import * as Promise from 'bluebird';
 import { expect } from 'chai';
 import { ICollection } from '../helpers/collection';
 import { IUser } from "./user.interface";
 import { Organization } from "./../organization/organization.class";
 import { User } from "./user.class";
 import { IOrganization } from "../organization/organization.interface";
+import { PermissionType } from "../permission/permission.enum";
 
 describe('User', () => {
 
@@ -273,5 +275,99 @@ describe('User', () => {
                 done();
             });
         })
+    });
+
+    describe('#setPermissions', () => {
+
+        let user: IUser = null;
+        let organization1: IOrganization = null;
+        let organization2: IOrganization = null;
+
+        beforeEach(done => {
+            User.createUser('Ron', 'Borysovski', '123456', 'roni537@gmail.com').then((u: IUser) => {
+                expect(u).to.exist;
+                user = u;
+
+                return Organization.createOrganization('org1');
+            }).then((org1: IOrganization) => {
+                expect(org1).to.exist;
+                organization1 = org1;
+
+                return Organization.createOrganization('org2');
+            }).then((org2: IOrganization) => {
+                expect(org2).to.exist;
+                organization2 = org2;
+
+                done();
+            })
+        });
+
+        it('Should throw an error when user and organization not exists', done => {
+            User.setPermissions(null, null, []).catch(err => {
+                expect(err).to.exist;
+                expect(err).to.eql('User or organization not found');
+
+                done();
+            })
+        });
+
+        it('Should throw an error when user not exists', done => {
+            User.setPermissions(null, organization1._id, []).catch(err => {
+                expect(err).to.exist;
+                expect(err).to.eql('User or organization not found');
+
+                done();
+            })
+        });
+
+        it('Should throw an error when organization not exists', done => {
+            User.setPermissions(user._id, null, []).catch(err => {
+                expect(err).to.exist;
+                expect(err).to.eql('User or organization not found');
+
+                done();
+            })
+        });
+
+        it('Should set permissions', done => {
+            User.setPermissions(user._id, organization1._id,
+                [PermissionType.EDIT_WORKFLOW, PermissionType.APPROVE_CIVILIAN])
+                .then((user: IUser) => {
+                    expect(user).to.exist;
+                    return User.setPermissions(user._id, organization2._id,
+                        [PermissionType.EDIT_USER_PERMISSIONS, PermissionType.NORMAL_USER]);
+                }).then((user: IUser) => {
+                    expect(user).to.exist;
+                    expect(user).to.have.property('permissions').that.satisfies(permissions => {
+                        expect(permissions).to.exist;
+                        expect(permissions).to.be.an('array');
+
+                        expect(permissions[0]).to.have
+                            .property('organization').that
+                            .satisfies(org => organization1._id.equals(org._id));
+                        expect(permissions[0]).to.have
+                            .property('organizationPermissions').that.include
+                            .members([PermissionType.EDIT_WORKFLOW, PermissionType.APPROVE_CIVILIAN]);
+
+                        expect(permissions[1]).to.have
+                            .property('organization').that
+                            .satisfies(org => organization2._id.equals(org._id));
+                        expect(permissions[1]).to.have
+                            .property('organizationPermissions').that.include
+                            .members([PermissionType.EDIT_USER_PERMISSIONS, PermissionType.NORMAL_USER]);
+
+                        return true;
+                    });
+
+                    done();
+                });
+        });
+
+        it('Should update permissions for organization and not create multiple instances', done => {
+
+        });
+
+        it('Should remove all permissions when no permissions are provided');
+        it('Should not set duplicate permissions');
     });
 });

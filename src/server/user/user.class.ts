@@ -2,7 +2,7 @@ import * as Promise from 'bluebird';
 import { Document, Types } from 'mongoose';
 import { IUser } from './user.interface';
 import { IOrganization } from '../classes/organization';
-import { Permission } from '../classes/permission';
+import { PermissionType } from '../permission/permission.enum';
 import { UserRepository } from './user.repository';
 import { ICollection } from "../helpers/collection";
 
@@ -31,7 +31,7 @@ export class User {
         return this._user.organization;
     }
 
-    public get permissions(): [{ organization: IOrganization; organizationPermissions: Permission[]; }] {
+    public get permissions(): [{ organization: IOrganization; organizationPermissions: PermissionType[]; }] {
         return this._user.permissions;
     }
 
@@ -51,8 +51,8 @@ export class User {
         return User._userRepository.create(user);
     }
 
-    static findUser(id: string): Promise<Document> {
-        return User._userRepository.findById(id, 'organization');
+    static findUser(id: string, populateField?: string): Promise<Document> {
+        return User._userRepository.findById(id, 'organization ' + populateField);
     }
 
     static updateUser(user: IUser): Promise<Document> {
@@ -66,8 +66,12 @@ export class User {
     static searchUsers(searchTerm?: string, paginationOptions?: { skip: number, limit: number }): Promise<ICollection<IUser>> {
         return User._userRepository.search(searchTerm, paginationOptions);
     }
-    
+
     static setOrganization(userId: string, organizationId: Types.ObjectId): Promise<Document> {
         return User._userRepository.setOrganization(userId, organizationId);
+    }
+
+    static setPermissions(userId: string, organizationId: Types.ObjectId, permissions: PermissionType[]): Promise<Document> {
+        return User._userRepository.setPermissions(userId, organizationId, permissions);
     }
 }

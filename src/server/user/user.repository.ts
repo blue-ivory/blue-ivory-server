@@ -1,3 +1,4 @@
+import { User } from './user.class';
 import * as Promise from 'bluebird';
 import { Document, Types } from 'mongoose';
 import { UserModel } from './user.model';
@@ -6,6 +7,7 @@ import { IUser } from './user.interface';
 import { ICollection } from "../helpers/collection";
 import { Organization } from "../organization/organization.class";
 import { IOrganization } from "../organization/organization.interface";
+import { PermissionType } from "../permission/permission.enum";
 
 export class UserRepository extends RepositoryBase<IUser> {
     constructor() {
@@ -33,9 +35,7 @@ export class UserRepository extends RepositoryBase<IUser> {
                 };
 
                 resolve(result);
-            }).catch(error => {
-                reject(error);
-            });
+            }).catch(reject);
         });
     }
 
@@ -82,15 +82,71 @@ export class UserRepository extends RepositoryBase<IUser> {
         };
     }
 
-    setOrganization(userId: string, organizationId: Types.ObjectId):Promise<Document>{
+    setOrganization(userId: string, organizationId: Types.ObjectId): Promise<Document> {
         return new Promise<Document>((resolve, reject) => {
             Organization.findOrganization(organizationId).then((organization: IOrganization) => {
-                let user = <IUser> {
+                let user = <IUser>{
                     _id: userId,
                     organization: organization
                 };
 
                 this.update(user, 'organization').then(resolve).catch(reject);
+            }).catch(reject);
+        });
+    }
+
+    setPermissions(userId: string, organizationId: Types.ObjectId, permissions: PermissionType[]): Promise<Document> {
+        return new Promise<Document>((resolve, reject) => {
+            Promise.all([
+                this.findById(userId, 'organization permissions.organization'),
+                Organization.findOrganization(organizationId)
+            ]).then(values => {
+                let user = <IUser>values[0];
+                let organization = <IOrganization>values[1];
+
+                if (!user || !organization) {
+                    reject('User or organization not found');
+                } else {
+                    let uniquePermissions = Array.from(new Set(permissions));
+                    let organizationPermissionsExists: boolean = false;
+                    user.permissions.forEach(permission => {
+                        if (permission.organization._id.equals(organization._id)) {
+                            organizationPermissionsExists = true;
+                        }
+                    });
+
+                    let organizationPermissions = { organization: organization, organizationPermissions: uniquePermissions };
+                    let updateFilter = {
+                        _id: userId
+                    };
+
+                    if (uniquePermissions.length > 0 && organizationPermissionsExists) {
+                        updateFilter['permissions.organization'] = organization._id;
+                    }
+
+                    let updateValue = {};
+
+                    if (uniquePermissions.length === 0) {
+                        updateValue['$pull'] = {
+                            'permissions': {
+                                'organization': organization._id
+                            }
+                        };
+                    } else {
+                        if (organizationPermissionsExists) {
+                            updateValue['$set'] = {
+                                'permissions.$.organizationPermissions': uniquePermissions
+                            };
+                        } else {
+                            updateValue['$push'] = {
+                                permissions: organizationPermissions
+                            }
+                        }
+                    }
+
+                    resolve(UserModel.findOneAndUpdate(updateFilter, updateValue, { new: true }).populate('organization permissions.organization'));
+                }
+
             }).catch(reject);
         });
     }

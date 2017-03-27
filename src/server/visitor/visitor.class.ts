@@ -33,6 +33,10 @@ export class Visitor {
         return Visitor._visitorRepository.findById(id);
     }
 
+    static findOrCreateVisitor(visitor: IVisitor): Promise<Document> {
+        return Visitor._visitorRepository.findOrCreate(visitor);
+    }
+
     static updateVisitor(visitor: IVisitor): Promise<Document> {
         return Visitor._visitorRepository.update(visitor);
     }

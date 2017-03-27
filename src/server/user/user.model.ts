@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 import { IUser } from './user.interface';
-import { Permission } from './../classes/permission';
+import { PermissionType } from './../permission/permission.enum';
 import * as autopopulate from 'mongoose-autopopulate';
 require('../organization/organization.model');
 
@@ -14,12 +14,12 @@ var permissionSchema: mongoose.Schema = new mongoose.Schema({
         type: [{
             type: String,
             enum: [
-                Permission.APPROVE_CAR,
-                Permission.APPROVE_CIVILIAN,
-                Permission.APPROVE_SOLDIER,
-                Permission.EDIT_USER_PERMISSIONS,
-                Permission.EDIT_WORKFLOW,
-                Permission.NORMAL_USER
+                PermissionType.APPROVE_CAR,
+                PermissionType.APPROVE_CIVILIAN,
+                PermissionType.APPROVE_SOLDIER,
+                PermissionType.EDIT_USER_PERMISSIONS,
+                PermissionType.EDIT_WORKFLOW,
+                PermissionType.NORMAL_USER
             ]
         }],
     }
@@ -97,16 +97,16 @@ userSchema.plugin(autopopulate);
 
 export let UserModel = mongoose.model<IUser>("User", userSchema);
 
-var canApprove = (permissions: Permission[]): boolean => {
+var canApprove = (permissions: PermissionType[]): boolean => {
     return !!(permissions.find(permission => {
-        return permission === Permission.APPROVE_CAR || permission === Permission.APPROVE_CIVILIAN || permission === Permission.APPROVE_SOLDIER;
+        return permission === PermissionType.APPROVE_CAR || permission === PermissionType.APPROVE_CIVILIAN || permission === PermissionType.APPROVE_SOLDIER;
     }));
 }
 
-var canModifyUserSettings = (permissions: Permission[]): boolean => {
-    return permissions.indexOf(Permission.EDIT_USER_PERMISSIONS) !== -1;
+var canModifyUserSettings = (permissions: PermissionType[]): boolean => {
+    return permissions.indexOf(PermissionType.EDIT_USER_PERMISSIONS) !== -1;
 }
 
-var canEditWorkflow = (permissions: Permission[]): boolean => {
-    return permissions.indexOf(Permission.EDIT_WORKFLOW) !== -1;
+var canEditWorkflow = (permissions: PermissionType[]): boolean => {
+    return permissions.indexOf(PermissionType.EDIT_WORKFLOW) !== -1;
 };

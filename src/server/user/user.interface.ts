@@ -1,5 +1,5 @@
 import { Document } from 'mongoose';
-import { Permission } from './../classes/permission';
+import { PermissionType } from './../permission/permission.enum';
 import { IOrganization } from './../classes/organization';
 
 export interface IUser extends Document {
@@ -8,6 +8,6 @@ export interface IUser extends Document {
     _id: string;
     mail: string;
     organization: IOrganization;
-    permissions: [{ organization: IOrganization, organizationPermissions: Permission[] }];
+    permissions: [{ organization: IOrganization, organizationPermissions: PermissionType[] }];
     isAdmin: boolean;
 }
