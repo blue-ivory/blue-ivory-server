@@ -364,10 +364,82 @@ describe('User', () => {
         });
 
         it('Should update permissions for organization and not create multiple instances', done => {
+            User.setPermissions(user._id, organization1._id, [PermissionType.APPROVE_CAR])
+                .then((user: IUser) => {
+                    expect(user).to.exist;
 
+                    return User.setPermissions(user._id, organization2._id, [PermissionType.EDIT_WORKFLOW]);
+                }).then((user: IUser) => {
+                    expect(user).to.exist;
+
+                    return User.setPermissions(user._id, organization2._id, [PermissionType.APPROVE_SOLDIER]);
+                }).then((user: IUser) => {
+                    expect(user).to.exist;
+                    expect(user).to.have.property('permissions').that.satisfies(permissions => {
+                        expect(permissions).to.exist;
+                        expect(permissions).to.be.an('array');
+
+                        expect(permissions[0]).to.have
+                            .property('organization').that
+                            .satisfies(org => organization1._id.equals(org._id));
+                        expect(permissions[0]).to.have
+                            .property('organizationPermissions').that.include
+                            .members([PermissionType.APPROVE_CAR]);
+
+                        expect(permissions[1]).to.have
+                            .property('organization').that
+                            .satisfies(org => organization2._id.equals(org._id));
+                        expect(permissions[1]).to.have
+                            .property('organizationPermissions').that.include
+                            .members([PermissionType.APPROVE_SOLDIER]);
+
+                        return true;
+                    });
+
+                    done();
+                });
         });
 
-        it('Should remove all permissions when no permissions are provided');
-        it('Should not set duplicate permissions');
+        it('Should remove organization\'s permissions when no permissions are provided', done => {
+            User.setPermissions(user._id, organization1._id, []).then((user: IUser) => {
+                expect(user).to.exist;
+                expect(user).to.have.deep.property('permissions')
+                    .which.is.an('array')
+                    .and.has.length(0);
+
+                return User.setPermissions(user._id, organization1._id, [PermissionType.EDIT_WORKFLOW]);
+            }).then((user: IUser) => {
+                expect(user).to.exist;
+
+                return User.setPermissions(user._id, organization1._id, []);
+            }).then((user: IUser) => {
+                expect(user).to.exist;
+                expect(user).to.have.deep.property('permissions')
+                    .which.is.an('array')
+                    .and.has.length(0);
+
+                done();
+            });
+        });
+
+        it('Should not set duplicate permissions', done => {
+            User.setPermissions(user._id, organization1._id,
+                [PermissionType.APPROVE_CAR, PermissionType.APPROVE_CAR]).then((user: IUser) => {
+                    expect(user).to.exist;
+                    expect(user).to.have.property('permissions')
+                        .which.is.an('array')
+                        .and.has.length(1).that.satisfies(permissions => {
+                            expect(permissions).to.exist;
+                            expect(permissions[0]).to.exist;
+                            expect(permissions[0]).to.have.property('organizationPermissions')
+                                .which.is.an('array')
+                                .and.has.length(1);
+
+                            return true;
+                        });
+
+                    done();
+                });
+        });
     });
 });

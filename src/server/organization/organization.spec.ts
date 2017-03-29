@@ -1,3 +1,4 @@
+import { IUser } from './../user/user.interface';
 import { IOrganization } from './../classes/organization';
 import { ICollection } from './../helpers/collection';
 import { User } from './../user/user.class';
@@ -115,6 +116,7 @@ describe('Organization', () => {
     });
 
     describe('#searchOrganizations', () => {
+        let organization = <IOrganization>null;
         beforeEach(done => {
             Promise.all([
                 Organization.createOrganization('org one'),
@@ -122,6 +124,7 @@ describe('Organization', () => {
                 Organization.createOrganization('org three'),
                 Organization.createOrganization('org four')
             ]).then((values: IOrganization[]) => {
+                organization = values[0];
                 done();
             });
         });
@@ -207,7 +210,29 @@ describe('Organization', () => {
             });
         });
 
-        it('Should return organization with amount of users');
+        it('Should return organization with amount of users', done => {
+            User.createUser('Ron', 'Borysovski', '123456', 'roni537@gmail.com').then((user: IUser) => {
+                expect(user).to.exist;
+                return User.setOrganization(user._id, organization._id);
+            }).then((user: IUser) => {
+                expect(user).to.exist;
+
+                return Organization.searchOrganizations(organization.name);
+            }).then((collection: ICollection<IOrganization>) => {
+                expect(collection).to.exist;
+                expect(collection).to.have.property('totalCount', 1);
+                expect(collection).to.have.property('set').that.satisfies((set: IOrganization[]) => {
+                    expect(set).to.be.an('array');
+                    expect(set).to.have.length(1);
+                    expect(set[0]).to.have.property('users', 1)
+                    expect(set[0]).to.have.property('requests', 0);
+
+                    return true;
+                });
+
+                done();
+            });
+        });
     });
 
     describe('#setWork', () => {
