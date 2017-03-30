@@ -1,12 +1,12 @@
 import { IUser } from './../user/user.interface';
-import { IOrganization } from './../classes/organization';
 import { ICollection } from './../helpers/collection';
 import { User } from './../user/user.class';
 import { Types } from 'mongoose';
-import { ITask } from './../classes/task';
-import { TaskType } from './../classes/task';
 import { expect } from 'chai';
 import { Organization } from './organization.class';
+import { IOrganization } from "./organization.interface";
+import { ITask } from "../workflow/task.interface";
+import { TaskType } from "../workflow/task-type.enum";
 
 describe('Organization', () => {
     describe('#createOrganization', () => {

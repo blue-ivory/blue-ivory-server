@@ -1,4 +1,4 @@
-import { ITask } from '../classes/task';
+import { ITask } from './../workflow/task.interface';
 import { Document, Types } from 'mongoose';
 
 export interface IOrganization extends Document {

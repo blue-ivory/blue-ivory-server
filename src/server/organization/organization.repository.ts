@@ -1,4 +1,4 @@
-import { ITask } from './../classes/task';
+import { ITask } from './../workflow/task.interface';
 import { Types, Document } from 'mongoose';
 import * as Promise from 'bluebird';
 import { RepositoryBase } from "../helpers/repository";

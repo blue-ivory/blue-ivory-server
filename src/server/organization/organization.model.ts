@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
-import { TaskType } from './../classes/task';
 import { IOrganization } from './organization.interface';
+import { TaskType } from "../workflow/task-type.enum";
 
 var taskSchema: mongoose.Schema = new mongoose.Schema({
     type: {

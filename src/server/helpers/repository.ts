@@ -46,8 +46,8 @@ export abstract class RepositoryBase<T extends mongoose.Document> implements IRe
     return findQuery.exec();
   }
 
-  find(cond?: Object, fields?: Object, options?: Object): Promise<mongoose.Document[]> {
-    return this._model.find(cond, options).exec();
+  find(cond?: Object, populate?: string | Object): Promise<mongoose.Document[]> {
+    return this._model.find(cond).populate(populate).exec();
   }
 
   abstract search(searchTerm?: string, paginationOptions?: { skip: number, limit: number }, additionalFilter?: Object, ): Promise<ICollection<T>>;

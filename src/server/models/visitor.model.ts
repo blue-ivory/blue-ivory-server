@@ -1,5 +1,5 @@
+import { IVisitor } from './../visitor/visitor.interface';
 import * as mongoose from 'mongoose';
-import { IVisitor } from './../classes/visitor';
 
 var visitorSchema: mongoose.Schema = new mongoose.Schema({
     _id: {

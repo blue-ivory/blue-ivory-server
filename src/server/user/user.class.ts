@@ -1,7 +1,7 @@
+import { IOrganization } from './../organization/organization.interface';
 import * as Promise from 'bluebird';
 import { Document, Types } from 'mongoose';
 import { IUser } from './user.interface';
-import { IOrganization } from '../classes/organization';
 import { PermissionType } from '../permission/permission.enum';
 import { UserRepository } from './user.repository';
 import { ICollection } from "../helpers/collection";

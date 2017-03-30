@@ -1,8 +1,8 @@
+import { ITask } from './../workflow/task.interface';
 import * as Promise from 'bluebird';
 import { Types, Document } from 'mongoose';
 import { ICollection } from '../helpers/collection';
 import { IOrganization } from "./organization.interface";
-import { ITask } from "../classes/task";
 import { OrganizationRepository } from "./organization.repository";
 
 export class Organization {
