@@ -1,7 +1,8 @@
 import * as mongoose from 'mongoose';
-import { IRequest, CarType } from './../classes/request';
+import {  CarType } from './../classes/request';
 import { ITask, TaskType, TaskStatus } from './../classes/task';
 import { OrganizationManager } from './../managers/organization.manager';
+import { IRequest } from "../request/request.interface";
 
 
 var taskSchema: mongoose.Schema = new mongoose.Schema({

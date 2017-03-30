@@ -9,6 +9,7 @@ export interface IRequest extends Document {
     requestDate: Date;
     startDate: Date;
     endDate: Date;
+    phoneNumber: string;
     visitor: IVisitor;
     requestor: IUser;
     description: string;

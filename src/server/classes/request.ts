@@ -3,7 +3,7 @@ import { IUser } from './user';
 import { IOrganization } from './organization';
 import { Document } from 'mongoose';
 
-export interface IRequest extends Document {
+export interface IRequest1 extends Document {
     _id;
     requestDate: Date;
     startDate: Date;

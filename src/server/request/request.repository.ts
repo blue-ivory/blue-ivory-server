@@ -49,14 +49,14 @@ export class RequestRepository extends RepositoryBase<IRequest> {
                     totalCount: values[1]
                 };
 
-                // TODO : resolve(result);
+                resolve(result);
             }).catch(reject);;
         });
     }
 
     public searchMy(user: IUser, searchTerm?: string, paginationOptions?: { skip: number, limit: number }): Promise<ICollection<IRequest>> {
         let filter = {
-            requestor: user._id
+            requestor: user ? user._id : null
         };
 
         return this.search(searchTerm, paginationOptions, filter);
@@ -65,6 +65,14 @@ export class RequestRepository extends RepositoryBase<IRequest> {
     public searchPending(user: IUser, searchTerm?: string, paginationOptions?: { skip: number, limit: number }): Promise<ICollection<IRequest>> {
         let filter = {
             // TODO : Create filter based on request status (workflow) and user's permissions
+        };
+
+        return this.search(searchTerm, paginationOptions, filter);
+    }
+
+    public searchAll(user: IUser, searchTerm?: string, paginationOptions?: { skip: number, limit: number }): Promise<ICollection<IRequest>> {
+        let filter = {
+            // TODO : Create filter based on view permissions (Workflow orders)
         };
 
         return this.search(searchTerm, paginationOptions, filter);

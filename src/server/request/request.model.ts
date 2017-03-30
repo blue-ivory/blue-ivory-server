@@ -1,10 +1,9 @@
-import { IRequest } from './../classes/request';
 import { ITask } from './../classes/task';
 import { Organization } from './../organization/organization.class';
 import * as mongoose from 'mongoose';
 import { TaskType } from "../workflow/task-type.enum";
 import { TaskStatus } from "../workflow/task-status.enum";
-import { CarType } from "./request.interface";
+import { CarType, IRequest } from "./request.interface";
 
 var taskSchema: mongoose.Schema = new mongoose.Schema({
     order: {
@@ -69,9 +68,8 @@ var requestSchema: mongoose.Schema = new mongoose.Schema({
     description: {
         type: String
     },
-    phone: {
-        type: String,
-        default: '--'
+    phoneNumber: {
+        type: String
     },
     isSolider: {
         type: Boolean,

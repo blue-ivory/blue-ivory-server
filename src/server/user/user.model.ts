@@ -1,7 +1,6 @@
 import * as mongoose from 'mongoose';
 import { IUser } from './user.interface';
 import { PermissionType } from './../permission/permission.enum';
-import * as autopopulate from 'mongoose-autopopulate';
 require('../organization/organization.model');
 
 var permissionSchema: mongoose.Schema = new mongoose.Schema({
@@ -92,8 +91,6 @@ var userSchema: mongoose.Schema = new mongoose.Schema({
 userSchema.virtual('uniqueId').get(() => {
     return this._id;
 });
-
-userSchema.plugin(autopopulate);
 
 export let UserModel = mongoose.model<IUser>("User", userSchema);
 

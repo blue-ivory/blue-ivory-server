@@ -1,11 +1,11 @@
 import { IDAO } from './../interfaces/IDAO';
-import { IRequest } from './../classes/request';
 import { IUser } from './../classes/user';
 import { IOrganization } from './../classes/organization';
 import * as RequestModel from './../models/request.model';
 import { VisitorManager } from './../managers/visitor.manager';
 import { OrganizationManager } from './../managers/organization.manager';
 import * as Promise from 'bluebird';
+import { IRequest } from "../request/request.interface";
 require('./../models/visitor.model');
 
 export class RequestManager implements IDAO<IRequest>{
