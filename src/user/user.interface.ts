@@ -1,6 +1,6 @@
 import { Document } from 'mongoose';
 import { PermissionType } from './../permission/permission.enum';
-import { IOrganization } from './../classes/organization';
+import { IOrganization } from "../organization/organization.interface";
 
 export interface IUser extends Document {
     firstName: string;

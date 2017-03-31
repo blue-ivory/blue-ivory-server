@@ -1,6 +1,5 @@
 import { User } from './../user/user.class';
 import { IUser } from './../user/user.interface';
-import { IOrganization } from './../classes/organization';
 import { PermissionType } from './permission.enum';
 import * as UserModel from './../user/user.model';
 import * as Promise from 'bluebird';

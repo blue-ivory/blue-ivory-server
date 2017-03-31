@@ -1,9 +1,9 @@
-import { ITask } from './../classes/task';
 import { Organization } from './../organization/organization.class';
 import * as mongoose from 'mongoose';
 import { TaskType } from "../workflow/task-type.enum";
 import { TaskStatus } from "../workflow/task-status.enum";
 import { CarType, IRequest } from "./request.interface";
+import { ITask } from "../workflow/task.interface";
 
 var taskSchema: mongoose.Schema = new mongoose.Schema({
     order: {

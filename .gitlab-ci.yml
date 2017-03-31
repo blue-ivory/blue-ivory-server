@@ -1,10 +1,10 @@
+variables:
+  MONGO_URI: 'mongodb://mongo/blue-ivory'
+
 image: node:latest
 
 services:
   - mongo
-
-variables:
-  MONGO_URI: 'mongodb://mongo/blue-ivory'
 
 cache:
   untracked: true
