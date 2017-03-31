@@ -266,6 +266,14 @@ describe('Request', () => {
                 expect(usr).to.exist;
                 anotherUser = usr;
 
+                return Promise.all([
+                    Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 1111, organization),
+                    Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 2222, organization),
+                    Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '111111', name: 'aaaaa' }, user, 'desc', CarType.NONE, null, organization),
+                    Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '222222', name: 'bbbbbb' }, user, 'desc', CarType.NONE, null, organization),
+                    Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '121212', name: 'ababab' }, user, 'desc', CarType.NONE, null, organization),
+                ]);
+            }).then(() => {
                 done();
             });
         });
@@ -281,10 +289,85 @@ describe('Request', () => {
                 done();
             })
         });
-        
-        it('Should throw an error when user not exists');
-        it('Should return empty collection if requested user doesn\'t have any requests');
-        it('Should return collection with all user\'s requests if no search term is provided');
-        it('Should return collection with user\'s requests filtered by search term');
+
+        it('Should return empty collection when user not exists on database', done => {
+            let unsavedUser = <IUser>{
+                _id: 'UnsavedUser',
+                firstName: 'Unsaved',
+                lastName: 'User',
+                mail: 'No mail'
+            };
+
+            Request.searchMyRequests(unsavedUser).then((collection: ICollection<IRequest>) => {
+                expect(collection).to.exist;
+                expect(collection).to.have.property('totalCount', 0);
+                expect(collection).to.have.property('set')
+                    .which.is.an('array')
+                    .and.has.length(0);
+
+                done();
+            })
+        });
+
+        it('Should return empty collection if requested user doesn\'t have any requests', done => {
+            Request.searchMyRequests(anotherUser).then((collection: ICollection<IRequest>) => {
+                expect(collection).to.exist;
+                expect(collection).to.have.property('totalCount', 0);
+                expect(collection).to.have.property('set')
+                    .which.is.an('array')
+                    .and.has.length(0);
+
+                done();
+            })
+        });
+
+        it('Should return collection with all user\'s requests if no search term is provided', done => {
+            Request.searchAllRequests(user).then((collection: ICollection<IRequest>) => {
+                expect(collection).to.exist;
+                expect(collection).to.have.property('totalCount', 6);
+                expect(collection).to.have.property('set').which.is.an('array').with.length(6);
+
+                done();
+            });
+        });
+
+        it('Should return collection with user\'s requests filtered by search term', done => {
+            Promise.all(['11111', '222', '1212', 'aaa', 'bbbbb', 'bab']
+                .map(searchTerm => Request.searchMyRequests(user, searchTerm)))
+                .then((values: ICollection<IRequest>[]) => {
+                    expect(values).to.exist;
+                    expect(values).to.be.an('array').with.length(6);
+
+                    values.forEach(value => {
+                        expect(value).to.exist;
+                        expect(value).to.have.property('totalCount', 1);
+                        expect(value).to.have.property('set').which.is.an('array').with.length(1);
+                    });
+
+                    return Promise.all(['1', '2', 'a', 'b'].map(searchTerm => Request.searchMyRequests(user, searchTerm)));
+                }).then((values: ICollection<IRequest>[]) => {
+                    expect(values).to.exist;
+                    expect(values).to.be.an('array').with.length(4);
+
+                    values.forEach(value => {
+                        expect(value).to.exist;
+                        expect(value).to.have.property('totalCount', 2);
+                        expect(value).to.have.property('set').which.is.an('array').with.length(2);
+                    });
+
+                    return Promise.all(['jdc', 'Jo', 'John', 'john', 'john ', 'Doe', 'Do', 'D', 'd', 'e', 'o', 'doe', 'do', 'oe', 'hn'].map(searchTerm => Request.searchMyRequests(user, searchTerm)));
+                }).then((values: ICollection<IRequest>[]) => {
+                    expect(values).to.exist;
+                    expect(values).to.be.an('array').with.length(15);
+
+                    values.forEach(value => {
+                        expect(value).to.exist;
+                        expect(value).to.have.property('totalCount', 3);
+                        expect(value).to.have.property('set').which.is.an('array').with.length(3);
+                    });
+
+                    done();
+                });
+        });
     })
 });
