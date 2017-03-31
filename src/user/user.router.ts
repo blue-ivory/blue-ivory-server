@@ -8,6 +8,12 @@ import { IOrganization } from "../organization/organization.interface";
 
 let router: express.Router = express.Router();
 
+/**
+ * GET /api/user
+ * Returns all users
+ * Allowed only for 'EDIT_USER_PERMISSIONS' permission
+ * Accepts pagination
+ */
 router.get('/user',
     AuthMiddleware.requireLogin,
     PermissionsMiddleware.hasPermissions([PermissionType.EDIT_USER_PERMISSIONS]),
@@ -31,12 +37,22 @@ router.get('/user',
         });
     });
 
+/**
+ * GET /api/user/current
+ * Returns the current user
+ * Requires user to be logged in
+ */
 router.get('/user/current',
     AuthMiddleware.requireLogin,
     (req: express.Request, res: express.Response) => {
         return res.json(req.user);
     });
 
+/**
+ * GET /api/user/3
+ * Return specific user if exists
+ * Required 'EDIT_USER_PERMISSIONS' permission
+ */
 router.get('/user/:id',
     AuthMiddleware.requireLogin,
     PermissionsMiddleware.hasPermissions([PermissionType.EDIT_USER_PERMISSIONS]),
@@ -55,6 +71,11 @@ router.get('/user/:id',
         });
     });
 
+/**
+ * PUT /api/user/3/permissions
+ * Set user's permission
+ * Requires 'EDIT_USER_PERMISSIONS' permission
+ */
 router.put('/user/:id/permissions',
     AuthMiddleware.requireLogin,
     PermissionsMiddleware.hasPermissions([PermissionType.EDIT_USER_PERMISSIONS]),
@@ -71,6 +92,11 @@ router.put('/user/:id/permissions',
         });
     });
 
+/**
+ * PUT /api/user/3/organization
+ * Change user's organization
+ * Requires 'EDIT_USER_PERMISSIONS' permission
+ */
 router.put('/user/:id/organization',
     AuthMiddleware.requireLogin,
     PermissionsMiddleware.hasPermissions([PermissionType.EDIT_USER_PERMISSIONS]),
