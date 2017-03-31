@@ -1,11 +1,11 @@
 import * as express from 'express';
-import { UserManager } from './../managers/user.manager';
+import { User } from "../user/user.class";
+
 // TODO : implement authentication!!
 export class AuthMiddleware {
     public static requireLogin(req: express.Request, res: express.Response, next: express.NextFunction) {
-        let um = new UserManager;
 
-        um.read('unique@id').then(user => {
+        User.findUser('unique@id').then(user => {
             req.user = user;
 
             if (req.user) {

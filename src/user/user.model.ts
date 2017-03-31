@@ -1,7 +1,6 @@
 import * as mongoose from 'mongoose';
 import { IUser } from './user.interface';
 import { PermissionType } from './../permission/permission.enum';
-require('../organization/organization.model');
 
 var permissionSchema: mongoose.Schema = new mongoose.Schema({
     organization: {

@@ -4,15 +4,15 @@ import * as morgan from 'morgan';
 import * as methodOverride from 'method-override';
 import * as Bluebird from 'bluebird';
 import * as mongoose from 'mongoose';
-import * as requestRouter from './controllers/request.controller';
-import * as userRouter from './controllers/user.controller';
-import * as organizationRouter from './controllers/organization.controller';
-import * as permissionRouter from './controllers/permission.controller';
-import * as visitorRouter from './controllers/visitor.controller';
+// import * as requestRouter from './controllers/request.controller';
+// import * as organizationRouter from './controllers/organization.controller';
+// import * as permissionRouter from './controllers/permission.controller';
+// import * as visitorRouter from './controllers/visitor.controller';
+import * as userRouter from './user/user.router';
 
 
 
-var config = require('./../../config');
+var config = require('./../config');
 const app: express.Application = express();
 
 global.Promise = Bluebird;
@@ -45,12 +45,7 @@ app.use(function (req, res, next) {
 
 const port: number = 80;
 
-app.use('/api/', requestRouter.default);
-app.use('/api/', userRouter.default);
-app.use('/api/', organizationRouter.default);
-app.use('/api/', permissionRouter.default);
-app.use('/api/', visitorRouter.default);
-
+app.use('/api/', userRouter);
 
 var server = app.listen(port, () => {
     console.log('Application is running port %s', port);

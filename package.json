@@ -4,7 +4,7 @@
   "description": "",
   "main": "build/server/server.js",
   "scripts": {
-    "start": "gulp",
+    "start": "tsc && node dist/server.js",
     "compile": "tsc --pretty",
     "test": "tsc && mocha dist/**/spec.helper.js dist/**/*.spec.js"
   },
