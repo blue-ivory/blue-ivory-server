@@ -32,5 +32,4 @@ variables:
 test:
   stage: test
   script:
-   - npm install --silent
    - npm test
