@@ -3,6 +3,5 @@ build
 dist
 maps
 .idea
-.vscode
 npm-debug.log.*
 coverage
