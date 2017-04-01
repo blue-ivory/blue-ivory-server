@@ -4,6 +4,7 @@ import { RepositoryBase } from "../helpers/repository";
 import { IVisitor } from "./visitor.interface";
 import { VisitorModel } from './visitor.model';
 import { ICollection } from "../helpers/collection";
+import { IPaginationOptions } from "../pagination/pagination.interface";
 
 export class VisitorRepository extends RepositoryBase<IVisitor> {
 
@@ -11,7 +12,7 @@ export class VisitorRepository extends RepositoryBase<IVisitor> {
         super(VisitorModel);
     }
 
-    search(searchTerm?: string, paginationOptions?: { skip: number, limit: number }): Promise<ICollection<IVisitor>> {
+    search(searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IVisitor>> {
         return new Promise<ICollection<IVisitor>>((resolve, reject) => {
             let searchFilter = this.generateSearchFilter(searchTerm);
             let visitorsPromise = VisitorModel.find(searchFilter);

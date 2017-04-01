@@ -8,13 +8,14 @@ import { ICollection } from "../helpers/collection";
 import { Organization } from "../organization/organization.class";
 import { IOrganization } from "../organization/organization.interface";
 import { PermissionType } from "../permission/permission.enum";
+import { IPaginationOptions } from "../pagination/pagination.interface";
 
 export class UserRepository extends RepositoryBase<IUser> {
     constructor() {
         super(UserModel);
     }
 
-    search(searchTerm?: string, paginationOptions?: { skip: number, limit: number }): Promise<ICollection<IUser>> {
+    search(searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IUser>> {
         return new Promise<ICollection<IUser>>((resolve, reject) => {
 
             let searchFilter = this.generateNameFilter(searchTerm);

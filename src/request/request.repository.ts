@@ -6,13 +6,14 @@ import { RequestModel } from './request.model';
 import { RepositoryBase } from "../helpers/repository";
 import { IRequest } from "./request.interface";
 import { IUser } from "../user/user.interface";
+import { IPaginationOptions } from "../pagination/pagination.interface";
 
 export class RequestRepository extends RepositoryBase<IRequest> {
     constructor() {
         super(RequestModel);
     }
 
-    public search(searchTerm?: string, paginationOptions?: { skip: number, limit: number }, filter?: Object): Promise<ICollection<IRequest>> {
+    public search(searchTerm?: string, paginationOptions?: IPaginationOptions, filter?: Object): Promise<ICollection<IRequest>> {
         return new Promise<ICollection<IRequest>>((resolve, reject) => {
             searchTerm = searchTerm ? searchTerm.replace(/[^\s\w\d\u0590-\u05FF]/gi, '') : '';
             Visitor.searchVisitors(searchTerm).then((visitorsCollection: ICollection<IVisitor>) => {
@@ -54,7 +55,7 @@ export class RequestRepository extends RepositoryBase<IRequest> {
         });
     }
 
-    public searchMy(user: IUser, searchTerm?: string, paginationOptions?: { skip: number, limit: number }): Promise<ICollection<IRequest>> {
+    public searchMy(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
         let filter = {
             requestor: user ? user._id : null
         };
@@ -62,7 +63,7 @@ export class RequestRepository extends RepositoryBase<IRequest> {
         return this.search(searchTerm, paginationOptions, filter);
     }
 
-    public searchPending(user: IUser, searchTerm?: string, paginationOptions?: { skip: number, limit: number }): Promise<ICollection<IRequest>> {
+    public searchPending(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
         let filter = {
             // TODO : Create filter based on request status (workflow) and user's permissions
         };
@@ -70,7 +71,7 @@ export class RequestRepository extends RepositoryBase<IRequest> {
         return this.search(searchTerm, paginationOptions, filter);
     }
 
-    public searchAll(user: IUser, searchTerm?: string, paginationOptions?: { skip: number, limit: number }): Promise<ICollection<IRequest>> {
+    public searchAll(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
         let filter = {
             // TODO : Create filter based on view permissions (Workflow orders)
         };

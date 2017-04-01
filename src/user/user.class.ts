@@ -5,6 +5,7 @@ import { IUser } from './user.interface';
 import { PermissionType } from '../permission/permission.enum';
 import { UserRepository } from './user.repository';
 import { ICollection } from "../helpers/collection";
+import { IPaginationOptions } from "../pagination/pagination.interface";
 
 export class User {
 
@@ -63,7 +64,7 @@ export class User {
         return User._userRepository.delete(id);
     }
 
-    static searchUsers(searchTerm?: string, paginationOptions?: { skip: number, limit: number }): Promise<ICollection<IUser>> {
+    static searchUsers(searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IUser>> {
         return User._userRepository.search(searchTerm, paginationOptions);
     }
 

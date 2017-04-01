@@ -5,6 +5,7 @@ import { RepositoryBase } from "../helpers/repository";
 import { IOrganization } from "./organization.interface";
 import { OrganizationModel } from "./organization.model";
 import { ICollection } from "../helpers/collection";
+import { IPaginationOptions } from "../pagination/pagination.interface";
 
 
 export class OrganizationRepository extends RepositoryBase<IOrganization> {
@@ -12,7 +13,7 @@ export class OrganizationRepository extends RepositoryBase<IOrganization> {
         super(OrganizationModel);
     }
 
-    search(searchTerm: string, paginationOptions?: { skip: number, limit: number }): Promise<ICollection<IOrganization>> {
+    search(searchTerm: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IOrganization>> {
         return new Promise<ICollection<IOrganization>>((resolve, reject) => {
             let searchTermCaseInsensitiveRegex = new RegExp(searchTerm, 'i');
 

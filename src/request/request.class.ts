@@ -9,6 +9,7 @@ import { ICollection } from "../helpers/collection";
 import { Visitor } from "../visitor/visitor.class";
 import { User } from "../user/user.class";
 import { Organization } from "../organization/organization.class";
+import { IPaginationOptions } from "../pagination/pagination.interface";
 
 export class Request {
     private static _requestRepository: RequestRepository = new RequestRepository();
@@ -84,15 +85,15 @@ export class Request {
         return Request._requestRepository.delete(id);
     }
 
-    static searchMyRequests(user: IUser, searchTerm?: string, paginationOptions?: { skip: number, limit: number }): Promise<ICollection<IRequest>> {
+    static searchMyRequests(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
         return Request._requestRepository.searchMy(user, searchTerm, paginationOptions);
     }
 
-    static searchPendingRequests(user: IUser, searchTerm?: string, paginationOptions?: { skip: number, limit: number }): Promise<ICollection<IRequest>> {
+    static searchPendingRequests(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
         return Request._requestRepository.searchPending(user, searchTerm, paginationOptions);
     }
 
-    static searchAllRequests(user: IUser, searchTerm?: string, paginationOptions?: { skip: number, limit: number }): Promise<ICollection<IRequest>> {
+    static searchAllRequests(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
         return Request._requestRepository.searchAll(user, searchTerm, paginationOptions);
     }
 }

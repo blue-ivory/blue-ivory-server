@@ -3,6 +3,7 @@ import * as Promise from 'bluebird';
 import { IRead } from './read.interface';
 import { IWrite } from './write.interface';
 import { ICollection } from "./collection";
+import { IPaginationOptions } from "../pagination/pagination.interface";
 
 export abstract class RepositoryBase<T extends mongoose.Document> implements IRead, IWrite<T> {
 
@@ -50,5 +51,5 @@ export abstract class RepositoryBase<T extends mongoose.Document> implements IRe
     return this._model.find(cond).populate(populate).exec();
   }
 
-  abstract search(searchTerm?: string, paginationOptions?: { skip: number, limit: number }, additionalFilter?: Object, ): Promise<ICollection<T>>;
+  abstract search(searchTerm?: string, paginationOptions?: IPaginationOptions, additionalFilter?: Object, ): Promise<ICollection<T>>;
 }

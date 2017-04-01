@@ -5,6 +5,7 @@ import { PermissionType } from "../permission/permission.enum";
 import { User } from "./user.class";
 import { IUser } from "./user.interface";
 import { IOrganization } from "../organization/organization.interface";
+import { Pagination } from "../pagination/pagination.class";
 
 let router: express.Router = express.Router();
 
@@ -19,17 +20,8 @@ router.get('/user',
     PermissionsMiddleware.hasPermissions([PermissionType.EDIT_USER_PERMISSIONS]),
     (req: express.Request, res: express.Response) => {
         let searchTerm = req.params['searchTerm'];
-        let page = +req.params['page'];
-        let pageSize = +req.params['pageSize'];
-        let paginationOptions = null;
-        if (page && pageSize) {
-            paginationOptions = {
-                skip: (page - 1) * pageSize,
-                limit: pageSize
-            };
-        }
-
-        User.searchUsers(searchTerm, paginationOptions).then((users) => {
+        
+        User.searchUsers(searchTerm, Pagination.getPaginationOptions(req)).then((users) => {
             return res.json(users);
         }).catch((error) => {
             console.error(error);

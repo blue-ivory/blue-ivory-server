@@ -3,6 +3,7 @@ import { Document } from 'mongoose';
 import { ICollection } from '../helpers/collection';
 import { IVisitor } from "./visitor.interface";
 import { VisitorRepository } from "./visitor.repository";
+import { IPaginationOptions } from "../pagination/pagination.interface";
 
 export class Visitor {
 
@@ -45,7 +46,7 @@ export class Visitor {
         return Visitor._visitorRepository.delete(id);
     }
 
-    static searchVisitors(searchTerm?: string, paginationOptions?: { skip: number, limit: number }): Promise<ICollection<IVisitor>> {
+    static searchVisitors(searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IVisitor>> {
         return Visitor._visitorRepository.search(searchTerm, paginationOptions);
     }
 }

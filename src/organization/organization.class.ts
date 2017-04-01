@@ -4,6 +4,7 @@ import { Types, Document } from 'mongoose';
 import { ICollection } from '../helpers/collection';
 import { IOrganization } from "./organization.interface";
 import { OrganizationRepository } from "./organization.repository";
+import { IPaginationOptions } from "../pagination/pagination.interface";
 
 export class Organization {
     private _organization: IOrganization;
@@ -41,7 +42,7 @@ export class Organization {
         return Organization._organizationRepository.findById(id);
     }
 
-    static searchOrganizations(searchTerm?: string, paginationOptions?: { skip: number, limit: number }): Promise<ICollection<IOrganization>> {
+    static searchOrganizations(searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IOrganization>> {
         return Organization._organizationRepository.search(searchTerm, paginationOptions);
     }
 
