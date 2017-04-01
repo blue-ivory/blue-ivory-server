@@ -5,7 +5,8 @@
   "main": "build/server/server.js",
   "scripts": {
     "start": "tsc && node dist/server.js",
-    "compile": "tsc --pretty",
+    "debug": "tsc && node --nolazy --debug-brk=5858 dist/server.js",
+    "dev": "nodemon -e ts  --exec \"npm start\"",
     "test": "tsc && mocha dist/**/spec.helper.js dist/**/*.spec.js"
   },
   "author": "Ron Borysovski",
@@ -33,13 +34,8 @@
     "@types/passport": "^0.3.3",
     "chai": "^3.5.0",
     "core-js": "^2.4.1",
-    "gulp": "^3.9.1",
-    "gulp-istanbul": "^1.1.1",
-    "gulp-mocha": "^4.1.0",
-    "gulp-nodemon": "^2.2.1",
-    "gulp-sourcemaps": "^2.4.1",
-    "gulp-typescript": "^3.1.6",
     "istanbul": "^0.4.5",
+    "nodemon": "^1.11.0",
     "typescript": "^2.2.1"
   }
 }
