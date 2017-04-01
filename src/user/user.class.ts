@@ -52,8 +52,16 @@ export class User {
         return User._userRepository.create(user);
     }
 
-    static findUser(id: string, populateField?: string): Promise<Document> {
-        return User._userRepository.findById(id, 'organization ' + populateField);
+    static findUser(id: string, populateField?: Object): Promise<Document> {
+        let populate = [
+            { path: 'organization', select: 'name' },
+            { path: 'permissions.organization', select: 'name' }
+        ];
+        if (populateField) {
+            populate = populate.concat(<any>populateField);
+        }
+
+        return User._userRepository.findById(id, populate);
     }
 
     static updateUser(user: IUser): Promise<Document> {

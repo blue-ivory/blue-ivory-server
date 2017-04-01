@@ -19,7 +19,8 @@ export class UserRepository extends RepositoryBase<IUser> {
         return new Promise<ICollection<IUser>>((resolve, reject) => {
 
             let searchFilter = this.generateNameFilter(searchTerm);
-            let usersPromise = UserModel.find(searchFilter).populate('organization').populate('permissions.organization');
+            let usersPromise = UserModel.find(searchFilter)
+                .populate({ path: 'organization', select: 'name' }).select('firstName lastName mail organization');
 
             if (paginationOptions) {
                 usersPromise = usersPromise

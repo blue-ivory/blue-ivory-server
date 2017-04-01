@@ -34,7 +34,7 @@ export class Permission {
 
     static hasPermissionForOrganization(userId: string, permissions: PermissionType[], organizationId: any, some?: boolean): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
-            User.findUser(userId, 'permissions.organization').then((user: IUser) => {
+            User.findUser(userId).then((user: IUser) => {
                 if (!user) {
                     resolve(false);
                 } else if (user.isAdmin) {
