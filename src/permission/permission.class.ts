@@ -3,6 +3,7 @@ import { IUser } from './../user/user.interface';
 import { PermissionType } from './permission.enum';
 import * as UserModel from './../user/user.model';
 import * as Promise from 'bluebird';
+import { Types } from "mongoose";
 
 export class Permission {
 
@@ -32,7 +33,7 @@ export class Permission {
         });
     }
 
-    static hasPermissionForOrganization(userId: string, permissions: PermissionType[], organizationId: any, some?: boolean): Promise<boolean> {
+    static hasPermissionForOrganization(userId: string, permissions: PermissionType[], organizationId: Types.ObjectId, some?: boolean): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             User.findUser(userId).then((user: IUser) => {
                 if (!user) {
@@ -45,7 +46,7 @@ export class Permission {
 
                         // Extract user's permission for selected organization
                         let userPermissions = user.permissions.find(permission => {
-                            return permission.organization._id.toHexString() == organizationId;
+                            return permission.organization._id.equals(organizationId);
                         });
 
                         let organizationPermissions = userPermissions ? userPermissions.organizationPermissions : [];

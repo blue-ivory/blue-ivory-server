@@ -4,4 +4,5 @@ dist
 maps
 .idea
 npm-debug.log.*
+npm-debug.log
 coverage

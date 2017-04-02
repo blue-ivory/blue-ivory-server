@@ -8,6 +8,7 @@ import * as mongoose from 'mongoose';
 // import * as organizationRouter from './controllers/organization.controller';
 // import * as permissionRouter from './controllers/permission.controller';
 // import * as visitorRouter from './controllers/visitor.controller';
+import * as organizationRouter from './organization/organization.router';
 import * as userRouter from './user/user.router';
 
 
@@ -46,6 +47,7 @@ app.use(function (req, res, next) {
 const port: number = 80;
 
 app.use('/api/', userRouter);
+app.use('/api/', organizationRouter);
 
 var server = app.listen(port, () => {
     console.log('Application is running port %s', port);

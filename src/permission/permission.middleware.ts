@@ -35,7 +35,7 @@ export class PermissionsMiddleware {
                 return res.redirect('/login');
             }
 
-            Permission.hasPermissionForOrganization(user._id, permissions, organization, some).then(hasPermissions => {
+            Permission.hasPermissionForOrganization(user._id, permissions, organization._id, some).then(hasPermissions => {
                 if (hasPermissions) {
                     return next();
                 }
