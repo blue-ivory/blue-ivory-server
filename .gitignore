@@ -1,7 +1,8 @@
 node_modules
 build
+dist
 maps
 .idea
-.vscode
 npm-debug.log.*
+npm-debug.log
 coverage
