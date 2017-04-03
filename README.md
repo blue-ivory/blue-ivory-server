@@ -3,8 +3,20 @@
 ## CI Information
 ### Build Status
 [![build status](https://gitlab.com/BlueIvory/blue-ivory-server/badges/master/build.svg)](https://gitlab.com/BlueIvory/blue-ivory-server/commits/master)
-
 [![coverage report](https://gitlab.com/BlueIvory/blue-ivory-server/badges/master/coverage.svg)](https://gitlab.com/BlueIvory/blue-ivory-server/commits/master)
+
+## Getting Started
+### Installation
+        npm install
+
+### Testing
+        npm test
+
+### Running the server
+        npm start
+
+### Running with live reload (using nodemon)
+        npm run dev
 
 ## API Endpoints
 ### 1. User
