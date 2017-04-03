@@ -4,7 +4,7 @@ import * as morgan from 'morgan';
 import * as methodOverride from 'method-override';
 import * as Bluebird from 'bluebird';
 import * as mongoose from 'mongoose';
-// import * as requestRouter from './controllers/request.controller';
+import * as requestRouter from './request/request.router';
 import * as permissionRouter from './permission/permission.router';
 import * as visitorRouter from './visitor/visitor.router';
 import * as organizationRouter from './organization/organization.router';
@@ -45,6 +45,7 @@ app.use(function (req, res, next) {
 
 const port: number = 80;
 
+app.use('/api/', requestRouter);
 app.use('/api/', visitorRouter);
 app.use('/api/', userRouter);
 app.use('/api/', permissionRouter);
