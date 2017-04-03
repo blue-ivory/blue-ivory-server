@@ -30,7 +30,7 @@ setup:
 build:
   stage: build
   script:
-    - tsc --pretty
+    - ./node_modules/typescript/bin/tsc --pretty
   artifacts:
     paths:
       - dist/
@@ -40,6 +40,6 @@ build:
 test:
   stage: test
   script:
-    - mocha dist/**/spec.helper.js dist/**/*.spec.js
+    - ./node_modules/mocha/bin/_mocha dist/**/spec.helper.js dist/**/*.spec.js
   # tags:
   #   - blue-ivory-server
