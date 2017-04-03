@@ -24,8 +24,8 @@ setup:
   artifacts:
     paths:
       - node_modules/
-  tags:
-    - blue-ivory-server
+  # tags:
+  #   - blue-ivory-server
 
 build:
   stage: build
@@ -34,12 +34,12 @@ build:
   artifacts:
     paths:
       - dist/
-  tags:
-    - blue-ivory-server
+  # tags:
+  #   - blue-ivory-server
 
 test:
   stage: test
   script:
     - mocha dist/**/spec.helper.js dist/**/*.spec.js
-  tags:
-    - blue-ivory-server
+  # tags:
+  #   - blue-ivory-server
