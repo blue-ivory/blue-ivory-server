@@ -32,7 +32,8 @@ build:
   script:
     - tsc --pretty
   artifacts:
-    - dist/
+    paths:
+      - dist/
   tags:
     - blue-ivory-server
 
