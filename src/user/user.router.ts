@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import * as express from 'express';
 import { AuthMiddleware } from "../middlewares/auth.middleware";
 import { PermissionsMiddleware } from "../permission/permission.middleware";
@@ -20,7 +21,7 @@ router.get('/user',
     PermissionsMiddleware.hasPermissions([PermissionType.EDIT_USER_PERMISSIONS]),
     (req: express.Request, res: express.Response) => {
         let searchTerm = req.params['searchTerm'];
-        
+
         User.searchUsers(searchTerm, Pagination.getPaginationOptions(req)).then((users) => {
             return res.json(users);
         }).catch((error) => {
@@ -74,9 +75,15 @@ router.put('/user/:id/permissions',
     (req: express.Request, res: express.Response) => {
         let userId = req.params.id;
         let permissions: PermissionType[] = req.body.permissions;
-        let organization: IOrganization = req.body.organization;
+        let organizationId: Types.ObjectId = null;
 
-        User.setPermissions(userId, organization || req.user.organization, permissions).then((user: IUser) => {
+        try {
+            organizationId = new Types.ObjectId(req.body.organizationId);
+        } catch (err) {
+            return res.sendStatus(400);
+        }
+
+        User.setPermissions(userId, organizationId, permissions).then((user: IUser) => {
             return res.json(user);
         }).catch(error => {
             console.error(error);
@@ -94,7 +101,13 @@ router.put('/user/:id/organization',
     PermissionsMiddleware.hasPermissions([PermissionType.EDIT_USER_PERMISSIONS]),
     (req: express.Request, res: express.Response) => {
         let userId = req.params.id;
-        let organizationId: any = req.body.organizationId;
+        let organizationId: Types.ObjectId = null;
+
+        try {
+            organizationId = new Types.ObjectId(req.body.organizationId);
+        } catch (err) {
+            return res.sendStatus(400);
+        }
 
         User.setOrganization(userId, organizationId).then((user: IUser) => {
             return res.json(user);
