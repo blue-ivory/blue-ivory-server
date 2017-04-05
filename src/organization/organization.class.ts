@@ -53,4 +53,14 @@ export class Organization {
     static getWorkflow(organizationId: Types.ObjectId): Promise<ITask[]> {
         return Organization._organizationRepository.getWorkflow(organizationId);
     }
+
+    static getRequestableOrganization(): Promise<Document[]> {
+        return Organization._organizationRepository.find({
+            $and:
+            [
+                { workflow: { $ne: null } },
+                { workflow: { $ne: [] } }
+            ]
+        }, null, 'name');
+    }
 }

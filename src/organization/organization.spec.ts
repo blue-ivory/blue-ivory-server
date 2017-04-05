@@ -115,6 +115,47 @@ describe('Organization', () => {
         });
     });
 
+    describe('#getRequestableOrganization', () => {
+
+        beforeEach(done => {
+            Organization.createOrganization('org1').then(() => {
+                return Organization.createOrganization('org2');
+            }).then(() => {
+                done();
+            });
+        })
+
+        it('Should return null if no requestable organizations', done => {
+            Organization.getRequestableOrganization().then((organizations: IOrganization[]) => {
+                expect(organizations).to.exist;
+                expect(organizations).to.be.an('array').with.length(0);
+
+                done();
+            });
+        });
+
+        it('Should return organizations only with workflow', done => {
+            Organization.createOrganization('organizationWithWorkflow').then((organization: IOrganization) => {
+                expect(organization).to.exist;
+
+                return Organization.setWorkflow(organization._id,
+                    [
+                        <ITask>{ order: 1, type: TaskType.HUMAN, organization: organization },
+                        <ITask>{ order: 2, type: TaskType.CAR, organization: organization }
+                    ]);
+            }).then((organization: IOrganization) => {
+                expect(organization).to.exist;
+
+                return Organization.getRequestableOrganization();
+            }).then((organizations: IOrganization[]) => {
+                expect(organizations).to.exist.and.to.be.an('array').with.length(1);
+                expect(organizations[0]).to.have.property('name', 'organizationWithWorkflow');
+
+                done();
+            });
+        });
+    });
+
     describe('#searchOrganizations', () => {
         let organization = <IOrganization>null;
         beforeEach(done => {

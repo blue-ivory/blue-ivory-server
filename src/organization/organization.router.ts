@@ -26,10 +26,20 @@ router.get('/organization',
     (req: express.Request, res: express.Response) => {
         let searchTerm = req.param('searchTerm');
 
-        Organization.searchOrganizations(searchTerm, Pagination.getPaginationOptions(req)).then((organization) => {
-            return res.json(organization);
+        Organization.searchOrganizations(searchTerm, Pagination.getPaginationOptions(req)).then((organizations) => {
+            return res.json(organizations);
         }).catch((error) => {
             console.error(error);
+            return res.sendStatus(500);
+        });
+    });
+
+router.get('/organization/requestable',
+    AuthMiddleware.requireLogin,
+    (req: express.Request, res: express.Response) => {
+        Organization.getRequestableOrganization().then((organizations) => {
+            return res.json(organizations);
+        }).catch((error) => {
             return res.sendStatus(500);
         });
     });
