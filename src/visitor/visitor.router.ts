@@ -14,7 +14,7 @@ router.get('/visitor/:id', AuthMiddleware.requireLogin, (req: express.Request, r
 
     if (id.trim()) {
         Visitor.findVisitor(id).then(visitor => {
-            return visitor ? res.json(visitor) : res.sendStatus(404);
+            return res.json(visitor);
         }).catch(error => res.status(500).send(error));
     } else {
         res.status(400).send();

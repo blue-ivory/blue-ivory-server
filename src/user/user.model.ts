@@ -63,23 +63,23 @@ var userSchema: mongoose.Schema = new mongoose.Schema({
 
                     let uniquePermissions = Array.from(new Set(allPermissions));
                     ret.permittedRoutes = [
-                        { resource: 'requests', title: 'all_requests', route: 'requests/all/' },
-                        { resource: 'requests', title: 'my_requests', route: 'requests/my/' }
+                        { resource: 'requests', title: 'all_requests', route: 'requests/all/', searchable: true },
+                        { resource: 'requests', title: 'my_requests', route: 'requests/my/', searchable: true }
                     ];
                     if (canApprove(uniquePermissions) || ret.isAdmin) {
-                        ret.permittedRoutes.push({ resource: 'requests', title: 'pending_requests', route: 'requests/pending/' });
+                        ret.permittedRoutes.push({ resource: 'requests', title: 'pending_requests', route: 'requests/pending/', searchable: true });
                     }
 
                     if (canModifyUserSettings(uniquePermissions) || ret.isAdmin) {
-                        ret.permittedRoutes.push({ resource: 'users', title: 'users', route: 'users/' });
+                        ret.permittedRoutes.push({ resource: 'users', title: 'users', route: 'users/', searchable: true });
                     }
 
                     if (canEditWorkflow(uniquePermissions) || ret.isAdmin) {
-                        ret.permittedRoutes.push({ resource: 'workflow', title: 'manage_workflow', route: 'workflow/' });
+                        ret.permittedRoutes.push({ resource: 'workflow', title: 'manage_workflow', route: 'workflow/', searchable: false });
                     }
 
                     if (ret.isAdmin) {
-                        ret.permittedRoutes.push({ resource: 'organizations', title: 'organizations', route: 'organizations/' });
+                        ret.permittedRoutes.push({ resource: 'organizations', title: 'organizations', route: 'organizations/', searchable: true });
                     }
                 }
             }
