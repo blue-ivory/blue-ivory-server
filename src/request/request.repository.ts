@@ -30,11 +30,11 @@ export class RequestRepository extends RepositoryBase<IRequest> {
                 };
 
                 let populateFields = [
-                    { path: 'requestor', select: 'firstName lastName mail' },
-                    { path: 'visitor' }
+                    { path: 'visitor', select: 'name' },
+                    { path: 'organization', select: 'name'}
                 ];
 
-                let requestPromise = RequestModel.find(queryFilter).populate(populateFields);
+                let requestPromise = RequestModel.find(queryFilter).populate(populateFields).select('startDate endDate visitor organization');
                 let countPromise = RequestModel.count(queryFilter);
 
                 if (paginationOptions) {

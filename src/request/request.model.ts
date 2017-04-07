@@ -110,7 +110,6 @@ requestSchema.pre('save', function (next) {
 
     Organization.getWorkflow(organizationId).then((workflow: ITask[]) => {
         if (workflow && workflow.length > 0) {
-            // TODO : cast to IRequestTask
             this.workflow = workflow;
         } else {
             let error = new Error('Cannot save request because workflow not assigned to organization yet');

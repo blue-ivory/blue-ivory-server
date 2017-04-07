@@ -77,6 +77,23 @@ router.get('/request/pending', AuthMiddleware.requireLogin, (req: express.Reques
     search(req, res, Request.searchPendingRequests);
 });
 
+router.get('/request/:id', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
+    let requestId: Types.ObjectId = null;
+
+    try {
+        requestId = new Types.ObjectId(req.params['id']);
+    } catch(err) {
+        return res.sendStatus(400);
+    }
+
+    Request.findRequest(requestId).then((request:IRequest) => {
+        return res.json(request);
+    }).catch(error => {
+        console.error(error);
+        return res.status(500).send();
+    });
+});
+
 function search(request: express.Request, response: express.Response, searchFunction: Function) {
     let searchTerm = request.query['searchTerm'];
 
