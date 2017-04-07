@@ -34,6 +34,11 @@ router.get('/organization',
         });
     });
 
+/**
+ * GET /api/organization/requestable
+ * Returns all requestable organizations (organizations with workflow)
+ * Allowed only for logged in users
+ */
 router.get('/organization/requestable',
     AuthMiddleware.requireLogin,
     (req: express.Request, res: express.Response) => {
