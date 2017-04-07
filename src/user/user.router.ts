@@ -20,7 +20,7 @@ router.get('/user',
     AuthMiddleware.requireLogin,
     PermissionsMiddleware.hasPermissions([PermissionType.EDIT_USER_PERMISSIONS]),
     (req: express.Request, res: express.Response) => {
-        let searchTerm = req.params['searchTerm'];
+        let searchTerm = req.query['searchTerm'];
 
         User.searchUsers(searchTerm, Pagination.getPaginationOptions(req)).then((users) => {
             return res.json(users);

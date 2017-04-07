@@ -24,7 +24,7 @@ let router: express.Router = express.Router();
 router.get('/organization',
     AuthMiddleware.requireLogin,
     (req: express.Request, res: express.Response) => {
-        let searchTerm = req.param('searchTerm');
+        let searchTerm = req.query['searchTerm'];
 
         Organization.searchOrganizations(searchTerm, Pagination.getPaginationOptions(req)).then((organizations) => {
             return res.json(organizations);

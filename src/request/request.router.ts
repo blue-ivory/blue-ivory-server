@@ -78,7 +78,7 @@ router.get('/request/pending', AuthMiddleware.requireLogin, (req: express.Reques
 });
 
 function search(request: express.Request, response: express.Response, searchFunction: Function) {
-    let searchTerm = request.params['searchTerm'];
+    let searchTerm = request.query['searchTerm'];
 
     searchFunction(request.user, searchTerm, Pagination.getPaginationOptions(request)).then((collection: ICollection<IRequest>) => {
         return response.json(collection);
