@@ -71,7 +71,7 @@ var requestSchema: mongoose.Schema = new mongoose.Schema({
     phoneNumber: {
         type: String
     },
-    isSolider: {
+    isSoldier: {
         type: Boolean,
         default: false
     },
@@ -108,8 +108,17 @@ requestSchema.pre('save', function (next) {
 
     let organizationId = this.organization;
 
+    if (this.visitor._id && this.visitor._id.length <= 7) {
+        this.isSoldier = true;
+    }
+
     Organization.getWorkflow(organizationId).then((workflow: ITask[]) => {
         if (workflow && workflow.length > 0) {
+            if (this.car === CarType.NONE) {
+                workflow = workflow.filter((task: ITask) => {
+                    return task.type !== TaskType.CAR;
+                });
+            }
             this.workflow = workflow;
         } else {
             let error = new Error('Cannot save request because workflow not assigned to organization yet');

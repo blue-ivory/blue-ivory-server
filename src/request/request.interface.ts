@@ -13,7 +13,7 @@ export interface IRequest extends Document {
     visitor: IVisitor;
     requestor: IUser;
     description: string;
-    isSolider: boolean;
+    isSoldier: boolean;
     needEscort: boolean;
     car: CarType;
     carNumber: number;

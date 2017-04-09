@@ -56,7 +56,7 @@ describe('Request', () => {
             expect(org).to.exist;
             organization = org;
 
-            return Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.NONE, null, organization);
+            return Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.PRIVATE, 123456, organization);
         }).then((req: IRequest) => {
             expect(req).to.exist;
 
@@ -117,11 +117,12 @@ describe('Request', () => {
 
         it('Should create a request', done => {
             let date = new Date();
-            Request.createRequest(date, date, visitor, user, 'desc', CarType.NONE, null, organization).then((request: IRequest) => {
+            Request.createRequest(date, date, visitor, user, 'desc', CarType.PRIVATE, 1234, organization).then((request: IRequest) => {
                 expect(request).to.exist;
                 expect(request).to.have.property('_id');
                 expect(request).to.have.property('organization').which.has.property('name', 'organization');
                 expect(request).to.have.property('visitor').which.has.property('name', 'John Doe');
+                expect(request).to.have.property('isSoldier', true);
                 expect(request).to.have.property('requestor').which.has.property('firstName', 'Ron')
                 expect(request).to.have.property('requestor').which.has.property('lastName', 'Borysovski');
                 expect(request).to.have.property('requestor').which.has.property('mail', 'roni537@gmail.com');
@@ -154,6 +155,31 @@ describe('Request', () => {
                 done();
             });
         });
+
+        it('Should create request without CAR tasks in workflow when car is not required', done => {
+            let date = new Date();
+            Request.createRequest(date, date, visitor, user, 'desc', CarType.NONE, null, organization).then((request: IRequest) => {
+                expect(request).to.exist;
+                expect(request).to.have.property('_id');
+                expect(request).to.have.property('organization').which.has.property('name', 'organization');
+                expect(request).to.have.property('visitor').which.has.property('name', 'John Doe');
+                expect(request).to.have.property('requestor').which.has.property('firstName', 'Ron')
+                expect(request).to.have.property('requestor').which.has.property('lastName', 'Borysovski');
+                expect(request).to.have.property('requestor').which.has.property('mail', 'roni537@gmail.com');
+                expect(request).to.have.property('startDate', date);
+                expect(request).to.have.property('endDate', date);
+                expect(request).to.have.property('description', 'desc');
+                expect(request).to.have.property('workflow').that.is.an('array').and.has.length(2).and.satisfies(workflow => {
+                    workflow.forEach(task => {
+                        expect(task).to.have.property('type', TaskType.HUMAN);
+                    })
+
+                    return true;
+                });
+
+                done();
+            })
+        })
     });
 
     describe('#findRequest', () => {
