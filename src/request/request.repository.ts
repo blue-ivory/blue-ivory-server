@@ -7,6 +7,9 @@ import { RepositoryBase } from "../helpers/repository";
 import { IRequest } from "./request.interface";
 import { IUser } from "../user/user.interface";
 import { IPaginationOptions } from "../pagination/pagination.interface";
+import { Types, Document } from "mongoose";
+import { ITask } from "../workflow/task.interface";
+import { TaskStatus } from "../workflow/task-status.enum";
 
 export class RequestRepository extends RepositoryBase<IRequest> {
     constructor() {
@@ -31,7 +34,7 @@ export class RequestRepository extends RepositoryBase<IRequest> {
 
                 let populateFields = [
                     { path: 'visitor', select: 'name' },
-                    { path: 'organization', select: 'name'}
+                    { path: 'organization', select: 'name' }
                 ];
 
                 let requestPromise = RequestModel.find(queryFilter).populate(populateFields).select('startDate endDate visitor organization');
@@ -77,5 +80,23 @@ export class RequestRepository extends RepositoryBase<IRequest> {
         };
 
         return this.search(searchTerm, paginationOptions, filter);
+    }
+
+    public changeTaskStatus(authorizerId: string, taskId: Types.ObjectId, status: TaskStatus): Promise<IRequest> {
+        let populate = [
+            { path: 'requestor', select: 'firstName lastName mail' },
+            { path: 'workflow.organization', select: 'name' },
+            { path: 'workflow.authorizer', select: 'firstName lastName mail' },
+            { path: 'organization', select: 'name' },
+            { path: 'visitor' }
+        ];
+
+        return RequestModel.findOneAndUpdate(
+            { 'workflow._id': taskId },
+            {
+                'workflow.$.status': status,
+                'workflow.$.lastChangeDate': new Date(),
+                'workflow.$.authorizer': authorizerId
+            }, { new: true }).populate(populate).exec();
     }
 }

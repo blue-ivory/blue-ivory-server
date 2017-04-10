@@ -12,6 +12,7 @@ import { TaskType } from "../workflow/task-type.enum";
 import { TaskStatus } from "../workflow/task-status.enum";
 import { IRequestTask } from "./request-task.interface";
 import { ICollection } from "../helpers/collection";
+import { ITask } from "../workflow/task.interface";
 
 describe('Request', () => {
 
@@ -396,4 +397,29 @@ describe('Request', () => {
                 });
         });
     })
+
+    describe('#changeTaskStatus', () => {
+        it('Should return null when task not found', done => {
+            Request.changeTaskStatus(null, new Types.ObjectId(), TaskStatus.APPROVED).then((request: IRequest) => {
+                expect(request).to.not.exist;
+
+                done();
+            });
+        });
+
+        it('Should change task status', done => {
+            Request.changeTaskStatus(user._id, request.workflow[0]._id, TaskStatus.APPROVED).then((request:IRequest) => {
+                expect(request).to.exist;
+                expect(request).to.have.property('workflow').which.is.an('array').with.length(4).that.satisfies(workflow => {
+                   expect(workflow[0]).to.have.property('status', TaskStatus.APPROVED);
+                   expect(workflow[0]).to.have.property('lastChangeDate').which.is.a('date');
+                   expect(workflow[0]).to.have.property('authorizer').that.have.property('_id', user._id);
+                   
+                    return true;
+                });
+
+                done();
+            });
+        });
+    });
 });

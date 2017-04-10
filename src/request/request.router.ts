@@ -6,6 +6,12 @@ import { IRequest } from './request.interface';
 import { Request } from './request.class';
 import { AuthMiddleware } from './../middlewares/auth.middleware';
 import * as express from 'express';
+import { PermissionsMiddleware } from "../permission/permission.middleware";
+import { Permission } from "../permission/permission.class";
+import { IRequestTask } from "./request-task.interface";
+import { PermissionType } from "../permission/permission.enum";
+import { TaskType } from "../workflow/task-type.enum";
+import { TaskStatus } from "../workflow/task-status.enum";
 
 let router: express.Router = express.Router();
 
@@ -31,9 +37,9 @@ router.post('/request', AuthMiddleware.requireLogin, (req: express.Request, res:
         });
 });
 
-router.put('/request',
+router.put('/request/:id',
     AuthMiddleware.requireLogin,
-    RequestsMiddleware.requireRequestOwner,
+    RequestsMiddleware.canEdit,
     (req: express.Request, res: express.Response) => {
         let request = <IRequest>req.body.request;
 
@@ -47,13 +53,14 @@ router.put('/request',
 
 router.delete('/request/:id',
     AuthMiddleware.requireLogin,
-    RequestsMiddleware.requireRequestOwner,
+    RequestsMiddleware.canDelete,
     (req: express.Request, res: express.Response) => {
-        let requestId = <Types.ObjectId>null;
+        let requestId: Types.ObjectId = null;
 
         try {
             requestId = new Types.ObjectId(req.params['id']);
         } catch (err) {
+            console.log(err);
             return res.sendStatus(400);
         }
 
@@ -82,17 +89,67 @@ router.get('/request/:id', AuthMiddleware.requireLogin, (req: express.Request, r
 
     try {
         requestId = new Types.ObjectId(req.params['id']);
-    } catch(err) {
+    } catch (err) {
         return res.sendStatus(400);
     }
 
-    Request.findRequest(requestId).then((request:IRequest) => {
+    Request.findRequest(requestId).then((request: IRequest) => {
         return res.json(request);
     }).catch(error => {
         console.error(error);
         return res.status(500).send();
     });
 });
+
+router.put('/request/:id/task/:taskId',
+    AuthMiddleware.requireLogin,
+    // Check if user has permission to change task's organization 
+    (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        let requestId: Types.ObjectId = null;
+        let taskId: Types.ObjectId = null;
+
+        try {
+            requestId = new Types.ObjectId(req.params['id']);
+            taskId = new Types.ObjectId(req.params['taskId']);
+        } catch (err) {
+            return res.sendStatus(400);
+        }
+
+        Request.findRequest(requestId).then((request: IRequest) => {
+            if (!request) {
+                return res.status(404).send('request_not_found');
+            }
+
+            let task: IRequestTask = request.workflow.find((task: IRequestTask) => {
+                return task._id.equals(taskId);
+            });
+
+            if (!task) {
+                return res.status(404).send('task_not_found');
+            }
+
+            let requiredPermission: PermissionType = getRequiredPermission(task, request.isSoldier);
+            Permission.hasPermissionForOrganization(req.user._id, [requiredPermission], task.organization._id).then((hasPermission: boolean) => {
+                res.locals['task'] = task;
+                return hasPermission ? next() : res.sendStatus(403);
+            });
+        });
+    },
+    (req: express.Request, res: express.Response) => {
+        let status: TaskStatus = req.body.status;
+        let task: IRequestTask = res.locals['task'];
+
+        if (!status || !task) {
+            return res.sendStatus(400);
+        }
+
+        Request.changeTaskStatus(req.user._id, task._id, status).then((request: IRequest) => {
+            if (!request) {
+                return res.sendStatus(404);
+            }
+            return res.json(request);
+        });
+    });
 
 function search(request: express.Request, response: express.Response, searchFunction: Function) {
     let searchTerm = request.query['searchTerm'];
@@ -105,4 +162,11 @@ function search(request: express.Request, response: express.Response, searchFunc
     });
 }
 
+function getRequiredPermission(task: IRequestTask, isSoldier: boolean): PermissionType {
+    if (task.type === TaskType.CAR) {
+        return PermissionType.APPROVE_CAR;
+    }
+
+    return isSoldier ? PermissionType.APPROVE_SOLDIER : PermissionType.APPROVE_CIVILIAN;
+}
 export = router;

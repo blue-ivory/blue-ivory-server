@@ -10,6 +10,7 @@ import { Visitor } from "../visitor/visitor.class";
 import { User } from "../user/user.class";
 import { Organization } from "../organization/organization.class";
 import { IPaginationOptions } from "../pagination/pagination.interface";
+import { TaskStatus } from "../workflow/task-status.enum";
 
 export class Request {
     private static _requestRepository: RequestRepository = new RequestRepository();
@@ -56,7 +57,7 @@ export class Request {
     static findRequest(id: Types.ObjectId, populateField?: Object): Promise<Document> {
         let populate = [
             { path: 'requestor', select: 'firstName lastName mail' },
-            { path: 'workflow.organization' , select: 'name'},
+            { path: 'workflow.organization', select: 'name' },
             { path: 'workflow.authorizer', select: 'firstName lastName mail' },
             { path: 'organization', select: 'name' },
             { path: 'visitor' }
@@ -69,10 +70,14 @@ export class Request {
         return Request._requestRepository.findById(id, populate)
     }
 
+    static changeTaskStatus(userId: string, taskId: Types.ObjectId, status:TaskStatus): Promise<Document> {
+        return Request._requestRepository.changeTaskStatus(userId, taskId, status);
+    }
+
     static updateRequest(request: IRequest): Promise<Document> {
         let populate = [
             { path: 'requestor', select: 'firstName lastName mail' },
-            { path: 'workflow.organization' , select: 'name'},
+            { path: 'workflow.organization', select: 'name' },
             { path: 'workflow.authorizer', select: 'firstName lastName mail' },
             { path: 'organization', select: 'name' },
             { path: 'visitor' }
