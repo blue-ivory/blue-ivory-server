@@ -39,10 +39,13 @@ export abstract class RepositoryBase<T extends mongoose.Document> implements IRe
     return findQuery.exec();
   }
 
-  findOne(cond?: Object, populateOptions?: string | Object): Promise<mongoose.Document> {
+  findOne(cond?: Object, populateOptions?: string | Object, select?: string): Promise<mongoose.Document> {
     let findQuery = this._model.findOne(cond);
     if (populateOptions) {
       findQuery = findQuery.populate(populateOptions);
+    }
+    if (select) {
+      findQuery = findQuery.select(select);
     }
     return findQuery.exec();
   }
