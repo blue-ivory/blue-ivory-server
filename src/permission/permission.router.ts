@@ -36,7 +36,7 @@ router.post('/permissions',
  * Returns whether user has required permissions for specific organization
  * Requires user to be logged in
  */
-router.all('/permissions/:organizationId', AuthMiddleware.requireLogin,
+router.post('/permissions/:organizationId', AuthMiddleware.requireLogin,
     (req: express.Request, res: express.Response) => {
         let permissions = <PermissionType[]>req.body.permissions;
         let some: boolean = req.body.some;
@@ -48,7 +48,6 @@ router.all('/permissions/:organizationId', AuthMiddleware.requireLogin,
         } catch (err) {
             return res.sendStatus(400);
         }
-
         if (!permissions) {
             return res.status(400).send();
         }
