@@ -248,16 +248,18 @@ describe('Request', () => {
             });
         });
 
-        it('Should update request', done => {
+        it('Should update request without changing critic fields (workflow, organization, etc..)', done => {
             request.description = 'Test description';
             request.phoneNumber = '*#06#';
             request.needEscort = true;
+            request.workflow = [];
 
             Request.updateRequest(request).then((req: IRequest) => {
                 expect(req).to.exist;
                 expect(req).to.have.property('description', 'Test description');
                 expect(req).to.have.property('phoneNumber', '*#06#');
                 expect(req).to.have.property('needEscort', true);
+                expect(req).to.have.property('workflow').to.be.an('array').with.length(4);
 
                 done();
             });
@@ -408,13 +410,13 @@ describe('Request', () => {
         });
 
         it('Should change task status', done => {
-            Request.changeTaskStatus(user._id, request.workflow[0]._id, TaskStatus.APPROVED).then((request:IRequest) => {
+            Request.changeTaskStatus(user._id, request.workflow[0]._id, TaskStatus.APPROVED).then((request: IRequest) => {
                 expect(request).to.exist;
                 expect(request).to.have.property('workflow').which.is.an('array').with.length(4).that.satisfies(workflow => {
-                   expect(workflow[0]).to.have.property('status', TaskStatus.APPROVED);
-                   expect(workflow[0]).to.have.property('lastChangeDate').which.is.a('date');
-                   expect(workflow[0]).to.have.property('authorizer').that.have.property('_id', user._id);
-                   
+                    expect(workflow[0]).to.have.property('status', TaskStatus.APPROVED);
+                    expect(workflow[0]).to.have.property('lastChangeDate').which.is.a('date');
+                    expect(workflow[0]).to.have.property('authorizer').that.have.property('_id', user._id);
+
                     return true;
                 });
 

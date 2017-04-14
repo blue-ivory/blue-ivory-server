@@ -70,7 +70,7 @@ export class Request {
         return Request._requestRepository.findById(id, populate)
     }
 
-    static changeTaskStatus(userId: string, taskId: Types.ObjectId, status:TaskStatus): Promise<Document> {
+    static changeTaskStatus(userId: string, taskId: Types.ObjectId, status: TaskStatus): Promise<Document> {
         return Request._requestRepository.changeTaskStatus(userId, taskId, status);
     }
 
@@ -83,7 +83,16 @@ export class Request {
             { path: 'visitor' }
         ];
 
-        return Request._requestRepository.update(request, populate);
+        let updateFields = <IRequest>{
+            _id: request._id,
+            startDate: request.startDate,
+            endDate: request.endDate,
+            phoneNumber: request.phoneNumber,
+            description: request.description,
+            needEscort: request.needEscort
+        }
+
+        return Request._requestRepository.update(updateFields, populate);
     }
 
     static deleteRequest(id: Types.ObjectId): Promise<void> {
