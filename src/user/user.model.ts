@@ -63,23 +63,23 @@ var userSchema: mongoose.Schema = new mongoose.Schema({
 
                     let uniquePermissions = Array.from(new Set(allPermissions));
                     ret.permittedRoutes = [
-                        { resource: 'requests', title: 'all_requests', route: 'requests/all/', searchable: true },
-                        { resource: 'requests', title: 'my_requests', route: 'requests/my/', searchable: true }
+                        { resource: 'requests', title: 'all_requests', route: 'requests/all/', searchable: true, icon: 'history' },
+                        { resource: 'requests', title: 'my_requests', route: 'requests/my/', searchable: true, icon: 'star' }
                     ];
                     if (canApprove(uniquePermissions) || ret.isAdmin) {
-                        ret.permittedRoutes.push({ resource: 'requests', title: 'pending_requests', route: 'requests/pending/', searchable: true });
+                        ret.permittedRoutes.push({ resource: 'requests', title: 'pending_requests', route: 'requests/pending/', searchable: true, icon: 'access_time' });
                     }
 
                     if (canModifyUserSettings(uniquePermissions) || ret.isAdmin) {
-                        ret.permittedRoutes.push({ resource: 'users', title: 'users', route: 'users/', searchable: true });
+                        ret.permittedRoutes.push({ resource: 'users', title: 'users', route: 'users/', searchable: true, icon: 'people' });
                     }
 
                     if (canEditWorkflow(uniquePermissions) || ret.isAdmin) {
-                        ret.permittedRoutes.push({ resource: 'workflow', title: 'manage_workflow', route: 'workflow/', searchable: false });
+                        ret.permittedRoutes.push({ resource: 'workflow', title: 'manage_workflow', route: 'workflow/', searchable: false, icon: 'format_list_bulleted' });
                     }
 
                     if (ret.isAdmin) {
-                        ret.permittedRoutes.push({ resource: 'organizations', title: 'organizations', route: 'organizations/', searchable: true });
+                        ret.permittedRoutes.push({ resource: 'organizations', title: 'organizations', route: 'organizations/', searchable: true, icon: 'account_balance' });
                     }
                 }
             }
