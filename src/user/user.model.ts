@@ -62,25 +62,45 @@ var userSchema: mongoose.Schema = new mongoose.Schema({
 
 
                     let uniquePermissions = Array.from(new Set(allPermissions));
-                    ret.permittedRoutes = [
-                        { resource: 'requests', title: 'all_requests', route: 'requests/all/', searchable: true, icon: 'history' },
-                        { resource: 'requests', title: 'my_requests', route: 'requests/my/', searchable: true, icon: 'star' }
-                    ];
+
+                    let routeGroups = {
+                        general: [
+                            { resource: 'requests', title: 'all_requests', route: 'requests/all/', searchable: true, icon: 'history' },
+                            { resource: 'requests', title: 'my_requests', route: 'requests/my/', searchable: true, icon: 'star' }
+                        ],
+                        requests_for: [
+                            { resource: 'requests', title: 'civilian', route: 'requests/civilian/', searchable: false, icon: 'label' },
+                            { resource: 'requests', title: 'soldier', route: 'requests/soldier/', searchable: false, icon: 'label' }
+                        ]
+                    }
+
+
                     if (canApprove(uniquePermissions) || ret.isAdmin) {
-                        ret.permittedRoutes.push({ resource: 'requests', title: 'pending_requests', route: 'requests/pending/', searchable: true, icon: 'access_time' });
+                        routeGroups.general.push({ resource: 'requests', title: 'pending_requests', route: 'requests/pending/', searchable: true, icon: 'access_time' });
                     }
 
                     if (canModifyUserSettings(uniquePermissions) || ret.isAdmin) {
-                        ret.permittedRoutes.push({ resource: 'users', title: 'users', route: 'users/', searchable: true, icon: 'people' });
+                        routeGroups.general.push({ resource: 'users', title: 'users', route: 'users/', searchable: true, icon: 'people' });
                     }
 
                     if (canEditWorkflow(uniquePermissions) || ret.isAdmin) {
-                        ret.permittedRoutes.push({ resource: 'workflow', title: 'manage_workflow', route: 'workflow/', searchable: false, icon: 'format_list_bulleted' });
+                        routeGroups.general.push({ resource: 'workflow', title: 'manage_workflow', route: 'workflow/', searchable: false, icon: 'format_list_bulleted' });
                     }
 
                     if (ret.isAdmin) {
-                        ret.permittedRoutes.push({ resource: 'organizations', title: 'organizations', route: 'organizations/', searchable: true, icon: 'account_balance' });
+                        routeGroups.general.push({ resource: 'organizations', title: 'organizations', route: 'organizations/', searchable: true, icon: 'account_balance' });
                     }
+
+                    let id = 0;
+
+                    let routeKeys = Object.keys(routeGroups);
+                    for (let key of routeKeys) {
+                        routeGroups[key] = routeGroups[key].map((route: any) => {
+                            route.id = id++;
+                            return route;
+                        });
+                    }
+                    ret.routeGroups = routeGroups;
                 }
             }
 
