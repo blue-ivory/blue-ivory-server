@@ -400,6 +400,119 @@ describe('Request', () => {
         });
     })
 
+    describe('#searchCivilianRequests', () => {
+        beforeEach(done => {
+            Promise.all([
+                Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 1111, organization),
+                Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 2222, organization),
+                Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '11111111', name: 'aaaaa' }, user, 'desc', CarType.NONE, null, organization),
+                Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '22222222', name: 'bbbbbb' }, user, 'desc', CarType.NONE, null, organization),
+                Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '121211', name: 'ababab' }, user, 'desc', CarType.NONE, null, organization),
+            ]).then(() => done());
+        });
+
+        it('Should return empty collection when no request satisfies search term', done => {
+            Request.searchCivilianRequests(user, 'noMatchingResults').then(collection => {
+                expect(collection).to.exist;
+                expect(collection).to.have.property('totalCount', 0);
+                expect(collection).to.have.property('set').to.be.an('array').with.length(0);
+
+                done();
+            });
+        });
+
+        it('Should return all requests for civilian when no search term provided', done => {
+            Request.searchCivilianRequests(user, null).then(collection => {
+                expect(collection).to.exist;
+                expect(collection).to.have.property('totalCount', 2);
+                expect(collection).to.have.property('set').to.be.an('array').with.length(2).that.satisfies(set => {
+
+                    set.forEach(request => {
+                        expect(request).to.have.property('isSoldier', false)
+                    });
+                    return true;
+                });
+
+                done();
+            });
+        });
+
+        it('Should return requests for civilian filtered by search term', done => {
+            Promise.all(['1111', '22'].map(searchTerm => Request.searchCivilianRequests(user, searchTerm))).then(values => {
+                expect(values).to.satisfy(collections => {
+                    collections.forEach(collection => {
+                        expect(collection).to.have.property('totalCount', 1);
+                        expect(collection).to.have.property('set').which.is.an('array').with.length(1).that.satisfies(set => {
+                            set.forEach(request => {
+                                expect(request).to.have.property('isSoldier', false);
+                            })
+
+                            return true;
+                        });
+                    });
+                    return true;
+                })
+                done();
+            });
+        });
+    });
+
+    describe('#searchSoldierRequests', () => {
+        beforeEach(done => {
+            Promise.all([
+                Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 1111, organization),
+                Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 2222, organization),
+                Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '11111111', name: 'aaaaa' }, user, 'desc', CarType.NONE, null, organization),
+                Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '22222222', name: 'bbbbbb' }, user, 'desc', CarType.NONE, null, organization),
+                Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '121211', name: 'ababab' }, user, 'desc', CarType.NONE, null, organization),
+            ]).then(() => done());
+        });
+
+        it('Should return empty collection when no request satisfies search term', done => {
+            Request.searchSoldierRequests(user, 'noMatchingResults').then(collection => {
+                expect(collection).to.exist;
+                expect(collection).to.have.property('totalCount', 0);
+                expect(collection).to.have.property('set').to.be.an('array').with.length(0);
+
+                done();
+            });
+        });
+
+        it('Should return all requests for soldier when no search term provided', done => {
+            Request.searchSoldierRequests(user, null).then(collection => {
+                expect(collection).to.exist;
+                expect(collection).to.have.property('totalCount', 4);
+                expect(collection).to.have.property('set').to.be.an('array').with.length(4).that.satisfies(set => {
+
+                    set.forEach(request => {
+                        expect(request).to.have.property('isSoldier', true)
+                    });
+                    return true;
+                });
+
+                done();
+            });
+        });
+
+        it('Should return requests for soldier filtered by search term', done => {
+            Promise.all(['121', 'jd'].map(searchTerm => Request.searchSoldierRequests(user, searchTerm))).then(values => {
+                expect(values).to.satisfy(collections => {
+                    collections.forEach(collection => {
+                        expect(collection).to.have.property('set').which.is.an('array').that.satisfies(set => {
+                            set.forEach(request => {
+                                expect(request).to.have.property('isSoldier', true);
+                            })
+
+                            return true;
+                        });
+                    });
+                    return true;
+                })
+                done();
+            });
+        });
+    });
+
     describe('#changeTaskStatus', () => {
         it('Should return null when task not found', done => {
             Request.changeTaskStatus(null, new Types.ObjectId(), TaskStatus.APPROVED).then((request: IRequest) => {

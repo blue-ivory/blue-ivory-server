@@ -84,6 +84,14 @@ router.get('/request/pending', AuthMiddleware.requireLogin, (req: express.Reques
     search(req, res, Request.searchPendingRequests);
 });
 
+router.get('/request/civilian', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
+    search(req, res, Request.searchCivilianRequests);
+});
+
+router.get('/request/soldier', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
+    search(req, res, Request.searchSoldierRequests);
+});
+
 router.get('/request/:id', AuthMiddleware.requireLogin, (req: express.Request, res: express.Response) => {
     let requestId: Types.ObjectId = null;
 

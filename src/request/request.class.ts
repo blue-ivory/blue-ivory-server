@@ -110,4 +110,12 @@ export class Request {
     static searchAllRequests(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
         return Request._requestRepository.searchAll(user, searchTerm, paginationOptions);
     }
+
+    static searchSoldierRequests(user:IUser, searchTerm?: string, paginationOptions?:IPaginationOptions):Promise<ICollection<IRequest>>{
+        return Request._requestRepository.searchSoldier(user, searchTerm, paginationOptions);
+    }
+
+    static searchCivilianRequests(user:IUser, searchTerm?: string, paginationOptions?:IPaginationOptions):Promise<ICollection<IRequest>>{
+        return Request._requestRepository.searchCivilian(user, searchTerm, paginationOptions);
+    }
 }

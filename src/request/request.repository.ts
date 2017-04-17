@@ -37,7 +37,7 @@ export class RequestRepository extends RepositoryBase<IRequest> {
                     { path: 'organization', select: 'name' }
                 ];
 
-                let requestPromise = RequestModel.find(queryFilter).populate(populateFields).select('startDate endDate visitor organization');
+                let requestPromise = RequestModel.find(queryFilter).populate(populateFields).select('startDate endDate visitor organization car isSoldier');
                 let countPromise = RequestModel.count(queryFilter);
 
                 if (paginationOptions) {
@@ -69,6 +69,22 @@ export class RequestRepository extends RepositoryBase<IRequest> {
     public searchPending(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
         let filter = {
             // TODO : Create filter based on request status (workflow) and user's permissions
+        };
+
+        return this.search(searchTerm, paginationOptions, filter);
+    }
+
+    public searchCivilian(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
+        let filter = {
+            isSoldier: false
+        };
+
+        return this.search(searchTerm, paginationOptions, filter);
+    }
+
+    public searchSoldier(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
+        let filter = {
+            isSoldier: true
         };
 
         return this.search(searchTerm, paginationOptions, filter);
