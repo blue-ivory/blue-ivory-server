@@ -4,12 +4,15 @@ import { Visitor } from './../visitor/visitor.class';
 import { ICollection } from './../helpers/collection';
 import { RequestModel } from './request.model';
 import { RepositoryBase } from "../helpers/repository";
-import { IRequest } from "./request.interface";
+import { IRequest, CarType } from "./request.interface";
 import { IUser } from "../user/user.interface";
 import { IPaginationOptions } from "../pagination/pagination.interface";
 import { Types, Document } from "mongoose";
 import { ITask } from "../workflow/task.interface";
 import { TaskStatus } from "../workflow/task-status.enum";
+import { PermissionType } from "../permission/permission.enum";
+import { TaskType } from "../workflow/task-type.enum";
+import * as util from 'util';
 
 export class RequestRepository extends RepositoryBase<IRequest> {
     constructor() {
@@ -67,9 +70,22 @@ export class RequestRepository extends RepositoryBase<IRequest> {
     }
 
     public searchPending(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
-        let filter = {
-            // TODO : Create filter based on request status (workflow) and user's permissions
-        };
+
+        let filter: any = {
+            $or: []
+        }
+
+        if (user && user.permissions && user.permissions.length > 0) {
+            user.permissions.forEach(permission => {
+                filter.$or.push(this.convertOrganizationPermissionToFilter(permission.organization._id, permission.organizationPermissions));
+            })
+
+            if (filter.$or.length < 2) {
+                filter = filter.$or[0];
+            }
+        } else {
+            filter = { noop: false };
+        }
 
         return this.search(searchTerm, paginationOptions, filter);
     }
@@ -114,5 +130,52 @@ export class RequestRepository extends RepositoryBase<IRequest> {
                 'workflow.$.lastChangeDate': new Date(),
                 'workflow.$.authorizer': authorizerId
             }, { new: true }).populate(populate).exec();
+    }
+
+    private convertOrganizationPermissionToFilter(organizationId: Types.ObjectId, permissions: PermissionType[]): Object {
+
+        let canApproveSoldier = permissions.indexOf(PermissionType.APPROVE_SOLDIER) > -1;
+        let canApproveCivilian = permissions.indexOf(PermissionType.APPROVE_CIVILIAN) > -1;
+        let canApproveCar = permissions.indexOf(PermissionType.APPROVE_CAR) > -1;
+
+        let soldierFilter = {
+            'workflow.organization': organizationId,
+            'workflow.type': TaskType.HUMAN,
+            'workflow.status': TaskStatus.PENDING,
+            'isSoldier': true,
+        };
+
+        let civilianFilter = {
+            'workflow.organization': organizationId,
+            'workflow.type': TaskType.HUMAN,
+            'workflow.status': TaskStatus.PENDING,
+            'isSoldier': false
+        };
+
+        let carFilter = {
+            'workflow.organization': organizationId,
+            'workflow.type': TaskType.CAR,
+            'workflow.status': TaskStatus.PENDING,
+            'car': { $ne: CarType.NONE }
+        };
+
+        let moreThenOnePermission = ((+canApproveCar) + (+canApproveCivilian) + (+canApproveSoldier)) > 1;
+        if (moreThenOnePermission) {
+            let filter = {
+                $or: []
+            };
+
+            if (canApproveCar) filter.$or.push(carFilter);
+            if (canApproveCivilian) filter.$or.push(civilianFilter);
+            if (canApproveSoldier) filter.$or.push(soldierFilter);
+
+            return filter;
+        } else {
+            if (canApproveCar) return carFilter;
+            if (canApproveCivilian) return civilianFilter;
+            if (canApproveSoldier) return soldierFilter;
+        }
+
+        return { noop: false };
     }
 }

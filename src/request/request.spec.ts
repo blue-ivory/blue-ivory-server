@@ -13,6 +13,7 @@ import { TaskStatus } from "../workflow/task-status.enum";
 import { IRequestTask } from "./request-task.interface";
 import { ICollection } from "../helpers/collection";
 import { ITask } from "../workflow/task.interface";
+import { PermissionType } from "../permission/permission.enum";
 
 describe('Request', () => {
 
@@ -397,6 +398,96 @@ describe('Request', () => {
 
                     done();
                 });
+        });
+    })
+
+    describe('#searchPendingRequests', () => {
+
+        let organization1 = <IOrganization>null;
+        let organization2 = <IOrganization>null;
+        let testerUser = <IUser>null;
+
+        beforeEach(done => {
+            Organization.createOrganization('org1pending').then((org: IOrganization) => {
+                expect(org).to.exist;
+                organization1 = org;
+
+                return Organization.createOrganization('org2pending');
+            }).then((org: IOrganization) => {
+                expect(org).to.exist;
+                organization2 = org;
+
+                let workflow: ITask[] = [
+                    <ITask>{
+                        organization: organization1,
+                        type: TaskType.HUMAN
+                    },
+                    <ITask>{
+                        organization: organization2,
+                        type: TaskType.HUMAN
+                    },
+                ];
+
+                return Organization.setWorkflow(organization1._id, workflow);
+            }).then((org: IOrganization) => {
+                expect(org).to.exist;
+                organization1 = org;
+
+                return User.createUser('tester', 'user', 'tester@user', 'mail');
+            }).then((usr: IUser) => {
+                expect(usr).to.exist;
+
+                return User.setPermissions('tester@user', organization2._id, [PermissionType.APPROVE_SOLDIER]);
+            }).then((usr: IUser) => {
+                expect(usr).to.exist;
+                testerUser = usr;
+
+                return Promise.all([
+                    Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '1234567', name: 'Soldier', company: 'Army' }, user, 'desc', CarType.NONE, null, organization1),
+                    Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '123456789', name: 'Civilian', company: 'Company' }, user, 'desc', CarType.NONE, null, organization1),
+                    // Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '0123456', name: 'Soldier', company: 'Army' }, user, 'desc', CarType.NONE, null, organization2),
+                    // Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '012345678', name: 'Civilian', company: 'Company' }, user, 'desc', CarType.NONE, null, organization2),
+                ]);
+            }).then(() => {
+                done();
+            });
+        });
+
+        it('Should return empty collection when no user provided', done => {
+            Request.searchPendingRequests(null).then(collection => {
+                expect(collection).to.exist;
+                expect(collection).to.have.property('totalCount', 0);
+                expect(collection).to.have.property('set').to.be.an('array').with.length(0);
+
+                done();
+            })
+        });
+
+        it('Should return empty collection when user doesn\'t have any permissions', done => {
+            User.createUser('no', 'permissions', 'no@permissions', 'm').then((user: IUser) => {
+                expect(user).to.exist;
+                return Request.searchPendingRequests(user);
+            }).then(collection => {
+                expect(collection).to.exist;
+                expect(collection).to.have.property('totalCount', 0);
+                expect(collection).to.have.property('set').to.be.an('array').with.length(0);
+
+                done();
+            });
+        });
+
+        it('Should return all pending requests permitted for user', done => {
+            Request.searchPendingRequests(testerUser).then(collection => {
+                expect(collection).to.exist;
+                expect(collection).to.have.property('totalCount', 1);
+                expect(collection).to.have.property('set').to.be.an('array').with.length(1).that.satisfies(set => {
+                    expect(set[0]).to.have.property('isSoldier', true);
+
+                    return true;
+                });
+
+                done();
+            })
         });
     })
 
