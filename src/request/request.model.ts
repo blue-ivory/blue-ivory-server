@@ -39,6 +39,19 @@ var taskSchema: mongoose.Schema = new mongoose.Schema({
         ],
         required: true,
         default: TaskStatus.PENDING
+    },
+    needEscort: {
+        type: Boolean,
+        default: false
+    },
+    securityClearance: {
+        type: Number,
+        min: 0,
+        max: 5,
+        default: 0
+    },
+    confirmationNumber: {
+        type: Number
     }
 });
 

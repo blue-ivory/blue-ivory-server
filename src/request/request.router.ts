@@ -145,13 +145,18 @@ router.put('/request/:id/task/:taskId',
     },
     (req: express.Request, res: express.Response) => {
         let status: TaskStatus = req.body.status;
+        let confirmationNumber: number = req.body.confirmationNumber;
+        let securityClearance: number = req.body.securityClearance;
+        let needEscort: boolean = req.body.needEscort;
+
+        console.log(req.body);
         let task: IRequestTask = res.locals['task'];
 
         if (!status || !task) {
             return res.sendStatus(400);
         }
 
-        Request.changeTaskStatus(req.user._id, task._id, status).then((request: IRequest) => {
+        Request.changeTaskStatus(req.user._id, task._id, status, needEscort, securityClearance, confirmationNumber).then((request: IRequest) => {
             if (!request) {
                 return res.sendStatus(404);
             }

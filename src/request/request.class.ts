@@ -70,8 +70,18 @@ export class Request {
         return Request._requestRepository.findById(id, populate)
     }
 
-    static changeTaskStatus(userId: string, taskId: Types.ObjectId, status: TaskStatus): Promise<Document> {
-        return Request._requestRepository.changeTaskStatus(userId, taskId, status);
+    static changeTaskStatus(userId: string,
+        taskId: Types.ObjectId,
+        status: TaskStatus,
+        needEscort?: boolean,
+        securityClearance?: number,
+        confirmationNumber?: number): Promise<Document> {
+        return Request._requestRepository.changeTaskStatus(userId,
+            taskId,
+            status,
+            needEscort,
+            securityClearance,
+            confirmationNumber);
     }
 
     static updateRequest(request: IRequest): Promise<Document> {
@@ -111,11 +121,11 @@ export class Request {
         return Request._requestRepository.searchAll(user, searchTerm, paginationOptions);
     }
 
-    static searchSoldierRequests(user:IUser, searchTerm?: string, paginationOptions?:IPaginationOptions):Promise<ICollection<IRequest>>{
+    static searchSoldierRequests(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
         return Request._requestRepository.searchSoldier(user, searchTerm, paginationOptions);
     }
 
-    static searchCivilianRequests(user:IUser, searchTerm?: string, paginationOptions?:IPaginationOptions):Promise<ICollection<IRequest>>{
+    static searchCivilianRequests(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
         return Request._requestRepository.searchCivilian(user, searchTerm, paginationOptions);
     }
 }

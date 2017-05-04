@@ -8,4 +8,7 @@ export interface IRequestTask extends ITask, Document {
     authorizer: IUser;
     lastChangeDate: Date;
     status: TaskStatus;
+    securityClearance?: number;
+    confirmationNumber?: number;
+    needEscort?: boolean;
 }

@@ -114,7 +114,12 @@ export class RequestRepository extends RepositoryBase<IRequest> {
         return this.search(searchTerm, paginationOptions, filter);
     }
 
-    public changeTaskStatus(authorizerId: string, taskId: Types.ObjectId, status: TaskStatus): Promise<IRequest> {
+    public changeTaskStatus(authorizerId: string,
+        taskId: Types.ObjectId,
+        status: TaskStatus,
+        needEscort?: boolean,
+        securityClearance?: number,
+        confirmationNumber?: number): Promise<IRequest> {
         let populate = [
             { path: 'requestor', select: 'firstName lastName mail' },
             { path: 'workflow.organization', select: 'name' },
@@ -123,13 +128,24 @@ export class RequestRepository extends RepositoryBase<IRequest> {
             { path: 'visitor' }
         ];
 
+        let additionalFields = {}
+        if (confirmationNumber) {
+            additionalFields['workflow.$.confirmationNumber'] = confirmationNumber;
+        }
+        if (needEscort) {
+            additionalFields['workflow.$.needEscort'] = needEscort;
+        }
+        if (securityClearance && securityClearance >= 0 && securityClearance <= 5) {
+            additionalFields['workflow.$.securityClearance'] = securityClearance;
+        }
+
         return RequestModel.findOneAndUpdate(
             { 'workflow._id': taskId },
-            {
+            Object.assign({
                 'workflow.$.status': status,
                 'workflow.$.lastChangeDate': new Date(),
-                'workflow.$.authorizer': authorizerId
-            }, { new: true }).populate(populate).exec();
+                'workflow.$.authorizer': authorizerId,
+            }, additionalFields), { new: true }).populate(populate).exec();
     }
 
     private convertOrganizationPermissionToFilter(organizationId: Types.ObjectId, permissions: PermissionType[]): Object {
