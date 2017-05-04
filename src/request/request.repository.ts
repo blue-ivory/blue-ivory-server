@@ -36,7 +36,7 @@ export class RequestRepository extends RepositoryBase<IRequest> {
                 };
 
                 let populateFields = [
-                    { path: 'visitor', select: 'name' },
+                    { path: 'visitor' },
                     { path: 'organization', select: 'name' }
                 ];
 
