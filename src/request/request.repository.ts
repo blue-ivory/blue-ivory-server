@@ -187,24 +187,38 @@ export class RequestRepository extends RepositoryBase<IRequest> {
         let canApproveCar = permissions.indexOf(PermissionType.APPROVE_CAR) > -1;
 
         let soldierFilter = {
-            'workflow.organization': organizationId,
-            'workflow.type': TaskType.HUMAN,
-            'workflow.status': TaskStatus.PENDING,
             'isSoldier': true,
+            'workflow': {
+                '$elemMatch': {
+                    'type': TaskType.HUMAN,
+                    'organization': organizationId,
+                    'status': TaskStatus.PENDING
+                }
+            }
         };
 
         let civilianFilter = {
-            'workflow.organization': organizationId,
-            'workflow.type': TaskType.HUMAN,
-            'workflow.status': TaskStatus.PENDING,
-            'isSoldier': false
+            'isSoldier': false,
+            'workflow': {
+                '$elemMatch': {
+                    'type': TaskType.HUMAN,
+                    'organization': organizationId,
+                    'status': TaskStatus.PENDING
+                }
+            }
         };
 
         let carFilter = {
-            'workflow.organization': organizationId,
-            'workflow.type': TaskType.CAR,
-            'workflow.status': TaskStatus.PENDING,
-            'car': { $ne: CarType.NONE }
+            'car': {
+                $ne: CarType.NONE
+            },
+            'workflow': {
+                '$elemMatch': {
+                    'type': TaskType.CAR,
+                    'organization': organizationId,
+                    'status': TaskStatus.PENDING
+                }
+            }
         };
 
         let moreThenOnePermission = ((+canApproveCar) + (+canApproveCivilian) + (+canApproveSoldier)) > 1;
