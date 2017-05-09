@@ -1,3 +1,4 @@
+import { IRequestTask } from './request-task.interface';
 import * as Promise from 'bluebird';
 import { IVisitor } from './../visitor/visitor.interface';
 import { Visitor } from './../visitor/visitor.class';
@@ -12,7 +13,6 @@ import { ITask } from "../workflow/task.interface";
 import { TaskStatus } from "../workflow/task-status.enum";
 import { PermissionType } from "../permission/permission.enum";
 import { TaskType } from "../workflow/task-type.enum";
-import * as util from 'util';
 
 export class RequestRepository extends RepositoryBase<IRequest> {
     constructor() {
@@ -40,7 +40,7 @@ export class RequestRepository extends RepositoryBase<IRequest> {
                     { path: 'organization', select: 'name' }
                 ];
 
-                let requestPromise = RequestModel.find(queryFilter).populate(populateFields).select('startDate endDate visitor organization car isSoldier');
+                let requestPromise = RequestModel.find(queryFilter).populate(populateFields).select('startDate endDate visitor organization car isSoldier status');
                 let countPromise = RequestModel.count(queryFilter);
 
                 if (paginationOptions) {
@@ -145,7 +145,39 @@ export class RequestRepository extends RepositoryBase<IRequest> {
                 'workflow.$.status': status,
                 'workflow.$.lastChangeDate': new Date(),
                 'workflow.$.authorizer': authorizerId,
-            }, additionalFields), { new: true }).populate(populate).exec();
+            }, additionalFields), { new: true })
+            .then((request: IRequest) => {
+                if (request) {
+                    let workflow: IRequestTask[] = request.workflow;
+                    let status: TaskStatus = TaskStatus.PENDING;
+                    let foundDenied: boolean = false;
+                    let foundApproved: boolean = false;
+                    let foundPending: boolean = false;
+
+                    workflow.forEach(task => {
+                        if (task.status === TaskStatus.DENIED) {
+                            foundDenied = true;
+                        } else if (task.status === TaskStatus.APPROVED) {
+                            foundApproved = true;
+                        } else {
+                            foundPending = true;
+                        }
+                    });
+
+                    if (foundDenied) {
+                        status = TaskStatus.DENIED;
+                    } else if (foundApproved && !foundPending) {
+                        status = TaskStatus.APPROVED;
+                    }
+                    console.log(status);
+                    return RequestModel
+                        .findOneAndUpdate({ _id: request._id }, { status: status }, { new: true })
+                        .populate(populate);
+
+                } else {
+                    return Promise.resolve(null);
+                }
+            });
     }
 
     private convertOrganizationPermissionToFilter(organizationId: Types.ObjectId, permissions: PermissionType[]): Object {

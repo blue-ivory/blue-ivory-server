@@ -1,3 +1,4 @@
+import * as Promise from 'bluebird';
 import { IUser } from "../user/user.interface";
 import { IVisitor } from "../visitor/visitor.interface";
 import { IOrganization } from "../organization/organization.interface";
@@ -445,8 +446,6 @@ describe('Request', () => {
                 return Promise.all([
                     Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '1234567', name: 'Soldier', company: 'Army' }, user, 'desc', CarType.NONE, null, organization1),
                     Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '123456789', name: 'Civilian', company: 'Company' }, user, 'desc', CarType.NONE, null, organization1),
-                    // Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '0123456', name: 'Soldier', company: 'Army' }, user, 'desc', CarType.NONE, null, organization2),
-                    // Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '012345678', name: 'Civilian', company: 'Company' }, user, 'desc', CarType.NONE, null, organization2),
                 ]);
             }).then(() => {
                 done();
@@ -623,6 +622,15 @@ describe('Request', () => {
 
                     return true;
                 });
+
+                done();
+            });
+        });
+
+        it('Should change whole request status', done => {
+            Request.changeTaskStatus(user._id, request.workflow[0]._id, TaskStatus.DENIED).then((request: IRequest) => {
+                expect(request).to.exist;
+                expect(request).to.have.property('status', TaskStatus.DENIED);
 
                 done();
             });

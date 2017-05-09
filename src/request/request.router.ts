@@ -157,6 +157,7 @@ router.put('/request/:id/task/:taskId',
         }
 
         Request.changeTaskStatus(req.user._id, task._id, status, needEscort, securityClearance, confirmationNumber).then((request: IRequest) => {
+            console.log(request);
             if (!request) {
                 return res.sendStatus(404);
             }

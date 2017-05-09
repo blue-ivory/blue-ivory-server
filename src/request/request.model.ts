@@ -1,5 +1,6 @@
-import { Organization } from './../organization/organization.class';
 import * as mongoose from 'mongoose';
+import { IRequestTask } from './request-task.interface';
+import { Organization } from './../organization/organization.class';
 import { TaskType } from "../workflow/task-type.enum";
 import { TaskStatus } from "../workflow/task-status.enum";
 import { CarType, IRequest } from "./request.interface";
@@ -114,6 +115,16 @@ var requestSchema: mongoose.Schema = new mongoose.Schema({
         type: [
             taskSchema
         ]
+    },
+    status: {
+        type: String,
+        enum: [
+            TaskStatus.APPROVED,
+            TaskStatus.DENIED,
+            TaskStatus.PENDING
+        ],
+        required: true,
+        default: TaskStatus.PENDING
     }
 });
 
@@ -146,5 +157,34 @@ requestSchema.pre('save', function (next) {
         next(error);
     });
 });
+
+// requestSchema.post('findOneAndUpdate', function (doc: any) {
+//     if (doc && doc['workflow']) {
+//         let workflow: IRequestTask[] = doc['workflow'];
+//         let status: TaskStatus = TaskStatus.PENDING;
+//         let foundDenied: boolean = false;
+//         let foundApproved: boolean = false;
+//         let foundPending: boolean = false;
+
+//         workflow.forEach(task => {
+//             if (task.status === TaskStatus.DENIED) {
+//                 foundDenied = true;
+//             } else if (task.status === TaskStatus.APPROVED) {
+//                 foundApproved = true;
+//             } else {
+//                 foundPending = true;
+//             }
+//         });
+
+//         if (foundDenied) {
+//             status = TaskStatus.DENIED;
+//         } else if (foundApproved && !foundPending) {
+//             status = TaskStatus.APPROVED;
+//         }
+
+//         this.update({}, { $set: { status: status } }).exec();
+//     }
+
+// });
 
 export let RequestModel = mongoose.model<IRequest>("Request", requestSchema);

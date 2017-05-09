@@ -1,3 +1,4 @@
+import * as Promise from 'bluebird';
 import { IUser } from './../user/user.interface';
 import { ICollection } from './../helpers/collection';
 import { User } from './../user/user.class';
@@ -164,8 +165,8 @@ describe('Organization', () => {
                 Organization.createOrganization('org two'),
                 Organization.createOrganization('org three'),
                 Organization.createOrganization('org four')
-            ]).then((values: IOrganization[]) => {
-                organization = values[0];
+            ]).then(values => {
+                organization = <IOrganization>values[0];
                 done();
             });
         });

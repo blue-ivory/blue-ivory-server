@@ -1,3 +1,4 @@
+import * as Promise from 'bluebird';
 import { User } from './../user/user.class';
 import { IUser } from './../user/user.interface';
 import { IOrganization } from './../organization/organization.interface';
