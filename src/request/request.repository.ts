@@ -118,6 +118,7 @@ export class RequestRepository extends RepositoryBase<IRequest> {
         taskId: Types.ObjectId,
         status: TaskStatus,
         needEscort?: boolean,
+        needTag?: boolean,
         securityClearance?: number,
         confirmationNumber?: number): Promise<IRequest> {
         let populate = [
@@ -134,6 +135,9 @@ export class RequestRepository extends RepositoryBase<IRequest> {
         }
         if (needEscort) {
             additionalFields['workflow.$.needEscort'] = needEscort;
+        }
+        if (needTag) {
+            additionalFields['workflow.$.needTag'] = needTag;
         }
         if (securityClearance && securityClearance >= 0 && securityClearance <= 5) {
             additionalFields['workflow.$.securityClearance'] = securityClearance;

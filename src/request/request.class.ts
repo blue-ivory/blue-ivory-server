@@ -74,12 +74,14 @@ export class Request {
         taskId: Types.ObjectId,
         status: TaskStatus,
         needEscort?: boolean,
+        needTag?: boolean,
         securityClearance?: number,
         confirmationNumber?: number): Promise<Document> {
         return Request._requestRepository.changeTaskStatus(userId,
             taskId,
             status,
             needEscort,
+            needTag,
             securityClearance,
             confirmationNumber);
     }

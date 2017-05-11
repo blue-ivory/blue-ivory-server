@@ -11,4 +11,5 @@ export interface IRequestTask extends ITask, Document {
     securityClearance?: number;
     confirmationNumber?: number;
     needEscort?: boolean;
+    needTag?: boolean;
 }

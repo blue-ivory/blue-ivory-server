@@ -148,6 +148,7 @@ router.put('/request/:id/task/:taskId',
         let confirmationNumber: number = req.body.confirmationNumber;
         let securityClearance: number = req.body.securityClearance;
         let needEscort: boolean = req.body.needEscort;
+        let needTag: boolean = req.body.needTag;
 
         console.log(req.body);
         let task: IRequestTask = res.locals['task'];
@@ -156,8 +157,7 @@ router.put('/request/:id/task/:taskId',
             return res.sendStatus(400);
         }
 
-        Request.changeTaskStatus(req.user._id, task._id, status, needEscort, securityClearance, confirmationNumber).then((request: IRequest) => {
-            console.log(request);
+        Request.changeTaskStatus(req.user._id, task._id, status, needEscort, needTag, securityClearance, confirmationNumber).then((request: IRequest) => {
             if (!request) {
                 return res.sendStatus(404);
             }

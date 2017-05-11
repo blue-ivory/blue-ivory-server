@@ -45,6 +45,10 @@ var taskSchema: mongoose.Schema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    needTag: {
+        type: Boolean,
+        default: false
+    },
     securityClearance: {
         type: Number,
         min: 0,
