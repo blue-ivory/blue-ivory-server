@@ -106,6 +106,13 @@ var requestSchema: mongoose.Schema = new mongoose.Schema({
         type: Number,
         required: false
     },
+    type: { // Visitor type
+        type: String,
+        required: true
+    },
+    rank: {
+        type: String
+    },
     needEscort: {
         type: Boolean,
         default: false

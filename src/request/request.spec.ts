@@ -59,7 +59,7 @@ describe('Request', () => {
             expect(org).to.exist;
             organization = org;
 
-            return Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.PRIVATE, 123456, organization);
+            return Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.PRIVATE, 123456, organization, 'SOLDIER');
         }).then((req: IRequest) => {
             expect(req).to.exist;
 
@@ -70,7 +70,7 @@ describe('Request', () => {
 
     describe('#createRequest', () => {
         it('Should throw an error when missing request data', done => {
-            Request.createRequest(null, null, null, null, null, null, null, null).catch(err => {
+            Request.createRequest(null, null, null, null, null, null, null, null, null).catch(err => {
                 expect(err).to.exist
                     .and.have.property('name', 'ValidationError');
 
@@ -86,7 +86,7 @@ describe('Request', () => {
                 _id: 'UnsavedUser'
             };
 
-            Request.createRequest(new Date(), new Date(), visitor, requestor, 'desc', CarType.NONE, null, organization).catch(err => {
+            Request.createRequest(new Date(), new Date(), visitor, requestor, 'desc', CarType.NONE, null, organization, 'SOLDIER').catch(err => {
                 expect(err).to.exist
                     .and.have.property('name', 'ValidationError');
 
@@ -101,7 +101,7 @@ describe('Request', () => {
                 workflow: []
             };
 
-            Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.NONE, null, org).catch(err => {
+            Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.NONE, null, org, 'SOLDIER').catch(err => {
                 expect(err).to.exist
                     .and.have.property('name', 'ValidationError');
 
@@ -110,7 +110,7 @@ describe('Request', () => {
         });
 
         it('Should throw an error when request is valid but organization does not have workflow', done => {
-            Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.NONE, null, organizationWithoutWorkflow).catch(err => {
+            Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.NONE, null, organizationWithoutWorkflow, 'SOLDIER').catch(err => {
                 expect(err).to.exist;
                 expect(err).to.have.property('message', 'Cannot save request because workflow not assigned to organization yet');
 
@@ -120,7 +120,7 @@ describe('Request', () => {
 
         it('Should create a request', done => {
             let date = new Date();
-            Request.createRequest(date, date, visitor, user, 'desc', CarType.PRIVATE, 1234, organization).then((request: IRequest) => {
+            Request.createRequest(date, date, visitor, user, 'desc', CarType.PRIVATE, 1234, organization, 'SOLDIER').then((request: IRequest) => {
                 expect(request).to.exist;
                 expect(request).to.have.property('_id');
                 expect(request).to.have.property('organization').which.has.property('name', 'organization');
@@ -145,7 +145,7 @@ describe('Request', () => {
                 _id: 'Unsaved'
             };
 
-            Request.createRequest(new Date(), new Date(), unsavedVisitor, user, 'desc', CarType.NONE, null, organization).then((request: IRequest) => {
+            Request.createRequest(new Date(), new Date(), unsavedVisitor, user, 'desc', CarType.NONE, null, organization, 'SOLDIER').then((request: IRequest) => {
                 expect(request).to.exist;
                 expect(request).to.have.property('visitor').which.has.property('name', 'Unsaved visitor');
 
@@ -161,7 +161,7 @@ describe('Request', () => {
 
         it('Should create request without CAR tasks in workflow when car is not required', done => {
             let date = new Date();
-            Request.createRequest(date, date, visitor, user, 'desc', CarType.NONE, null, organization).then((request: IRequest) => {
+            Request.createRequest(date, date, visitor, user, 'desc', CarType.NONE, null, organization, 'SOLDIER').then((request: IRequest) => {
                 expect(request).to.exist;
                 expect(request).to.have.property('_id');
                 expect(request).to.have.property('organization').which.has.property('name', 'organization');
@@ -298,11 +298,11 @@ describe('Request', () => {
                 anotherUser = usr;
 
                 return Promise.all([
-                    Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 1111, organization),
-                    Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 2222, organization),
-                    Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '111111', name: 'aaaaa' }, user, 'desc', CarType.NONE, null, organization),
-                    Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '222222', name: 'bbbbbb' }, user, 'desc', CarType.NONE, null, organization),
-                    Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '121212', name: 'ababab' }, user, 'desc', CarType.NONE, null, organization),
+                    Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 1111, organization, 'SOLDIER'),
+                    Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 2222, organization, 'SOLDIER'),
+                    Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '111111', name: 'aaaaa' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
+                    Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '222222', name: 'bbbbbb' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
+                    Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '121212', name: 'ababab' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
                 ]);
             }).then(() => {
                 done();
@@ -444,8 +444,8 @@ describe('Request', () => {
                 testerUser = usr;
 
                 return Promise.all([
-                    Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '1234567', name: 'Soldier', company: 'Army' }, user, 'desc', CarType.NONE, null, organization1),
-                    Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '123456789', name: 'Civilian', company: 'Company' }, user, 'desc', CarType.NONE, null, organization1),
+                    Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '1234567', name: 'Soldier', company: 'Army' }, user, 'desc', CarType.NONE, null, organization1, 'SOLDIER'),
+                    Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '123456789', name: 'Civilian', company: 'Company' }, user, 'desc', CarType.NONE, null, organization1, 'SOLDIER'),
                 ]);
             }).then(() => {
                 done();
@@ -493,11 +493,11 @@ describe('Request', () => {
     describe('#searchCivilianRequests', () => {
         beforeEach(done => {
             Promise.all([
-                Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 1111, organization),
-                Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 2222, organization),
-                Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '11111111', name: 'aaaaa' }, user, 'desc', CarType.NONE, null, organization),
-                Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '22222222', name: 'bbbbbb' }, user, 'desc', CarType.NONE, null, organization),
-                Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '121211', name: 'ababab' }, user, 'desc', CarType.NONE, null, organization),
+                Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 1111, organization, 'SOLDIER'),
+                Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 2222, organization, 'SOLDIER'),
+                Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '11111111', name: 'aaaaa' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
+                Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '22222222', name: 'bbbbbb' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
+                Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '121211', name: 'ababab' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
             ]).then(() => done());
         });
 
@@ -550,11 +550,11 @@ describe('Request', () => {
     describe('#searchSoldierRequests', () => {
         beforeEach(done => {
             Promise.all([
-                Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 1111, organization),
-                Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 2222, organization),
-                Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '11111111', name: 'aaaaa' }, user, 'desc', CarType.NONE, null, organization),
-                Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '22222222', name: 'bbbbbb' }, user, 'desc', CarType.NONE, null, organization),
-                Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '121211', name: 'ababab' }, user, 'desc', CarType.NONE, null, organization),
+                Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 1111, organization, 'SOLDIER'),
+                Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 2222, organization, 'SOLDIER'),
+                Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '11111111', name: 'aaaaa' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
+                Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '22222222', name: 'bbbbbb' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
+                Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '121211', name: 'ababab' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
             ]).then(() => done());
         });
 

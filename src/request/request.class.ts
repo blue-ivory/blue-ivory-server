@@ -23,6 +23,8 @@ export class Request {
         car: CarType,
         carNumber: number,
         organization: IOrganization,
+        type: string,
+        rank?: string,
         phoneNumber?: string): Promise<Document> {
 
         let request = <IRequest>{
@@ -35,7 +37,9 @@ export class Request {
             carNumber: carNumber,
             organization: organization,
             requestor: requestor,
-            phoneNumber: phoneNumber
+            phoneNumber: phoneNumber,
+            type: type,
+            rank: rank
         };
         return Organization.findOrganization(organization ? organization._id : null).then((fetchedOrganization: IOrganization) => {
             if (fetchedOrganization) {

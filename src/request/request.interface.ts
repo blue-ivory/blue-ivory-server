@@ -16,6 +16,8 @@ export interface IRequest extends Document {
     isSoldier: boolean;
     needEscort: boolean;
     car: CarType;
+    type: string;
+    rank: string;
     carNumber: number;
     organization: IOrganization;
     workflow: IRequestTask[];

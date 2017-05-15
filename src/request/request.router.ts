@@ -29,6 +29,8 @@ router.post('/request', AuthMiddleware.requireLogin, (req: express.Request, res:
         request.car,
         request.carNumber,
         request.organization,
+        request.type,
+        request.rank,
         request.phoneNumber).then((request) => {
             return res.json(request);
         }).catch((error) => {
