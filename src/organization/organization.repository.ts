@@ -6,6 +6,7 @@ import { IOrganization } from "./organization.interface";
 import { OrganizationModel } from "./organization.model";
 import { ICollection } from "../helpers/collection";
 import { IPaginationOptions } from "../pagination/pagination.interface";
+import { TaskType } from "../workflow/task-type.enum";
 
 
 export class OrganizationRepository extends RepositoryBase<IOrganization> {
@@ -52,12 +53,41 @@ export class OrganizationRepository extends RepositoryBase<IOrganization> {
     }
 
     setWorkflow(organizationId: Types.ObjectId, workflow: ITask[]): Promise<Document> {
-        let organization = <IOrganization>{
-            _id: organizationId,
-            workflow: workflow ? this.getUniqueTasks(workflow) : workflow
+
+        if (workflow) {
+
+            let organization = <IOrganization>{
+                _id: organizationId,
+                workflow: workflow ? this.getUniqueTasks(workflow) : workflow
+            }
+
+            let organizationsToUpdate = [];
+            let tags = [];
+
+            let currentOrganizationIndex = workflow.findIndex(task => {
+                return task.organization._id == organizationId && task.type === TaskType.HUMAN;
+            });
+
+            if (currentOrganizationIndex !== -1) {
+                workflow.forEach(task => {
+                    if (task.order > workflow[currentOrganizationIndex].order && task.type === TaskType.HUMAN) {
+                        tags.push(task.organization._id);
+                    } else if (task.order < workflow[currentOrganizationIndex].order && task.type === TaskType.HUMAN) {
+                        organizationsToUpdate.push(task.organization);
+                    }
+                });
+            }
+
+            return OrganizationModel.update({}, { $pull: { tags: { _id: organizationId } } }, { multi: true }).exec().then(() => {
+                organizationsToUpdate = organizationsToUpdate.map(org => org._id);
+                return OrganizationModel.update({ _id: { $in: organizationsToUpdate } }, { $addToSet: { tags: { _id: organizationId } } }, { multi: true }).exec();
+            }).then(() => {
+                return this.update(organization);
+            });
+        } else {
+            return Promise.resolve(null);
         }
 
-        return this.update(organization)
     }
 
     getWorkflow(organizationId: Types.ObjectId): Promise<ITask[]> {

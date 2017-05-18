@@ -1,3 +1,5 @@
+import { IOrganization } from './../organization/organization.interface';
+import { Organization } from './../organization/organization.class';
 import { IRequestTask } from './request-task.interface';
 import * as Promise from 'bluebird';
 import { IVisitor } from './../visitor/visitor.interface';
@@ -107,11 +109,19 @@ export class RequestRepository extends RepositoryBase<IRequest> {
     }
 
     public searchAll(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
-        let filter = {
-            // TODO : Create filter based on view permissions (Workflow orders)
-        };
+        if (user && user.organization) {
+            return Organization.findOrganization(user.organization._id).then((org: IOrganization) => {
+                let tags = org.tags.map(tag => tag._id);
 
-        return this.search(searchTerm, paginationOptions, filter);
+                let filter = {
+                    organization: { $in: tags.concat(user.organization._id) }
+                };
+
+                return this.search(searchTerm, paginationOptions, filter);
+            });
+        } else {
+            return Promise.resolve(null);
+        }
     }
 
     public changeTaskStatus(authorizerId: string,
@@ -173,7 +183,6 @@ export class RequestRepository extends RepositoryBase<IRequest> {
                     } else if (foundApproved && !foundPending) {
                         status = TaskStatus.APPROVED;
                     }
-                    console.log(status);
                     return RequestModel
                         .findOneAndUpdate({ _id: request._id }, { status: status }, { new: true })
                         .populate(populate);

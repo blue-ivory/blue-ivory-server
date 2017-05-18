@@ -353,7 +353,7 @@ describe('Request', () => {
         });
 
         it('Should return collection with all user\'s requests if no search term is provided', done => {
-            Request.searchAllRequests(user).then((collection: ICollection<IRequest>) => {
+            Request.searchMyRequests(user).then((collection: ICollection<IRequest>) => {
                 expect(collection).to.exist;
                 expect(collection).to.have.property('totalCount', 6);
                 expect(collection).to.have.property('set').which.is.an('array').with.length(6);
@@ -401,6 +401,227 @@ describe('Request', () => {
                 });
         });
     })
+
+    describe('#searchAllRequests', () => {
+        let organization1 = <IOrganization>null;
+        let organization2 = <IOrganization>null
+        let organization3 = <IOrganization>null
+        let organization4 = <IOrganization>null
+        let user1 = <IUser>null;
+        let user2 = <IUser>null;
+        let user3 = <IUser>null;
+        let user4 = <IUser>null;
+
+
+        beforeEach(done => {
+            Promise.all(
+                ['org1all', 'org2all', 'org3all', 'org4all']
+                    .map(name => Organization.createOrganization(name)))
+                .then((values: IOrganization[]) => {
+                    expect(values).to.exist
+                        .and.to.be.an('array')
+                        .with.length(4);
+
+                    organization1 = values[0];
+                    organization2 = values[1];
+                    organization3 = values[2];
+                    organization4 = values[3];
+
+                    return Promise.all(['user1', 'user2', 'user3', 'user4']
+                        .map(id => User.createUser('name', 'last', id, id)));
+                }).then((values: IUser[]) => {
+                    expect(values).to.exist
+                        .and.to.be.an('array')
+                        .with.length(4);
+
+                    user1 = values[0];
+                    user2 = values[1];
+                    user3 = values[2];
+                    user4 = values[3];
+
+                    return Promise.all([
+                        User.setOrganization(user1._id, organization1._id),
+                        User.setOrganization(user2._id, organization2._id),
+                        User.setOrganization(user3._id, organization3._id),
+                        User.setOrganization(user4._id, organization4._id),
+                    ]);
+                }).then((values) => {
+                    expect(values).to.exist
+                        .and.to.be.an('array')
+                        .with.length(4);
+
+                    user1 = <IUser>values[0];
+                    user2 = <IUser>values[1];
+                    user3 = <IUser>values[2];
+                    user4 = <IUser>values[3];
+
+
+                    let workflowForOrg3 = [
+                        <ITask>{
+                            organization: organization1,
+                            type: TaskType.HUMAN,
+                            order: 1
+                        },
+                        <ITask>{
+                            organization: organization2,
+                            type: TaskType.HUMAN,
+                            order: 2
+                        },
+                        <ITask>{
+                            organization: organization3,
+                            type: TaskType.HUMAN,
+                            order: 3
+                        },
+                    ];
+
+                    let workflowForOrg2 = [
+                        <ITask>{
+                            organization: organization1,
+                            type: TaskType.HUMAN,
+                            order: 1
+                        },
+                        <ITask>{
+                            organization: organization2,
+                            type: TaskType.HUMAN,
+                            order: 2
+                        }
+                    ];
+
+                    let workflowForOrg1 = [
+                        <ITask>{
+                            organization: organization1,
+                            type: TaskType.HUMAN,
+                            order: 1
+                        },
+                    ];
+
+                    let workflowForOrg4 = [
+                        <ITask>{
+                            organization: organization2,
+                            type: TaskType.HUMAN,
+                            order: 1
+                        },
+                        <ITask>{
+                            organization: organization4,
+                            type: TaskType.HUMAN,
+                            order: 2
+                        },
+                    ];
+
+                    return Promise.all([
+                        Organization.setWorkflow(organization1._id, workflowForOrg1),
+                        Organization.setWorkflow(organization2._id, workflowForOrg2),
+                        Organization.setWorkflow(organization3._id, workflowForOrg3),
+                        Organization.setWorkflow(organization4._id, workflowForOrg4),
+                    ]);
+                }).then((values) => {
+                    expect(values).to.exist
+                        .and.to.be.an('array')
+                        .with.length(4);
+
+                    organization1 = <IOrganization>values[0];
+                    organization2 = <IOrganization>values[1];
+                    organization3 = <IOrganization>values[2];
+                    organization4 = <IOrganization>values[3];
+
+
+                    return Promise.all([
+                        Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '1234560', name: 'name1', company: 'comp' }, user1, 'desc', CarType.NONE, null, organization1, 'SOLDIER'),
+                        Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '1234561', name: 'name2', company: 'comp' }, user2, 'desc', CarType.NONE, null, organization2, 'SOLDIER'),
+                        Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '1234562', name: 'name3', company: 'comp' }, user3, 'desc', CarType.NONE, null, organization3, 'SOLDIER'),
+                        Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '1234563', name: 'name4', company: 'comp' }, user4, 'desc', CarType.NONE, null, organization4, 'SOLDIER'),
+                    ]);
+                }).then(() => {
+                    done();
+                });
+        });
+
+        it('Should return null when no user provided', done => {
+            Request.searchAllRequests(null).then(collection => {
+                expect(collection).to.not.exist;
+
+                done();
+            });
+        })
+
+        it('Should return null when user not exists on database', done => {
+            Request.searchAllRequests(<IUser>{ _id: '11223344', firstName: 'name', lastName: 'last', mail: 'mail' }).then(collection => {
+                expect(collection).to.not.exist;
+
+                done();
+            });
+        });
+
+        it('Should return null when user is not associated to any organization', done => {
+            User.createUser('a', 'b', 'c', 'd').then((user: IUser) => {
+                return Request.searchAllRequests(user);
+            }).then(collection => {
+                expect(collection).to.not.exist;
+
+                done();
+            });
+        });
+
+        it('Should return collection with all requests specific for user (by organization\'s tags)', done => {
+            Promise.all([
+                Request.searchAllRequests(user1),
+                Request.searchAllRequests(user2),
+                Request.searchAllRequests(user3),
+                Request.searchAllRequests(user4),
+            ]).then(values => {
+                expect(values).to.exist
+                    .and.to.be.an('array')
+                    .with.length(4)
+                    .and.to.satisfy((values: ICollection<IRequest>) => {
+                        expect(values[0]).to.have.property('totalCount', 3);
+                        expect(values[0]).to.have.property('set').which.is.an('array').with.length(3).that.satisfies((set: IRequest[]) => {
+                            let organizations = set.map(req => req.organization._id.toHexString());
+                            let expectedOrganizations = [organization1._id.toHexString(), organization2._id.toHexString(), organization3._id.toHexString()];
+
+                            expect(organizations).to.contain.members(expectedOrganizations);
+
+                            return true;
+                        });
+
+                        expect(values[1]).to.have.property('totalCount', 3);
+                        expect(values[1]).to.have.property('set').which.is.an('array').with.length(3).that.satisfies((set: IRequest[]) => {
+                            let organizations = set.map(req => req.organization._id.toHexString());
+                            let expectedOrganizations = [organization2._id.toHexString(), organization3._id.toHexString(), organization4._id.toHexString()];
+
+                            expect(organizations).to.contain.members(expectedOrganizations);
+
+                            return true;
+                        });
+
+                        expect(values[2]).to.have.property('totalCount', 1);
+                        expect(values[2]).to.have.property('set').which.is.an('array').with.length(1).that.satisfies((set: IRequest[]) => {
+                            let organizations = set.map(req => req.organization._id.toHexString());
+                            let expectedOrganizations = [organization3._id.toHexString()];
+
+                            expect(organizations).to.contain.members(expectedOrganizations);
+
+                            return true;
+                        });
+
+                        expect(values[3]).to.have.property('totalCount', 1);
+                        expect(values[3]).to.have.property('set').which.is.an('array').with.length(1).that.satisfies((set: IRequest[]) => {
+                            let organizations = set.map(req => req.organization._id.toHexString());
+                            let expectedOrganizations = [organization4._id.toHexString()];
+
+                            expect(organizations).to.contain.members(expectedOrganizations);
+
+                            return true;
+                        });
+
+                        return true;
+                    });
+
+                done();
+
+            });
+        });
+
+    });
 
     describe('#searchPendingRequests', () => {
 

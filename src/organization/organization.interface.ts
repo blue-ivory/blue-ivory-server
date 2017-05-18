@@ -8,4 +8,5 @@ export interface IOrganization extends Document {
     workflow: ITask[];
     users?: number;
     requests?: number;
+    tags: IOrganization[];
 }

@@ -277,10 +277,11 @@ describe('Organization', () => {
         });
     });
 
-    describe('#setWork', () => {
+    describe('#setWorkflow', () => {
 
         let firstOrganization: IOrganization = null;
         let secondOrganization: IOrganization = null;
+        let thirdOrganization: IOrganization = null;
 
         beforeEach(done => {
             Organization.createOrganization('first organization')
@@ -292,6 +293,11 @@ describe('Organization', () => {
                 }).then((org: IOrganization) => {
                     expect(org).to.exist;
                     secondOrganization = org;
+
+                    return Organization.createOrganization('third organization');
+                }).then((org: IOrganization) => {
+                    expect(org).to.exist;
+                    thirdOrganization = org;
 
                     done();
                 });
@@ -380,6 +386,58 @@ describe('Organization', () => {
 
                     return true;
                 });
+
+                done();
+            });
+        });
+
+        it('Should create tags for the organizations based on the workflow order', done => {
+            let workflow: ITask[] = [];
+            workflow.push(<ITask>{ order: 1, organization: firstOrganization, type: TaskType.HUMAN });
+            workflow.push(<ITask>{ order: 2, organization: secondOrganization, type: TaskType.HUMAN });
+            workflow.push(<ITask>{ order: 3, organization: thirdOrganization, type: TaskType.HUMAN });
+
+            Organization.setWorkflow(thirdOrganization._id, workflow).then((organization: IOrganization) => {
+                expect(organization).to.exist;
+                expect(organization).to.have.property('workflow');
+
+                return Organization.findOrganization(firstOrganization._id);
+            }).then((org: IOrganization) => {
+                expect(org).to.exist;
+                expect(org).to.have.property('tags').which.is.an('array').with.length(1);
+
+                return Organization.findOrganization(secondOrganization._id);
+            }).then((org: IOrganization) => {
+                expect(org).to.exist;
+                expect(org).to.have.property('tags').which.is.an('array').with.length(1);
+
+                return Organization.findOrganization(thirdOrganization._id);
+            }).then((org: IOrganization) => {
+                expect(org).to.exist;
+                expect(org).to.have.property('tags').which.is.an('array').with.length(0);
+
+                done();
+            });
+        });
+
+        it('Should remove tags if workflow changed and not contains organization', done => {
+            let workflow: ITask[] = [];
+            workflow.push(<ITask>{ order: 1, organization: firstOrganization, type: TaskType.HUMAN });
+            workflow.push(<ITask>{ order: 2, organization: secondOrganization, type: TaskType.HUMAN });
+
+            Organization.setWorkflow(secondOrganization._id, workflow).then((organization: IOrganization) => {
+                expect(organization).to.exist;
+                return Organization.findOrganization(firstOrganization._id);
+            }).then((org: IOrganization) => {
+                expect(org).to.exist;
+                expect(org).to.have.property('tags').which.is.an('array').with.length(1);
+
+                return Organization.setWorkflow(secondOrganization._id, []);
+            }).then(() => {
+                return Organization.findOrganization(firstOrganization._id);
+            }).then((org: IOrganization) => {
+                expect(org).to.exist;
+                expect(org).to.have.property('tags').which.is.an('array').with.length(0);
 
                 done();
             });

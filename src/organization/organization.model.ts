@@ -34,7 +34,15 @@ var organizationSchema: mongoose.Schema = new mongoose.Schema({
             taskSchema
         ],
         default: []
-    }
+    },
+    tags: [
+        {
+            organization: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Organization'
+            }
+        }
+    ]
 });
 
 export let OrganizationModel = mongoose.model<IOrganization>("Organization", organizationSchema);
