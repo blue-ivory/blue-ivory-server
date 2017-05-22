@@ -97,8 +97,8 @@ export class UserRepository extends RepositoryBase<IUser> {
         });
     }
 
-    setPermissions(userId: string, organizationId: Types.ObjectId, permissions: PermissionType[]): Promise<Document> {
-        return new Promise<Document>((resolve, reject) => {
+    setPermissions(userId: string, organizationId: Types.ObjectId, permissions: PermissionType[]): Promise<IUser> {
+        return new Promise<IUser>((resolve, reject) => {
             Promise.all([
                 this.findById(userId, 'organization permissions.organization'),
                 Organization.findOrganization(organizationId)
@@ -151,5 +151,28 @@ export class UserRepository extends RepositoryBase<IUser> {
 
             }).catch(reject);
         });
+    }
+
+    getApprovableUsersByOrganization(organizationId: Types.ObjectId, isSoldier: boolean, hasCar: boolean): Promise<IUser[]> {
+        let requiredPermissions = [];
+        requiredPermissions.push(isSoldier ? PermissionType.APPROVE_SOLDIER : PermissionType.APPROVE_CIVILIAN);
+        if (hasCar) {
+            requiredPermissions.push(PermissionType.APPROVE_CAR);
+        }
+
+        let filter = {
+            permissions:
+            {
+                $elemMatch:
+                {
+                    organization: organizationId,
+                    organizationPermissions: {
+                        $in: requiredPermissions
+                    }
+                }
+            }
+        }
+
+        return UserModel.find(filter).exec();
     }
 }

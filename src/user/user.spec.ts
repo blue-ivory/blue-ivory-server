@@ -442,4 +442,89 @@ describe('User', () => {
                 });
         });
     });
+
+    describe('#getApprovableUsersByOrganization', () => {
+
+        let user1: IUser = null;
+        let user2: IUser = null;
+        let organization1: IOrganization = null;
+        let organization2: IOrganization = null;
+
+        beforeEach(done => {
+            User.createUser('tester', 'user', '123456', 'mail').then((u: IUser) => {
+                expect(u).to.exist;
+                user1 = u;
+
+                return User.createUser('tester2', 'user2', '1111111', 'mail2');
+            }).then((u: IUser) => {
+                expect(u).to.exist;
+                user2 = u;
+
+                return Organization.createOrganization('org1');
+            }).then((org1: IOrganization) => {
+                expect(org1).to.exist;
+                organization1 = org1;
+
+                return Organization.createOrganization('org2');
+            }).then((org2: IOrganization) => {
+                expect(org2).to.exist;
+                organization2 = org2;
+
+                return User.setPermissions(user1._id, organization1._id, [PermissionType.EDIT_USER_PERMISSIONS]);
+            }).then(() => {
+                return User.setPermissions(user2._id, organization2._id, [PermissionType.APPROVE_SOLDIER]);
+            }).then(() => {
+                return User.setPermissions(user1._id, organization2._id, [PermissionType.APPROVE_CAR]);
+            }).then(() => {
+                done();
+            });
+        });
+
+
+        it('Should return empty array when no organization exists', done => {
+            User.getApprovableUsersByOrganization(new mongoose.Types.ObjectId(), false, false).then(users => {
+                expect(users).to.exist
+                    .and.to.be.an('array')
+                    .with.length(0);
+
+                done();
+            });
+        });
+
+        it('Should return empty array when no user has required permissions', done => {
+            User.getApprovableUsersByOrganization(organization1._id, true, false).then(users => {
+                expect(users).to.exist
+                    .and.to.be.an('array')
+                    .with.length(0);
+
+                done();
+            });
+        });
+
+        it('Should return array with users with the right permissions for organization', done => {
+            User.getApprovableUsersByOrganization(organization2._id, true, true).then(users => {
+                expect(users).to.exist
+                    .and.to.be.an('array')
+                    .with.length(2);
+
+                return User.getApprovableUsersByOrganization(organization2._id, false, true);
+            }).then(users => {
+                expect(users).to.exist
+                    .and.to.be.an('array')
+                    .with.length(1);
+
+                done();
+            });
+        });
+
+        it('Should return empty array when user has permissions but for different organization', done => {
+            User.getApprovableUsersByOrganization(organization1._id, false, true).then(users => {
+                expect(users).to.exist
+                    .and.to.be.an('array')
+                    .with.length(0);
+
+                done();
+            });
+        });
+    });
 });

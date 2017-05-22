@@ -83,4 +83,8 @@ export class User {
     static setPermissions(userId: string, organizationId: Types.ObjectId, permissions: PermissionType[]): Promise<Document> {
         return User._userRepository.setPermissions(userId, organizationId, permissions);
     }
+
+    static getApprovableUsersByOrganization(organizationId: Types.ObjectId, isSoldier: boolean, hasCar: boolean): Promise<IUser[]> {
+        return User._userRepository.getApprovableUsersByOrganization(organizationId, isSoldier, hasCar);
+    }
 }
