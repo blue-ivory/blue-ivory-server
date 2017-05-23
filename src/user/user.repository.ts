@@ -173,6 +173,6 @@ export class UserRepository extends RepositoryBase<IUser> {
             }
         }
 
-        return UserModel.find(filter).exec();
+        return UserModel.find(filter).select('firstName lastName mail').exec();
     }
 }

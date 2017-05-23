@@ -41,6 +41,26 @@ router.get('/user/current',
         return res.json(req.user);
     });
 
+router.get('/user/approvable/:organizationId',
+    AuthMiddleware.requireLogin,
+    (req: express.Request, res: express.Response) => {
+        let organizationId: Types.ObjectId = null;
+        let isSoldier = <boolean>req.query['isSoldier'];
+        let hasCar = <boolean>req.query['hasCar'];
+
+        try {
+            organizationId = new Types.ObjectId(req.param('organizationId'));
+        } catch (err) {
+            return res.sendStatus(400);
+        }
+
+        User.getApprovableUsersByOrganization(organizationId, isSoldier, hasCar).then(users => {
+            return res.json(users);
+        }).catch(error => {
+            console.error(error);
+            return res.sendStatus(500);
+        });
+    });
 /**
  * GET /api/user/3
  * Return specific user if exists
@@ -116,5 +136,17 @@ router.put('/user/:id/organization',
             return res.sendStatus(500);
         });
     });
+
+
+
+
+
+
+
+
+
+
+
+
 
 export = router;
