@@ -1,0 +1,125 @@
+<html dir="rtl">
+
+<head>
+    <style>
+        body {
+            background: #efefef;
+        }
+
+        * {
+            direction: rtl;
+        }
+
+        .header span {
+            margin-bottom: 16px;
+            height: 40px;
+            line-height: 40px;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 4px;
+        }
+
+        .main-container {
+            background: white;
+            box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+            width: 500px;
+            margin: 50px auto;
+            padding: 16px;
+        }
+
+        .main-container .header {
+            border-bottom: 1px solid #efefef;
+        }
+
+        dt {
+            margin-bottom: 4px;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.54);
+        }
+
+        dd {
+            margin: 0;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: black;
+        }
+
+        .btn {
+            letter-spacing: .5px;
+            border: none;
+            outline: 0;
+            border-radius: 2px;
+            display: inline-block;
+            height: 36px;
+            line-height: 36px;
+            padding: 0 2rem;
+            vertical-align: middle;
+            cursor: pointer;
+        }
+
+        .align-end {
+            text-align: left;
+        }
+
+        form {
+            margin-top: 25px;
+        }
+
+        img {
+            display: table-cell;
+            height: 50px;
+            padding: 16px;
+        }
+
+        .logo-text {
+            vertical-align: middle;
+            line-height: 50px;
+            padding: 0;
+            margin: 0;
+            display: table-cell;
+        }
+
+        .inline {
+            display: table-row;
+        }
+
+        .request-text {
+            margin-top: 10px;
+            display: block;
+            font-size: 20px;
+        }
+
+        .approve-button {
+            color: #1565c0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-container">
+        <div class="header">
+            <div class="inline">
+                <img width="50" src="./gate-keeper.png" />
+                <span class="logo-text">עומד בשער</span>
+            </div>
+        </div>
+        <div class="content">
+            <label class="request-text">בקשה חדשה נוצרה וממתינה לאישורך</label>
+            <dl>
+                <dt>שם האורח</dt>
+                <dd>VISITOR_NAME</dd>
+                <dt>שיוך אירגוני</dt>
+                <dd>ORGANIZATION_NAME</dd>
+            </dl>
+            <form>
+                <div class="align-end">
+                    <input class="btn approve-button" type="submit" name="APPROVED" value="אשר" />
+                    <input class="btn" type="submit" name="DENIED" value="דחה" />
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>
