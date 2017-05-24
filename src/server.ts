@@ -1,4 +1,5 @@
 import * as express from 'express';
+import * as path from 'path';
 import * as bodyParser from 'body-parser';
 import * as morgan from 'morgan';
 import * as methodOverride from 'method-override';
@@ -83,6 +84,7 @@ class Server {
         this.app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         this.app.use(methodOverride());
         this.app.use(morgan('dev'));
+        this.app.use('/assets', express.static(path.join(__dirname, 'assets')))
         this.port = process.env.PORT || Server.PORT;
     }
 

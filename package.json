@@ -4,8 +4,8 @@
   "description": "",
   "main": "build/server/server.js",
   "scripts": {
-    "copyFiles": "find src/ -iname \"*.html\" -type f | xargs cp -t dist/ --parents",
-    "start": "tsc && node dist/server.js",
+    "copy-files": "copyfiles -u 1 \"./src/**/*.{png,html}\" \"dist\"",
+    "start": "tsc && copyfiles -u 1 \"./src/**/*.{png,html}\" \"dist\" && node dist/server.js",
     "debug": "tsc && node --nolazy --debug-brk=5858 dist/server.js",
     "dev": "nodemon -e ts  --exec \"npm start\"",
     "test": "tsc && mocha dist/**/spec.helper.js dist/**/*.spec.js"
@@ -39,6 +39,7 @@
     "@types/passport": "^0.3.3",
     "@types/socket.io": "^1.4.29",
     "chai": "^3.5.0",
+    "copyfiles": "^1.2.0",
     "core-js": "^2.4.1",
     "istanbul": "^0.4.5",
     "nodemon": "^1.11.0",

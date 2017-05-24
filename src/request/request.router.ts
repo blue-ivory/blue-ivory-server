@@ -186,3 +186,6 @@ function getRequiredPermission(task: IRequestTask, isSoldier: boolean): Permissi
     return isSoldier ? PermissionType.APPROVE_SOLDIER : PermissionType.APPROVE_CIVILIAN;
 }
 export = router;
+
+
+// TODO : Add following route for mailing service : /request/:requestId/:status

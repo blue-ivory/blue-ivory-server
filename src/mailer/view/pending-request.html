@@ -1,15 +1,23 @@
 <html dir="rtl">
 
 <head>
+    <meta charset="utf-8" />
+
     <style>
         body {
             background: #efefef;
         }
-
+        
         * {
+            font-family: 'Arial';
             direction: rtl;
         }
-
+        
+        a {
+            text-decoration: none;
+            color:black;
+        }
+        
         .header span {
             margin-bottom: 16px;
             height: 40px;
@@ -18,7 +26,7 @@
             font-weight: bold;
             letter-spacing: 4px;
         }
-
+        
         .main-container {
             background: white;
             box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
@@ -26,69 +34,64 @@
             margin: 50px auto;
             padding: 16px;
         }
-
+        
         .main-container .header {
             border-bottom: 1px solid #efefef;
         }
-
+        
         dt {
             margin-bottom: 4px;
             font-size: 12px;
             color: rgba(0, 0, 0, 0.54);
         }
-
+        
         dd {
             margin: 0;
             margin-bottom: 16px;
             font-size: 14px;
             color: black;
         }
-
+        
+        .content {
+            text-align: right !important;
+        }
+        
         .btn {
             letter-spacing: .5px;
             border: none;
             outline: 0;
             border-radius: 2px;
             display: inline-block;
-            height: 36px;
-            line-height: 36px;
+            height: 34px;
+            line-height: 34px;
             padding: 0 2rem;
             vertical-align: middle;
             cursor: pointer;
+            background: #CFD8DC;
+            font-size: 14px;
         }
-
+        
         .align-end {
             text-align: left;
         }
-
+        
         form {
             margin-top: 25px;
         }
-
-        img {
-            display: table-cell;
-            height: 50px;
-            padding: 16px;
-        }
-
+        
         .logo-text {
-            vertical-align: middle;
-            line-height: 50px;
-            padding: 0;
             margin: 0;
-            display: table-cell;
+            padding: 10px 0 24px;
+            text-align: center;
+            font-size: 30px;
         }
-
-        .inline {
-            display: table-row;
-        }
-
+        
         .request-text {
             margin-top: 10px;
             display: block;
-            font-size: 20px;
+            color: rgba(0, 0, 0, 0.54);
         }
-
+        
         .approve-button {
             color: #1565c0;
             font-weight: bold;
@@ -99,10 +102,8 @@
 <body>
     <div class="main-container">
         <div class="header">
-            <div class="inline">
-                <img width="50" src="./gate-keeper.png" />
-                <span class="logo-text">עומד בשער</span>
-            </div>
+            <!--<img src="http://localhost/assets/gate-keeper.png"/>-->
+            <h3 class="logo-text">עומד בשער</h3>
         </div>
         <div class="content">
             <label class="request-text">בקשה חדשה נוצרה וממתינה לאישורך</label>
@@ -112,12 +113,10 @@
                 <dt>שיוך אירגוני</dt>
                 <dd>ORGANIZATION_NAME</dd>
             </dl>
-            <form>
-                <div class="align-end">
-                    <input class="btn approve-button" type="submit" name="APPROVED" value="אשר" />
-                    <input class="btn" type="submit" name="DENIED" value="דחה" />
-                </div>
-            </form>
+            <div class="align-end">
+                <a href="https://google.com"><span class="btn approve-button">אשר</span></a>
+                <a href="https://yahoo.com"><span class="btn">דחה</span></a>
+            </div>
         </div>
     </div>
 </body>
