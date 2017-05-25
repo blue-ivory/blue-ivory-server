@@ -20,6 +20,7 @@ router.post('/request', AuthMiddleware.requireLogin, (req: express.Request, res:
 
     // Get request from body
     let request = <IRequest>req.body.request;
+    let mailingList = <string[]>req.body.mailingList;
 
     // Create request
     Request.createRequest(request.startDate,
@@ -33,13 +34,16 @@ router.post('/request', AuthMiddleware.requireLogin, (req: express.Request, res:
         request.type,
         request.rank,
         request.phoneNumber).then((request: IRequest) => {
-            Mailer.sendMail(['shobsapir@hotmail.com'], request).then(() => {
+            if (mailingList && mailingList.length > 0) {
+                Mailer.sendMail(mailingList, request).then(() => {
+                    return res.json(request);
+                }).catch(err => {
+                    console.error(err);
+                    return res.json(request);
+                });
+            } else {
                 return res.json(request);
-            }).catch(err => {
-                console.error(err);
-                return res.json(request);
-            });
-
+            }
         }).catch((error) => {
             console.error(error);
             return res.sendStatus(500);
