@@ -15,7 +15,7 @@
         
         a {
             text-decoration: none;
-            color:black;
+            color: black;
         }
         
         .header span {
@@ -41,6 +41,7 @@
         
         dt {
             margin-bottom: 4px;
+            margin-right: 16px;
             font-size: 12px;
             color: rgba(0, 0, 0, 0.54);
         }
@@ -50,6 +51,7 @@
             margin-bottom: 16px;
             font-size: 14px;
             color: black;
+            margin-right: 16px;
         }
         
         .content {
@@ -96,6 +98,18 @@
             color: #1565c0;
             font-weight: bold;
         }
+        
+        .list-subheader {
+            color: rgba(0, 0, 0, 0.54);
+            margin-bottom: 10px;
+            display: block;
+            text-align: right;
+        }
+
+        table {
+            width: 100%;
+            border: none;
+        }
     </style>
 </head>
 
@@ -108,10 +122,40 @@
         <div class="content">
             <label class="request-text">בקשה חדשה נוצרה וממתינה לאישורך</label>
             <dl>
-                <dt>שם האורח</dt>
-                <dd>VISITOR_NAME</dd>
-                <dt>שיוך אירגוני</dt>
-                <dd>ORGANIZATION_NAME</dd>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <dt>מספר אישי \ ת.ז</dt>
+                                <dd>VISITOR_ID</dd>
+                            </td>
+                            <td>
+                                <dt>שם האורח</dt>
+                                <dd>VISITOR_NAME</dd>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <dt>יחידה \ חברה</dt>
+                                <dd>VISITOR_COMPANY</dd>
+                            </td>
+                            <td>
+                                <dt>רכב</dt>
+                                <dd>VISITOR_CAR</dd>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <dt>שיוך אירגוני</dt>
+                                <dd>ORGANIZATION_NAME</dd>
+                            </td>
+                            <td>
+                                <dt>תאריך אישור</dt>
+                                <dd>DATE_RANGE</dd>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </dl>
             <div class="align-end">
                 <a href="https://google.com"><span class="btn approve-button">אשר</span></a>

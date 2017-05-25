@@ -1,4 +1,3 @@
-import { Mailer } from './../mailer/mailer.class';
 import { Types } from 'mongoose';
 import * as express from 'express';
 import { AuthMiddleware } from "../middlewares/auth.middleware";
@@ -39,7 +38,6 @@ router.get('/user',
 router.get('/user/current',
     AuthMiddleware.requireLogin,
     (req: express.Request, res: express.Response) => {
-        Mailer.sendMail(['shobsapir@gmail.com']);
         return res.json(req.user);
     });
 

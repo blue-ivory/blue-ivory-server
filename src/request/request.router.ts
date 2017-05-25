@@ -12,6 +12,7 @@ import { IRequestTask } from "./request-task.interface";
 import { PermissionType } from "../permission/permission.enum";
 import { TaskType } from "../workflow/task-type.enum";
 import { TaskStatus } from "../workflow/task-status.enum";
+import { Mailer } from "../mailer/mailer.class";
 
 let router: express.Router = express.Router();
 
@@ -31,8 +32,14 @@ router.post('/request', AuthMiddleware.requireLogin, (req: express.Request, res:
         request.organization,
         request.type,
         request.rank,
-        request.phoneNumber).then((request) => {
-            return res.json(request);
+        request.phoneNumber).then((request: IRequest) => {
+            Mailer.sendMail(['shobsapir@hotmail.com'], request).then(() => {
+                return res.json(request);
+            }).catch(err => {
+                console.error(err);
+                return res.json(request);
+            });
+
         }).catch((error) => {
             console.error(error);
             return res.sendStatus(500);
