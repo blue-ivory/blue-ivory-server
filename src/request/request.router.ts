@@ -1,3 +1,4 @@
+import { IUser } from './../user/user.interface';
 import { ICollection } from './../helpers/collection';
 import { Pagination } from './../pagination/pagination.class';
 import { Types } from 'mongoose';
@@ -13,6 +14,7 @@ import { PermissionType } from "../permission/permission.enum";
 import { TaskType } from "../workflow/task-type.enum";
 import { TaskStatus } from "../workflow/task-status.enum";
 import { Mailer } from "../mailer/mailer.class";
+import * as path from 'path';
 
 let router: express.Router = express.Router();
 
@@ -178,6 +180,27 @@ router.put('/request/:id/task/:taskId',
         });
     });
 
+router.all('/request/:id/:status',
+    AuthMiddleware.requireLogin,
+    (req: express.Request, res: express.Response) => {
+        let user = <IUser>req.user;
+        let status = <TaskStatus>req.params['status'];
+        let requestId: Types.ObjectId = null;
+
+        try {
+            requestId = new Types.ObjectId(req.params['id']);
+        } catch (err) {
+            return res.sendStatus(400);
+        }
+
+        Request.changeAllApprovableTasksStatus(user, requestId, status).then(() => {
+            return res.sendFile(path.resolve(__dirname + '/../mailer/view/request-status-changed.html'));
+        }).catch(err => {
+            console.error(err);
+            return res.sendStatus(500);
+        });
+    });
+
 function search(request: express.Request, response: express.Response, searchFunction: Function) {
     let searchTerm = request.query['searchTerm'];
 
@@ -197,6 +220,3 @@ function getRequiredPermission(task: IRequestTask, isSoldier: boolean): Permissi
     return isSoldier ? PermissionType.APPROVE_SOLDIER : PermissionType.APPROVE_CIVILIAN;
 }
 export = router;
-
-
-// TODO : Add following route for mailing service : /request/:requestId/:status

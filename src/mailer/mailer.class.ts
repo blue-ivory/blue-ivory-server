@@ -25,6 +25,7 @@ export class Mailer {
         htmlContent = htmlContent.replace('VISITOR_CAR', (request.car === CarType.NONE) ? 'ללא' : request.carNumber.toString());
 
         // Fill request details
+        htmlContent = htmlContent.replace('REQUEST_ID', request._id.toHexString());
         htmlContent = htmlContent.replace('ORGANIZATION_NAME', request.organization.name);
         htmlContent = htmlContent
             .replace('DATE_RANGE',

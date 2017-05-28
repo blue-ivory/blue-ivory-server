@@ -134,4 +134,8 @@ export class Request {
     static searchCivilianRequests(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
         return Request._requestRepository.searchCivilian(user, searchTerm, paginationOptions);
     }
+
+    static changeAllApprovableTasksStatus(user: IUser, requestId: Types.ObjectId, status: TaskStatus): Promise<void> {
+        return Request._requestRepository.changeAllApprovableTasksStatus(user, requestId, status);
+    }
 }

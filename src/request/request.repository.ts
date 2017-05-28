@@ -1,3 +1,4 @@
+import { Permission } from './../permission/permission.class';
 import { IOrganization } from './../organization/organization.interface';
 import { Organization } from './../organization/organization.class';
 import { IRequestTask } from './request-task.interface';
@@ -252,5 +253,54 @@ export class RequestRepository extends RepositoryBase<IRequest> {
         }
 
         return { noop: false };
+    }
+
+    public changeAllApprovableTasksStatus(user: IUser, requestId: Types.ObjectId, status: TaskStatus): Promise<void> {
+        let userPermissions = user.permissions;
+        let filter = [];
+
+        userPermissions.forEach(permissions => {
+            let filterObject = {
+                'workflow.organization': permissions.organization._id,
+                'workflow.status': TaskStatus.PENDING,
+                'workflow.type': { $in: [] },
+
+            };
+            if (permissions.organizationPermissions.indexOf(PermissionType.APPROVE_CAR) !== -1) {
+                filterObject['workflow.type'].$in.push(TaskType.CAR);
+            }
+            if (permissions.organizationPermissions.indexOf(PermissionType.APPROVE_SOLDIER) !== -1) {
+                filterObject['workflow.type'].$in.push(TaskType.HUMAN);
+                filterObject['isSoldier'] = true;
+            }
+            if (permissions.organizationPermissions.indexOf(PermissionType.APPROVE_CIVILIAN) !== -1) {
+                filterObject['workflow.type'].$in.push(TaskType.HUMAN);
+                if (filterObject['isSoldier']) {
+                    delete filterObject['isSoldier']
+                } else {
+                    filterObject['isSoldier'] = false;
+                }
+            }
+
+            filter.push(filterObject);
+        });
+
+        filter = [
+            { $match: { _id: new Types.ObjectId(requestId) } },
+            { $unwind: '$workflow' },
+            { $match: { $or: filter } },
+            { $project: { 'workflow._id': 1 } }
+        ]
+        return new Promise<void>((resolve, reject) => {
+            RequestModel.aggregate(filter).exec().then(result => {
+                result = result.map(res => res.workflow._id);
+
+                return Promise.all(result.map(taskId => this.changeTaskStatus(user._id, taskId, status)));
+            }).then(() => {
+                resolve();
+            }).catch(reject);
+        });
+
+
     }
 }

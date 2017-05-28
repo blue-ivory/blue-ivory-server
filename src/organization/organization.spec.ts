@@ -43,7 +43,6 @@ describe('Organization', () => {
             Organization.createOrganization(null).catch(err => {
                 expect(err).to.exist;
                 expect(err).to.have.property('name', 'ValidationError');
-                expect(err).to.have.property('message', 'Organization validation failed');
 
                 done();
             })

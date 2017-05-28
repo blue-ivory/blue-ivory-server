@@ -55,7 +55,6 @@ describe('Visitor', () => {
             Visitor.createVisitor(visitor).catch(err => {
                 expect(err).to.exist;
                 expect(err).to.have.property('name', 'ValidationError');
-                expect(err).to.have.property('message', 'Visitor validation failed');
 
                 done();
             });
