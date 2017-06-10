@@ -10,4 +10,5 @@ export interface IUser extends Document {
     organization: IOrganization;
     permissions: [{ organization: IOrganization, organizationPermissions: PermissionType[] }];
     isAdmin: boolean;
+    phoneNumber: string;
 }

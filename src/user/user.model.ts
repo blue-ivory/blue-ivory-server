@@ -48,6 +48,9 @@ var userSchema: mongoose.Schema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    phoneNumber: {
+        type: String
+    },
     permissions: [permissionSchema]
 }, {
         toJSON: {

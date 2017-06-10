@@ -137,7 +137,23 @@ router.put('/user/:id/organization',
         });
     });
 
+router.put('/user/:id/phone',
+    AuthMiddleware.requireLogin,
+    (req: express.Request, res: express.Response) => {
+        let userId = req.params.id;
+        let phoneNumber: String = req.body.phoneNumber;
+        if(userId !== req.user._id) {
+            return res.sendStatus(403);
+        }
 
+        User.updateUser(<IUser>{ _id: userId, phoneNumber: phoneNumber }).then((user:IUser) => {
+            return res.json(user);
+        }).catch(error => {
+            console.error(error);
+            return res.sendStatus(500);
+        });
+    }
+)
 
 
 
