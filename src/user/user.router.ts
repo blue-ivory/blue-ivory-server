@@ -7,6 +7,7 @@ import { User } from "./user.class";
 import { IUser } from "./user.interface";
 import { IOrganization } from "../organization/organization.interface";
 import { Pagination } from "../pagination/pagination.class";
+import { Permission } from "../permission/permission.class";
 
 let router: express.Router = express.Router();
 
@@ -118,7 +119,15 @@ router.put('/user/:id/permissions',
  */
 router.put('/user/:id/organization',
     AuthMiddleware.requireLogin,
-    PermissionsMiddleware.hasPermissions([PermissionType.EDIT_USER_PERMISSIONS]),
+    (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        if (req.user._id === req.params.id) {
+            return next();
+        }
+
+        Permission.hasPermissions(req.user._id, [PermissionType.EDIT_USER_PERMISSIONS]).then((hasPermission: boolean) => {
+            return hasPermission ? next() : res.sendStatus(403);
+        });
+    },
     (req: express.Request, res: express.Response) => {
         let userId = req.params.id;
         let organizationId: Types.ObjectId = null;
@@ -142,11 +151,11 @@ router.put('/user/:id/phone',
     (req: express.Request, res: express.Response) => {
         let userId = req.params.id;
         let phoneNumber: String = req.body.phoneNumber;
-        if(userId !== req.user._id) {
+        if (userId !== req.user._id) {
             return res.sendStatus(403);
         }
 
-        User.updateUser(<IUser>{ _id: userId, phoneNumber: phoneNumber }).then((user:IUser) => {
+        User.updateUser(<IUser>{ _id: userId, phoneNumber: phoneNumber }).then((user: IUser) => {
             return res.json(user);
         }).catch(error => {
             console.error(error);
