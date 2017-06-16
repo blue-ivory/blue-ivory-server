@@ -54,7 +54,7 @@ export class User {
 
     static findUser(id: string, populateField?: Object): Promise<Document> {
         let populate = [
-            { path: 'organization', select: 'name' },
+            { path: 'organization', select: 'name tags' },
             { path: 'permissions.organization', select: 'name' }
         ];
         if (populateField) {

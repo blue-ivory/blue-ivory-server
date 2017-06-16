@@ -5,7 +5,7 @@ import * as morgan from 'morgan';
 import * as methodOverride from 'method-override';
 import * as Bluebird from 'bluebird';
 import * as mongoose from 'mongoose';
-import * as requestRouter from './request/request.router';
+import requestRouter from './request/request.router';
 import * as permissionRouter from './permission/permission.router';
 import * as visitorRouter from './visitor/visitor.router';
 import * as organizationRouter from './organization/organization.router';
@@ -35,10 +35,10 @@ class Server {
         this.createApplication();
         this.initializeHeaders();
         this.config();
-        this.initializeRoutes();
         this.createServer();
         this.listen();
         this.initializeSocket();
+        this.initializeRoutes();
     }
 
     private createApplication() {
@@ -46,7 +46,7 @@ class Server {
     }
 
     private initializeRoutes() {
-        this.app.use('/api/', requestRouter);
+        this.app.use('/api/', requestRouter(this.socket));
         this.app.use('/api/', visitorRouter);
         this.app.use('/api/', userRouter);
         this.app.use('/api/', permissionRouter);

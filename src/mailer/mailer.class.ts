@@ -22,7 +22,7 @@ export class Mailer {
         htmlContent = htmlContent.replace('VISITOR_ID', request.visitor._id);
         htmlContent = htmlContent.replace('VISITOR_NAME', request.visitor.name);
         htmlContent = htmlContent.replace('VISITOR_COMPANY', request.visitor.company);
-        htmlContent = htmlContent.replace('VISITOR_CAR', (request.car === CarType.NONE) ? 'ללא' : request.carNumber.toString());
+        htmlContent = htmlContent.replace('VISITOR_CAR', (request.car !== CarType.NONE && request.carNumber) ? request.carNumber.toString() : 'ללא');
 
         // Fill request details
         htmlContent = htmlContent.replace('REQUEST_ID', request._id.toHexString());

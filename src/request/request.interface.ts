@@ -3,6 +3,7 @@ import { IRequestTask } from './request-task.interface';
 import { Document, Types } from 'mongoose';
 import { IOrganization } from './../organization/organization.interface';
 import { IVisitor } from './../visitor/visitor.interface';
+import { TaskStatus } from "../workflow/task-status.enum";
 
 export interface IRequest extends Document {
     _id: Types.ObjectId;
@@ -18,6 +19,7 @@ export interface IRequest extends Document {
     car: CarType;
     type: string;
     rank: string;
+    status: TaskStatus;
     carNumber: number;
     organization: IOrganization;
     workflow: IRequestTask[];
