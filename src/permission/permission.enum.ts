@@ -1,6 +1,6 @@
 export enum PermissionType {
     EDIT_WORKFLOW = <any>'EDIT_WORKFLOW',
-    NORMAL_USER = <any>'NORMAL_USER',
+    DELETE_REQUEST = <any>'DELETE_REQUEST',
     APPROVE_CIVILIAN = <any>'APPROVE_CIVILIAN',
     APPROVE_SOLDIER = <any>'APPROVE_SOLDIER',
     APPROVE_CAR = <any>'APPROVE_CAR',

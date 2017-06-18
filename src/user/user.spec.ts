@@ -335,7 +335,7 @@ describe('User', () => {
                 .then((user: IUser) => {
                     expect(user).to.exist;
                     return User.setPermissions(user._id, organization2._id,
-                        [PermissionType.EDIT_USER_PERMISSIONS, PermissionType.NORMAL_USER]);
+                        [PermissionType.EDIT_USER_PERMISSIONS, PermissionType.DELETE_REQUEST]);
                 }).then((user: IUser) => {
                     expect(user).to.exist;
                     expect(user).to.have.property('permissions').that.satisfies(permissions => {
@@ -354,7 +354,7 @@ describe('User', () => {
                             .satisfies(org => organization2._id.equals(org._id));
                         expect(permissions[1]).to.have
                             .property('organizationPermissions').that.include
-                            .members([PermissionType.EDIT_USER_PERMISSIONS, PermissionType.NORMAL_USER]);
+                            .members([PermissionType.EDIT_USER_PERMISSIONS, PermissionType.DELETE_REQUEST]);
 
                         return true;
                     });

@@ -17,7 +17,7 @@ var permissionSchema: mongoose.Schema = new mongoose.Schema({
                 PermissionType.APPROVE_SOLDIER,
                 PermissionType.EDIT_USER_PERMISSIONS,
                 PermissionType.EDIT_WORKFLOW,
-                PermissionType.NORMAL_USER
+                PermissionType.DELETE_REQUEST
             ]
         }],
     }

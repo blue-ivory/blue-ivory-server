@@ -1,3 +1,5 @@
+import { Permission } from './../permission/permission.class';
+import { PermissionType } from './../permission/permission.enum';
 import * as express from 'express';
 import { Types } from 'mongoose';
 import { IUser } from "../user/user.interface";
@@ -39,7 +41,13 @@ export class RequestsMiddleware {
                 return next();
             }
 
-            return res.sendStatus(403);
-        });
+            Permission.hasPermissionForOrganization(user._id, [PermissionType.DELETE_REQUEST], request.organization._id).then((hasPermission: boolean) => {
+                if (hasPermission) {
+                    return next();
+                }
+
+                return res.sendStatus(403);
+            });
+        })
     }
 }

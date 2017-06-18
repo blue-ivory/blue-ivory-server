@@ -138,14 +138,14 @@ describe('Permission', () => {
                     Permission.hasPermissions(user._id, [PermissionType.APPROVE_SOLDIER]),
                     Permission.hasPermissions(user._id, [PermissionType.EDIT_USER_PERMISSIONS]),
                     Permission.hasPermissions(user._id, [PermissionType.EDIT_WORKFLOW]),
-                    Permission.hasPermissions(user._id, [PermissionType.NORMAL_USER]),
+                    Permission.hasPermissions(user._id, [PermissionType.DELETE_REQUEST]),
                     Permission.hasPermissions(user._id, [
                         PermissionType.APPROVE_CAR,
                         PermissionType.APPROVE_CIVILIAN,
                         PermissionType.APPROVE_SOLDIER,
                         PermissionType.EDIT_USER_PERMISSIONS,
                         PermissionType.EDIT_WORKFLOW,
-                        PermissionType.NORMAL_USER
+                        PermissionType.DELETE_REQUEST
                     ])
                 ]).then((values: boolean[]) => {
                     expect(values).to.exist
@@ -288,12 +288,12 @@ describe('Permission', () => {
                     Permission.hasPermissionForOrganization(user._id, [PermissionType.APPROVE_CIVILIAN], organization2._id),
                     Permission.hasPermissionForOrganization(user._id, [PermissionType.EDIT_USER_PERMISSIONS], organization2._id),
                     Permission.hasPermissionForOrganization(user._id, [PermissionType.EDIT_WORKFLOW], organization2._id),
-                    Permission.hasPermissionForOrganization(user._id, [PermissionType.NORMAL_USER], organization2._id),
+                    Permission.hasPermissionForOrganization(user._id, [PermissionType.DELETE_REQUEST], organization2._id),
                     Permission.hasPermissionForOrganization(user._id, [PermissionType.APPROVE_CAR], organization1._id),
                     Permission.hasPermissionForOrganization(user._id, [PermissionType.APPROVE_CIVILIAN], organization1._id),
                     Permission.hasPermissionForOrganization(user._id, [PermissionType.APPROVE_SOLDIER], organization1._id),
                     Permission.hasPermissionForOrganization(user._id, [PermissionType.EDIT_WORKFLOW], organization1._id),
-                    Permission.hasPermissionForOrganization(user._id, [PermissionType.NORMAL_USER], organization1._id),
+                    Permission.hasPermissionForOrganization(user._id, [PermissionType.DELETE_REQUEST], organization1._id),
                     Permission.hasPermissionForOrganization(user._id, [PermissionType.EDIT_USER_PERMISSIONS, PermissionType.EDIT_WORKFLOW], organization1._id)
                 ]);
             }).then(hasPermissions => {
