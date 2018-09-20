@@ -3,7 +3,7 @@ let env = process.env.NODE_ENV;
 export let config = {
     environment: env || 'dev',
     database: {
-        host: 'localhost:27017',
+        host: process.env.MONGO_URI || 'localhost:27017',
         db: 'blue-ivory-2' + (env === 'prod' ? '' : env || 'dev')
     },
     server: {
