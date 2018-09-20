@@ -1,14 +1,8 @@
 import * as mongoose from 'mongoose';
-import * as Promise from 'bluebird';
+import { config } from '../config';
 
-var config = require('./../../config');
-
-global.Promise = Promise;
-Promise.promisifyAll(mongoose);
-(<any>mongoose).Promise = Promise;
-
-before(done => {
-    mongoose.connect(config.db.test.url);
+before(async () => {
+    mongoose.connect(`mongodb://${config.database.host}/${config.database.db}`, { useNewUrlParser: true });
 
     let removeCollectionPromises = [];
 
@@ -16,10 +10,10 @@ before(done => {
         removeCollectionPromises.push(mongoose.connection.collections[i].remove({}));
     }
 
-    Promise.all(removeCollectionPromises).then(() => done());
+    await Promise.all(removeCollectionPromises);
 });
 
-beforeEach(done => {
+beforeEach(async () => {
 
     let removeCollectionPromises = [];
 
@@ -27,7 +21,7 @@ beforeEach(done => {
         removeCollectionPromises.push(mongoose.connection.collections[i].remove({}));
     }
 
-    Promise.all(removeCollectionPromises).then(() => done());
+    await Promise.all(removeCollectionPromises);
 });
 
 after(done => {
