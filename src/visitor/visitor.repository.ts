@@ -1,10 +1,9 @@
-import * as Promise from 'bluebird';
 import { Document } from 'mongoose';
+import { ICollection } from "../helpers/collection";
 import { RepositoryBase } from "../helpers/repository";
+import { IPaginationOptions } from "../pagination/pagination.interface";
 import { IVisitor } from "./visitor.interface";
 import { VisitorModel } from './visitor.model';
-import { ICollection } from "../helpers/collection";
-import { IPaginationOptions } from "../pagination/pagination.interface";
 
 export class VisitorRepository extends RepositoryBase<IVisitor> {
 
@@ -12,28 +11,26 @@ export class VisitorRepository extends RepositoryBase<IVisitor> {
         super(VisitorModel);
     }
 
-    search(searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IVisitor>> {
-        return new Promise<ICollection<IVisitor>>((resolve, reject) => {
-            let searchFilter = this.generateSearchFilter(searchTerm);
-            let visitorsPromise = VisitorModel.find(searchFilter);
+    async search(searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IVisitor>> {
 
-            if (paginationOptions) {
-                visitorsPromise = visitorsPromise
-                    .skip(paginationOptions.skip)
-                    .limit(paginationOptions.limit);
-            }
+        let searchFilter = this.generateSearchFilter(searchTerm);
+        let visitorsPromise = VisitorModel.find(searchFilter);
 
-            let countPromise = VisitorModel.count(searchFilter);
+        if (paginationOptions) {
+            visitorsPromise = visitorsPromise
+                .skip(paginationOptions.skip)
+                .limit(paginationOptions.limit);
+        }
 
-            Promise.all([visitorsPromise, countPromise]).then(values => {
-                let result = <ICollection<IVisitor>>{
-                    set: values[0],
-                    totalCount: values[1]
-                }
+        let countPromise = VisitorModel.count(searchFilter);
 
-                resolve(result);
-            }).catch(reject);
-        });
+        let [visitors, count] = await Promise.all([visitorsPromise, countPromise]);
+        let result = <ICollection<IVisitor>>{
+            set: visitors,
+            totalCount: count
+        };
+        
+        return result;
     }
 
     private generateSearchFilter(searchTerm: string): Object {
@@ -52,19 +49,14 @@ export class VisitorRepository extends RepositoryBase<IVisitor> {
         return queryFilter;
     }
 
-    findOrCreate(visitor: IVisitor): Promise<Document> {
-        if (!visitor) {
-            return Promise.resolve(null);
+    async findOrCreate(visitor: IVisitor): Promise<Document> {
+
+        if(!visitor) {
+            return null;
         }
 
-        return new Promise<Document>((resolve, reject) => {
-            this.findById(visitor._id).then((fetchedVisitor: IVisitor) => {
-                if (fetchedVisitor) {
-                    resolve(fetchedVisitor);
-                } else {
-                    resolve(this.create(visitor));
-                }
-            }).catch(reject);
-        });
+        let fetchedVisitor = await this.findById(visitor._id);
+        
+        return fetchedVisitor || await this.create(visitor);
     }
 }

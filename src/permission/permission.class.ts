@@ -1,70 +1,67 @@
+import { Types } from "mongoose";
 import { User } from './../user/user.class';
 import { IUser } from './../user/user.interface';
 import { PermissionType } from './permission.enum';
-import * as UserModel from './../user/user.model';
-import * as Promise from 'bluebird';
-import { Types } from "mongoose";
 
 export class Permission {
 
-    static hasPermissions(userId: string, permissions: PermissionType[], some?: boolean): Promise<boolean> {
-        return new Promise<boolean>((resolve, reject) => {
-            User.findUser(userId).then((user: IUser) => {
-                if (!user) {
-                    resolve(false);
-                } else if (user.isAdmin) {
-                    resolve(true);
-                } else {
-                    let hasPermissions = false;
-                    let userPermissions = this.extractPermissionsForOrganization(user);
+    static async hasPermissions(userId: string, permissions: PermissionType[], some?: boolean): Promise<boolean> {
 
-                    // if not all permissions are required (at least one is enough)                    
-                    if (some) {
-                        hasPermissions = userPermissions.some(permission => permissions.indexOf(permission) > -1);
-                    } else {
+        let user = <IUser>await User.findUser(userId);
+        if (!user) {
+            return false;
+        }
 
-                        // check whether user has all required permissions
-                        hasPermissions = permissions.every(permission => userPermissions.indexOf(permission) > -1);
-                    }
+        if (user.isAdmin) {
+            return true;
+        } else {
+            let hasPermissions = false;
+            let userPermissions = this.extractPermissionsForOrganization(user);
 
-                    resolve(hasPermissions || permissions.length === 0);
-                }
-            }).catch(reject);
-        });
+            // if not all permissions are required (at least one is enough)                    
+            if (some) {
+                hasPermissions = userPermissions.some(permission => permissions.indexOf(permission) > -1);
+            } else {
+
+                // check whether user has all required permissions
+                hasPermissions = permissions.every(permission => userPermissions.indexOf(permission) > -1);
+            }
+
+            return hasPermissions || permissions.length === 0;
+        }
     }
 
-    static hasPermissionForOrganization(userId: string, permissions: PermissionType[], organizationId: Types.ObjectId, some?: boolean): Promise<boolean> {
-        return new Promise<boolean>((resolve, reject) => {
-            User.findUser(userId).then((user: IUser) => {
-                if (!user) {
-                    resolve(false);
-                } else if (user.isAdmin) {
-                    resolve(true);
+    static async hasPermissionForOrganization(userId: string, permissions: PermissionType[], organizationId: Types.ObjectId, some?: boolean): Promise<boolean> {
+        let user = <IUser>await User.findUser(userId);
+        if (!user) {
+            return false;
+        }
+
+        if (user.isAdmin) {
+            return true;
+        } else {
+            let hasPermissions = permissions.length === 0;
+            if (user.permissions) {
+
+                // Extract user's permission for selected organization
+                let userPermissions = user.permissions.find(permission => {
+                    return permission.organization._id.equals(organizationId);
+                });
+
+                let organizationPermissions = userPermissions ? userPermissions.organizationPermissions : [];
+
+                // if not all permissions are required (at least one is enough)
+                if (some) {
+                    hasPermissions = organizationPermissions.some(permission => permissions.indexOf(permission) > -1);
                 } else {
-                    let hasPermissions = permissions.length === 0;
-                    if (user.permissions) {
 
-                        // Extract user's permission for selected organization
-                        let userPermissions = user.permissions.find(permission => {
-                            return permission.organization._id.equals(organizationId);
-                        });
-
-                        let organizationPermissions = userPermissions ? userPermissions.organizationPermissions : [];
-
-                        // if not all permissions are required (at least one is enough)
-                        if (some) {
-                            hasPermissions = organizationPermissions.some(permission => permissions.indexOf(permission) > -1);
-                        } else {
-
-                            // check whether user has all required permissions
-                            hasPermissions = permissions.every(permission => organizationPermissions.indexOf(permission) > -1);
-                        }
-                    }
-
-                    resolve(hasPermissions || permissions.length === 0);
+                    // check whether user has all required permissions
+                    hasPermissions = permissions.every(permission => organizationPermissions.indexOf(permission) > -1);
                 }
-            }).catch(reject);
-        });
+            }
+
+            return hasPermissions || permissions.length === 0;
+        }
     }
 
     // extract user permissions for all organization
