@@ -1,0 +1,44 @@
+<html>
+
+<head>
+    <script type="text/javascript">
+        window.user = <%- JSON.stringify(user) %>;
+        // uncomment for popup support
+        // window.opener.postMessage({ user: window.user }, '*');
+        // while (!window.user);
+        // window.setTimeout(function () {
+        top.postMessage({ user: <%- JSON.stringify(user) %> }, '*');
+            // }, 100);
+    </script>
+    <style>
+        .app-loading {
+            width: 100px;
+            height: 100px;
+            background-color: #1565c0;
+            border-radius: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            animation: scaleout-loader 1.5s infinite ease-in-out;
+        }
+
+        @keyframes scaleout-loader {
+            0% {
+                transform: scale(0);
+            }
+            100% {
+                transform: scale(1.0);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-loading"></div>
+</body>
+
+</html>
