@@ -1,33 +1,32 @@
-import * as Promise from 'bluebird';
+import { Document, Types } from 'mongoose';
+import { ICollection } from "../helpers/collection";
+import { Organization } from "../organization/organization.class";
+import { IPaginationOptions } from "../pagination/pagination.interface";
+import { User } from "../user/user.class";
+import { Visitor } from "../visitor/visitor.class";
+import { TaskStatus } from "../workflow/task-status.enum";
 import { IOrganization } from './../organization/organization.interface';
 import { IUser } from './../user/user.interface';
 import { IVisitor } from './../visitor/visitor.interface';
-import { IRequest, CarType } from './request.interface';
-import { Document, Types } from 'mongoose';
+import { CarType, IRequest } from './request.interface';
 import { RequestRepository } from './request.repository';
-import { ICollection } from "../helpers/collection";
-import { Visitor } from "../visitor/visitor.class";
-import { User } from "../user/user.class";
-import { Organization } from "../organization/organization.class";
-import { IPaginationOptions } from "../pagination/pagination.interface";
-import { TaskStatus } from "../workflow/task-status.enum";
 
 export class Request {
     private static _requestRepository: RequestRepository = new RequestRepository();
 
-    static createRequest(startDate: Date,
+    static async createRequest(startDate: Date,
         endDate: Date,
         visitor: IVisitor,
         requestor: IUser,
         description: string,
         car: CarType,
-        carNumber: number,
+        carNumber: string,
         organization: IOrganization,
         type: string,
         rank?: string,
         phoneNumber?: string): Promise<Document> {
 
-        let request = <IRequest>{
+        let request: IRequest = {
             requestDate: new Date(),
             startDate: startDate,
             endDate: endDate,
@@ -40,26 +39,19 @@ export class Request {
             phoneNumber: phoneNumber,
             type: type,
             rank: rank
-        };
-        return Organization.findOrganization(organization ? organization._id : null).then((fetchedOrganization: IOrganization) => {
-            if (fetchedOrganization) {
-                request.organization = fetchedOrganization;
-                return User.findUser(requestor ? requestor._id : null)
-            }
-        }).then((fetchedRequestor: IUser) => {
-            if (fetchedRequestor) {
-                request.requestor = fetchedRequestor;
-                return Visitor.findOrCreateVisitor(visitor);
-            }
-        }).then((fetchedVisitor: IVisitor) => {
-            request.visitor = fetchedVisitor;
-            return Request._requestRepository.create(request);
-        });
+        } as IRequest;
 
+        request.organization = <IOrganization>await Organization.findOrganization(organization ? organization._id : null);
+        request.requestor = <IUser>await User.findUser(requestor ? requestor._id : null);
+        request.visitor = <IVisitor>await Visitor.findOrCreateVisitor(visitor);
+
+        return await Request._requestRepository.create(request);
     }
 
     static findRequest(id: Types.ObjectId, populateField?: Object): Promise<Document> {
         let populate = [
+            { path: 'comments' },
+            { path: 'comments.creator', select: 'firstName lastName' },
             { path: 'requestor', select: 'firstName lastName mail' },
             { path: 'workflow.organization', select: 'name' },
             { path: 'workflow.authorizer', select: 'firstName lastName mail' },
