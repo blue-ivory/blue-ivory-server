@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
-import { IUser } from './user.interface';
 import { PermissionType } from './../permission/permission.enum';
+import { IUser } from './user.interface';
 
 var permissionSchema: mongoose.Schema = new mongoose.Schema({
     organization: {
@@ -17,7 +17,10 @@ var permissionSchema: mongoose.Schema = new mongoose.Schema({
                 PermissionType.APPROVE_SOLDIER,
                 PermissionType.EDIT_USER_PERMISSIONS,
                 PermissionType.EDIT_WORKFLOW,
-                PermissionType.DELETE_REQUEST
+                PermissionType.DELETE_REQUEST,
+                PermissionType.EDIT_VISITOR_DETAILS,
+                PermissionType.VIEW_REQUESTS,
+                PermissionType.CREATE_REQUESTS
             ]
         }],
     }
@@ -86,6 +89,10 @@ var userSchema: mongoose.Schema = new mongoose.Schema({
                         routeGroups.general.push({ resource: 'users', title: 'users', route: 'users/', searchable: true, icon: 'people' });
                     }
 
+                    if (canEditVisitors(uniquePermissions) || ret.isAdmin) {
+                        routeGroups.general.push({ resource: 'visitors', title: 'visitors', route: 'visitors/', searchable: true, icon: 'people_outline' })
+                    }
+
                     if (canEditWorkflow(uniquePermissions) || ret.isAdmin) {
                         routeGroups.general.push({ resource: 'workflow', title: 'manage_workflow', route: 'workflow/', searchable: false, icon: 'format_list_bulleted' });
                     }
@@ -129,3 +136,7 @@ var canModifyUserSettings = (permissions: PermissionType[]): boolean => {
 var canEditWorkflow = (permissions: PermissionType[]): boolean => {
     return permissions.indexOf(PermissionType.EDIT_WORKFLOW) !== -1;
 };
+
+var canEditVisitors = (permissions: PermissionType[]): boolean => {
+    return permissions.indexOf(PermissionType.EDIT_VISITOR_DETAILS) !== -1;
+}
