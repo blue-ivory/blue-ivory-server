@@ -1,5 +1,4 @@
 import * as SocketIO from 'socket.io';
-import { Server } from "http";
 
 export class Socket {
 

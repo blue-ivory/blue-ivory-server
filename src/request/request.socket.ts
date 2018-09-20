@@ -1,7 +1,7 @@
-import { Socket } from "../helpers/socket.handler";
-import { IRequest } from "./request.interface";
 import { Types } from "mongoose";
+import { Socket } from "../helpers/socket.handler";
 import { TaskStatus } from "../workflow/task-status.enum";
+import { IRequest } from "./request.interface";
 
 export default function (socketHandler: Socket) {
     let nsp = '/request';

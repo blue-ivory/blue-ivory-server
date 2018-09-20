@@ -1,8 +1,8 @@
-import { IUser } from './../user/user.interface';
-import { IOrganization } from './../organization/organization.interface';
+import { Document, Types } from 'mongoose';
 import { TaskStatus } from "../workflow/task-status.enum";
 import { ITask } from "../workflow/task.interface";
-import { Document, Types } from 'mongoose';
+import { IUser } from './../user/user.interface';
+
 export interface IRequestTask extends ITask, Document {
     _id: Types.ObjectId;
     authorizer: IUser;
