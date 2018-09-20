@@ -1,9 +1,8 @@
-import * as Promise from 'bluebird';
 import { Document } from 'mongoose';
 import { ICollection } from '../helpers/collection';
+import { IPaginationOptions } from "../pagination/pagination.interface";
 import { IVisitor } from "./visitor.interface";
 import { VisitorRepository } from "./visitor.repository";
-import { IPaginationOptions } from "../pagination/pagination.interface";
 
 export class Visitor {
 
@@ -12,18 +11,6 @@ export class Visitor {
 
     constructor(visitorInterface: IVisitor) {
         this._visitor = visitorInterface;
-    }
-
-    public get name(): string {
-        return this._visitor.name;
-    }
-
-    public get _id(): string {
-        return this._visitor._id
-    }
-
-    public get company(): string {
-        return this._visitor.company;
     }
 
     static createVisitor(visitor: IVisitor): Promise<Document> {
