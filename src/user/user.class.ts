@@ -1,11 +1,9 @@
-import { IOrganization } from './../organization/organization.interface';
-import * as Promise from 'bluebird';
 import { Document, Types } from 'mongoose';
-import { IUser } from './user.interface';
-import { PermissionType } from '../permission/permission.enum';
-import { UserRepository } from './user.repository';
 import { ICollection } from "../helpers/collection";
 import { IPaginationOptions } from "../pagination/pagination.interface";
+import { PermissionType } from '../permission/permission.enum';
+import { IUser } from './user.interface';
+import { UserRepository } from './user.repository';
 
 export class User {
 
@@ -14,30 +12,6 @@ export class User {
 
     constructor(userInterface: IUser) {
         this._user = userInterface;
-    }
-
-    public get firstName(): string {
-        return this._user.firstName;
-    }
-
-    public get lastName(): string {
-        return this._user.lastName;
-    }
-
-    public get mail(): string {
-        return this._user.mail;
-    }
-
-    public get organization(): IOrganization {
-        return this._user.organization;
-    }
-
-    public get permissions(): [{ organization: IOrganization; organizationPermissions: PermissionType[]; }] {
-        return this._user.permissions;
-    }
-
-    public get _id(): string {
-        return this._user._id;
     }
 
     static createUser(firstName: string, lastName: string, uniqueId: string, mail: string): Promise<Document> {
