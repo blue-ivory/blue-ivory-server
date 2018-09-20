@@ -9,13 +9,13 @@
         }
 
         * {
-            font-family: 'Arial';
+            font-family: Arial, arial, sans-serif;
             direction: rtl;
         }
 
         a {
             text-decoration: none;
-            color: black;
+            /*color: black;*/
         }
 
         .header span {
@@ -28,8 +28,8 @@
         }
 
         .main-container {
-            background: white;
-            box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+            background: #efefef;
+            /*box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);*/
             width: 500px;
             margin: 50px auto;
             padding: 16px;
@@ -106,7 +106,7 @@
             text-align: right;
         }
 
-        table {
+        table.table {
             width: 100%;
             border: none;
         }
@@ -122,7 +122,7 @@
         <div class="content">
             <label class="request-text">בקשה חדשה נוצרה וממתינה לאישורך</label>
             <dl>
-                <table>
+                <table class="table">
                     <tbody>
                         <tr>
                             <td>
@@ -157,10 +157,34 @@
                     </tbody>
                 </table>
             </dl>
-            <div class="align-end">
-                <a href="http://localhost/api/request/REQUEST_ID/APPROVED"><span class="btn approve-button">אשר</span></a>
-                <a href="http://localhost/api/request/REQUEST_ID/DENIED"><span class="btn">דחה</span></a>
-            </div>
+            <table class="table">
+                <tr>
+                    <td align="center">
+                        <table cellpadding="0" cellmargin="0" border="0" height="34" width="150" style="border-collapse: collapse; border: 5px solid #CFD8DC;">
+                            <tr>
+                                <td bgcolor="#CFD8DC" valign="middle" align="center" width="146">
+                                    <div style="font-size: 16px; color: #1565c0; line-height: 1; margin: 0; padding: 0; mso-table-lspace: 0; mso-table-rspace: 0;">
+                                        <a href="https://localhost/api/request/REQUEST_ID/APPROVED" style="text-decoration: none; color: #1565c0; border: 0; font-family: Arial, arial, sans-serif; mso-table-lspace: 0; mso-table-rspace: 0;"
+                                            border="0">אשר</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td align="center">
+                        <table cellpadding="0" cellmargin="0" border="0" height="34" width="150" style="border-collapse: collapse; border: 5px solid #CFD8DC;">
+                            <tr>
+                                <td bgcolor="#CFD8DC" valign="middle" align="center" width="146">
+                                    <div style="font-size: 16px; color: #000000; line-height: 1; margin: 0; padding: 0; mso-table-lspace: 0; mso-table-rspace: 0;">
+                                        <a href="https://localhost/api/request/REQUEST_ID/DENIED" style="text-decoration: none; color: #000000; border: 0; font-family: Arial, arial, sans-serif; mso-table-lspace: 0; mso-table-rspace: 0;"
+                                            border="0">דחה</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
 </body>
