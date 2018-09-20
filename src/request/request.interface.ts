@@ -4,6 +4,7 @@ import { Document, Types } from 'mongoose';
 import { IOrganization } from './../organization/organization.interface';
 import { IVisitor } from './../visitor/visitor.interface';
 import { TaskStatus } from "../workflow/task-status.enum";
+import { IComment } from "./comments/comment.interface";
 
 export interface IRequest extends Document {
     _id: Types.ObjectId;
@@ -20,13 +21,14 @@ export interface IRequest extends Document {
     type: string;
     rank: string;
     status: TaskStatus;
-    carNumber: number;
+    carNumber: string;
     organization: IOrganization;
     workflow: IRequestTask[];
+    comments: IComment[];
 }
 
 export enum CarType {
-    NONE = <any>"NONE",
-    PRIVATE = <any>"PRIVATE",
-    ARMY = <any>"ARMY"
+    NONE = "NONE",
+    PRIVATE = "PRIVATE",
+    ARMY = "ARMY"
 }

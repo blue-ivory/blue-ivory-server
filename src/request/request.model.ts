@@ -1,10 +1,10 @@
 import * as mongoose from 'mongoose';
-import { IRequestTask } from './request-task.interface';
-import { Organization } from './../organization/organization.class';
-import { TaskType } from "../workflow/task-type.enum";
 import { TaskStatus } from "../workflow/task-status.enum";
-import { CarType, IRequest } from "./request.interface";
+import { TaskType } from "../workflow/task-type.enum";
 import { ITask } from "../workflow/task.interface";
+import { Organization } from './../organization/organization.class';
+import { commentSchema } from "./comments/comment.schema";
+import { CarType, IRequest } from "./request.interface";
 
 var taskSchema: mongoose.Schema = new mongoose.Schema({
     order: {
@@ -103,7 +103,7 @@ var requestSchema: mongoose.Schema = new mongoose.Schema({
         default: CarType.NONE
     },
     carNumber: {
-        type: Number,
+        type: String,
         required: false
     },
     type: { // Visitor type
@@ -136,66 +136,45 @@ var requestSchema: mongoose.Schema = new mongoose.Schema({
         ],
         required: true,
         default: TaskStatus.PENDING
+    },
+    comments: {
+        type: [
+            commentSchema
+        ],
+        default: []
     }
 });
 
-requestSchema.pre('save', function (next) {
+requestSchema.pre('save', async function (next) {
 
-    let organizationId = this.organization;
+    const document = this as IRequest;
+    let organizationId = document.organization;
 
-    if (this.visitor._id && this.visitor._id.length <= 7) {
-        this.isSoldier = true;
+    if (document.visitor._id && document.visitor._id.length <= 7) {
+        document.isSoldier = true;
     }
 
-    Organization.getWorkflow(organizationId).then((workflow: ITask[]) => {
+    try {
+        let workflow: ITask[] = await Organization.getWorkflow(organizationId as any);
         if (workflow && workflow.length > 0) {
-            if (this.car === CarType.NONE) {
+            if (document.car === CarType.NONE) {
                 workflow = workflow.filter((task: ITask) => {
                     return task.type !== TaskType.CAR;
                 });
             }
-            this.workflow = workflow;
+            document.workflow = workflow as any;
         } else {
             let error = new Error('Cannot save request because workflow not assigned to organization yet');
             next(error);
         }
 
         next();
-    }).catch(err => {
+    } catch (err) {
         let error = new Error(err);
         console.error(err);
 
         next(error);
-    });
+    }
 });
-
-// requestSchema.post('findOneAndUpdate', function (doc: any) {
-//     if (doc && doc['workflow']) {
-//         let workflow: IRequestTask[] = doc['workflow'];
-//         let status: TaskStatus = TaskStatus.PENDING;
-//         let foundDenied: boolean = false;
-//         let foundApproved: boolean = false;
-//         let foundPending: boolean = false;
-
-//         workflow.forEach(task => {
-//             if (task.status === TaskStatus.DENIED) {
-//                 foundDenied = true;
-//             } else if (task.status === TaskStatus.APPROVED) {
-//                 foundApproved = true;
-//             } else {
-//                 foundPending = true;
-//             }
-//         });
-
-//         if (foundDenied) {
-//             status = TaskStatus.DENIED;
-//         } else if (foundApproved && !foundPending) {
-//             status = TaskStatus.APPROVED;
-//         }
-
-//         this.update({}, { $set: { status: status } }).exec();
-//     }
-
-// });
 
 export let RequestModel = mongoose.model<IRequest>("Request", requestSchema);
