@@ -1,26 +1,25 @@
 import * as express from 'express';
-import { PermissionType } from "./permission.enum";
+import { IOrganization } from "../organization/organization.interface";
 import { IUser } from "../user/user.interface";
 import { Permission } from "./permission.class";
-import { IOrganization } from "../organization/organization.interface";
+import { PermissionType } from "./permission.enum";
 
 export class PermissionsMiddleware {
 
     public static hasPermissions(permissions: PermissionType[], some?: boolean): express.RequestHandler {
-        return (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        return async (req: express.Request, res: express.Response, next: express.NextFunction) => {
             let user: IUser = req.user;
 
             if (!user) {
                 return res.redirect('/login');
             }
 
-            Permission.hasPermissions(user._id, permissions, some).then(hasPermissions => {
-                if (hasPermissions) {
-                    return next();
-                }
+            let hasPermissions: boolean = await Permission.hasPermissions(user._id, permissions, some);
+            if (hasPermissions) {
+                return next();
+            }
 
-                return res.status(403).send();
-            });
+            return res.status(403).send();
         }
     }
 
@@ -28,22 +27,19 @@ export class PermissionsMiddleware {
         organization: IOrganization,
         some?: boolean): express.RequestHandler {
 
-        return (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        return async (req: express.Request, res: express.Response, next: express.NextFunction) => {
             let user: IUser = req.user;
 
             if (!user) {
                 return res.redirect('/login');
             }
 
-            Permission.hasPermissionForOrganization(user._id, permissions, organization._id, some).then(hasPermissions => {
-                if (hasPermissions) {
-                    return next();
-                }
+            let hasPermissions: boolean = await Permission.hasPermissionForOrganization(user._id, permissions, organization._id, some);
+            if (hasPermissions) {
+                return next();
+            }
 
-                return res.status(403).send();
-            });
+            return res.status(403).send();
         }
     }
-
-
 }
