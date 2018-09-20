@@ -1,17 +1,13 @@
 import * as express from 'express';
 import { Types } from 'mongoose';
-
-import { IOrganization } from './organization.interface';
-import { ITask } from './../workflow/task.interface';
-
 import { AuthMiddleware } from "../middlewares/auth.middleware";
-import { PermissionsMiddleware } from './../permission/permission.middleware';
-
-import { Permission } from './../permission/permission.class';
-import { Organization } from './organization.class';
-import { Pagination } from './../pagination/pagination.class';
-
 import { PermissionType } from "../permission/permission.enum";
+import { Pagination } from './../pagination/pagination.class';
+import { Permission } from './../permission/permission.class';
+import { PermissionsMiddleware } from './../permission/permission.middleware';
+import { ITask } from './../workflow/task.interface';
+import { Organization } from './organization.class';
+import { IOrganization } from './organization.interface';
 
 let router: express.Router = express.Router();
 
@@ -23,15 +19,16 @@ let router: express.Router = express.Router();
  */
 router.get('/organization',
     AuthMiddleware.requireLogin,
-    (req: express.Request, res: express.Response) => {
+    async (req: express.Request, res: express.Response) => {
         let searchTerm = req.query['searchTerm'];
 
-        Organization.searchOrganizations(searchTerm, Pagination.getPaginationOptions(req)).then((organizations) => {
+        try {
+            let organizations = await Organization.searchOrganizations(searchTerm, Pagination.getPaginationOptions(req));
             return res.json(organizations);
-        }).catch((error) => {
-            console.error(error);
-            return res.sendStatus(500);
-        });
+        } catch (err) {
+            console.error(err);
+            return res.status(500).send();
+        }
     });
 
 /**
@@ -41,12 +38,65 @@ router.get('/organization',
  */
 router.get('/organization/requestable',
     AuthMiddleware.requireLogin,
-    (req: express.Request, res: express.Response) => {
-        Organization.getRequestableOrganization().then((organizations) => {
+    async (req: express.Request, res: express.Response) => {
+        try {
+            let organizations = await <Promise<IOrganization[]>>Organization.getRequestableOrganization();
+
+            let promisesArray = organizations.map(org => {
+                if (org.canCreateRequests) {
+                    return Promise.resolve(true);
+                } else {
+                    return Permission.hasPermissionForOrganization(req.user._id, [PermissionType.CREATE_REQUESTS], org._id);
+                }
+            });
+
+            const results = await Promise.all(promisesArray);
+            organizations = organizations.filter((org: IOrganization, index: number) => {
+                return results[index];
+            });
+
             return res.json(organizations);
-        }).catch((error) => {
-            return res.sendStatus(500);
-        });
+        } catch (err) {
+            console.error(err);
+            return res.status(500).send();
+        }
+    });
+
+router.put('/organization/:id',
+    AuthMiddleware.requireLogin,
+    PermissionsMiddleware.hasPermissions([PermissionType.EDIT_WORKFLOW]),
+    async (req: express.Request, res: express.Response) => {
+        let organizationId: Types.ObjectId = null;
+        try {
+            organizationId = new Types.ObjectId(req.param('id'));
+        } catch (err) {
+            return res.sendStatus(400);
+        }
+
+        try {
+            let update = {
+                _id: organizationId
+            };
+
+            const bodyKeys = Object.keys(req.body);
+
+            console.log(bodyKeys);
+
+            if (bodyKeys.indexOf('showRequests') !== -1) {
+                update['showRequests'] = req.body.showRequests;
+            }
+            if (bodyKeys.indexOf('canCreateRequests') !== -1) {
+                update['canCreateRequests'] = req.body.canCreateRequests;
+            }
+
+            console.log(update);
+
+            let org = await Organization.updateOrganization(<IOrganization>update);
+            return res.json(org);
+        } catch (err) {
+            console.error(err);
+            return res.status(500).send();
+        }
     });
 
 /**
@@ -57,7 +107,7 @@ router.get('/organization/requestable',
 router.get('/organization/:id/workflow',
     AuthMiddleware.requireLogin,
     PermissionsMiddleware.hasPermissions([PermissionType.EDIT_WORKFLOW]),
-    (req: express.Request, res: express.Response) => {
+    async (req: express.Request, res: express.Response) => {
         let organizationId: Types.ObjectId = null;
         try {
             organizationId = new Types.ObjectId(req.param('id'));
@@ -65,12 +115,13 @@ router.get('/organization/:id/workflow',
             return res.sendStatus(400);
         }
 
-        Organization.getWorkflow(organizationId).then((workflow: ITask[]) => {
+        try {
+            let workflow = await Organization.getWorkflow(organizationId);
             return res.json(workflow);
-        }).catch(error => {
-            console.error(error);
+        } catch (err) {
+            console.error(err);
             return res.status(500).send();
-        });
+        }
     });
 
 
@@ -83,7 +134,7 @@ router.get('/organization/:id/workflow',
 router.post('/organization/:id/workflow',
     AuthMiddleware.requireLogin,
     PermissionsMiddleware.hasPermissions([PermissionType.EDIT_WORKFLOW]),
-    (req: express.Request, res: express.Response) => {
+    async (req: express.Request, res: express.Response) => {
 
         let organizationId: Types.ObjectId = null;
         let workflow = <ITask[]>req.body.workflow;
@@ -98,24 +149,21 @@ router.post('/organization/:id/workflow',
             return res.sendStatus(400);
         }
 
-        Permission.hasPermissionForOrganization(req.user._id, [PermissionType.EDIT_WORKFLOW], organizationId).then((hasPermissions: boolean) => {
+        try {
+            let hasPermissions: boolean = await Permission.hasPermissionForOrganization(req.user._id, [PermissionType.EDIT_WORKFLOW], organizationId);
             if (hasPermissions) {
-                Organization.setWorkflow(organizationId, workflow).then((organization: IOrganization) => {
-                    if (!organization) {
-                        return res.sendStatus(404);
-                    }
-                    return res.json(organization);
-                }).catch(error => {
-                    console.error(error);
-                    return res.status(500).send();
-                });
+                let organization = await Organization.setWorkflow(organizationId, workflow);
+                if (!organization) {
+                    return res.sendStatus(404);
+                }
+                return res.json(organization);
             } else {
                 return res.status(403).send();
             }
-        }).catch(error => {
-            console.error(error);
+        } catch (err) {
+            console.error(err);
             return res.status(500).send();
-        });
+        }
     });
 
 /**
@@ -126,19 +174,20 @@ router.post('/organization/:id/workflow',
 router.post('/organization',
     AuthMiddleware.requireLogin,
     PermissionsMiddleware.hasPermissions([PermissionType.EDIT_WORKFLOW]),
-    (req: express.Request, res: express.Response) => {
+    async (req: express.Request, res: express.Response) => {
         let organizationName = req.body.organization ? req.body.organization.name : null;
 
         if (!organizationName) {
             return res.sendStatus(400);
         }
 
-        Organization.createOrganization(organizationName).then((organization) => {
+        try {
+            let organization = await Organization.createOrganization(organizationName);
             return res.json(organization);
-        }).catch((error) => {
-            console.error(error);
-            return res.sendStatus(500);
-        });
+        } catch (err) {
+            console.error(err);
+            return res.status(500).send();
+        }
     });
 
 export = router;
