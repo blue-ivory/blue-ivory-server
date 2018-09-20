@@ -719,7 +719,13 @@ describe('Request', () => {
                 Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '11111111', name: 'aaaaa' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
                 Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '22222222', name: 'bbbbbb' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
                 Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '121211', name: 'ababab' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
-            ]).then(() => done());
+            ])
+                .then(() => {
+                    return User.setOrganization(user._id, organization._id);
+                }).then((usr: IUser) => {
+                    user = usr;
+                    done();
+                });
         });
 
         it('Should return empty collection when no request satisfies search term', done => {
@@ -776,7 +782,14 @@ describe('Request', () => {
                 Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '11111111', name: 'aaaaa' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
                 Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '22222222', name: 'bbbbbb' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
                 Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '121211', name: 'ababab' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
-            ]).then(() => done());
+            ])
+                .then(() => {
+                    return User.setOrganization(user._id, organization._id);
+                })
+                .then((usr: IUser) => {
+                    user = usr;
+                    done();
+                });
         });
 
         it('Should return empty collection when no request satisfies search term', done => {
