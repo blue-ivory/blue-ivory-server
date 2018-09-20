@@ -1,20 +1,19 @@
-import * as Promise from 'bluebird';
-import { IUser } from "../user/user.interface";
-import { IVisitor } from "../visitor/visitor.interface";
-import { IOrganization } from "../organization/organization.interface";
-import { User } from "../user/user.class";
 import { expect } from 'chai';
-import { Visitor } from "../visitor/visitor.class";
-import { Request } from "./request.class";
-import { Organization } from "../organization/organization.class";
-import { CarType, IRequest } from "./request.interface";
 import { Types } from 'mongoose';
-import { TaskType } from "../workflow/task-type.enum";
-import { TaskStatus } from "../workflow/task-status.enum";
-import { IRequestTask } from "./request-task.interface";
 import { ICollection } from "../helpers/collection";
-import { ITask } from "../workflow/task.interface";
+import { Organization } from "../organization/organization.class";
+import { IOrganization } from "../organization/organization.interface";
 import { PermissionType } from "../permission/permission.enum";
+import { User } from "../user/user.class";
+import { IUser } from "../user/user.interface";
+import { Visitor } from "../visitor/visitor.class";
+import { IVisitor } from "../visitor/visitor.interface";
+import { TaskStatus } from "../workflow/task-status.enum";
+import { TaskType } from "../workflow/task-type.enum";
+import { ITask } from "../workflow/task.interface";
+import { IRequestTask } from "./request-task.interface";
+import { Request } from "./request.class";
+import { CarType, IRequest } from "./request.interface";
 
 describe('Request', () => {
 
@@ -59,7 +58,7 @@ describe('Request', () => {
             expect(org).to.exist;
             organization = org;
 
-            return Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.PRIVATE, 123456, organization, 'SOLDIER');
+            return Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.PRIVATE, '123456', organization, 'SOLDIER');
         }).then((req: IRequest) => {
             expect(req).to.exist;
 
@@ -120,7 +119,7 @@ describe('Request', () => {
 
         it('Should create a request', done => {
             let date = new Date();
-            Request.createRequest(date, date, visitor, user, 'desc', CarType.PRIVATE, 1234, organization, 'SOLDIER').then((request: IRequest) => {
+            Request.createRequest(date, date, visitor, user, 'desc', CarType.PRIVATE, '1234', organization, 'SOLDIER').then((request: IRequest) => {
                 expect(request).to.exist;
                 expect(request).to.have.property('_id');
                 expect(request).to.have.property('organization').which.has.property('name', 'organization');
@@ -129,6 +128,7 @@ describe('Request', () => {
                 expect(request).to.have.property('requestor').which.has.property('firstName', 'Ron')
                 expect(request).to.have.property('requestor').which.has.property('lastName', 'Borysovski');
                 expect(request).to.have.property('requestor').which.has.property('mail', 'roni537@gmail.com');
+                expect(request).to.have.property('comments').to.be.an('array').with.length(0);
                 expect(request).to.have.property('startDate', date);
                 expect(request).to.have.property('endDate', date);
                 expect(request).to.have.property('description', 'desc');
@@ -298,8 +298,8 @@ describe('Request', () => {
                 anotherUser = usr;
 
                 return Promise.all([
-                    Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 1111, organization, 'SOLDIER'),
-                    Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 2222, organization, 'SOLDIER'),
+                    Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, '1111', organization, 'SOLDIER'),
+                    Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, '2222', organization, 'SOLDIER'),
                     Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '111111', name: 'aaaaa' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
                     Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '222222', name: 'bbbbbb' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
                     Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '121212', name: 'ababab' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
@@ -665,7 +665,7 @@ describe('Request', () => {
                 testerUser = usr;
 
                 return Promise.all([
-                    Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '1234567', name: 'Soldier', company: 'Army' }, user, 'desc', CarType.NONE, null, organization1, 'SOLDIER'),
+                    Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '1234567', name: 'Soldier', company: 'ay' }, user, 'desc', CarType.NONE, null, organization1, 'SOLDIER'),
                     Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '123456789', name: 'Civilian', company: 'Company' }, user, 'desc', CarType.NONE, null, organization1, 'SOLDIER'),
                 ]);
             }).then(() => {
@@ -714,8 +714,8 @@ describe('Request', () => {
     describe('#searchCivilianRequests', () => {
         beforeEach(done => {
             Promise.all([
-                Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 1111, organization, 'SOLDIER'),
-                Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 2222, organization, 'SOLDIER'),
+                Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, '1111', organization, 'SOLDIER'),
+                Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, '2222', organization, 'SOLDIER'),
                 Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '11111111', name: 'aaaaa' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
                 Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '22222222', name: 'bbbbbb' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
                 Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '121211', name: 'ababab' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
@@ -771,8 +771,8 @@ describe('Request', () => {
     describe('#searchSoldierRequests', () => {
         beforeEach(done => {
             Promise.all([
-                Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 1111, organization, 'SOLDIER'),
-                Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, 2222, organization, 'SOLDIER'),
+                Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, '1111', organization, 'SOLDIER'),
+                Request.createRequest(new Date(), new Date(), visitor, user, 'desc', CarType.ARMY, '2222', organization, 'SOLDIER'),
                 Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '11111111', name: 'aaaaa' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
                 Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '22222222', name: 'bbbbbb' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
                 Request.createRequest(new Date(), new Date(), <IVisitor>{ _id: '121211', name: 'ababab' }, user, 'desc', CarType.NONE, null, organization, 'SOLDIER'),
