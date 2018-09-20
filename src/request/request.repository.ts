@@ -1,67 +1,60 @@
-import { Permission } from './../permission/permission.class';
-import { IOrganization } from './../organization/organization.interface';
-import { Organization } from './../organization/organization.class';
-import { IRequestTask } from './request-task.interface';
-import * as Promise from 'bluebird';
-import { IVisitor } from './../visitor/visitor.interface';
-import { Visitor } from './../visitor/visitor.class';
-import { ICollection } from './../helpers/collection';
-import { RequestModel } from './request.model';
+import { Types } from "mongoose";
 import { RepositoryBase } from "../helpers/repository";
-import { IRequest, CarType } from "./request.interface";
-import { IUser } from "../user/user.interface";
 import { IPaginationOptions } from "../pagination/pagination.interface";
-import { Types, Document } from "mongoose";
-import { ITask } from "../workflow/task.interface";
-import { TaskStatus } from "../workflow/task-status.enum";
 import { PermissionType } from "../permission/permission.enum";
+import { IUser } from "../user/user.interface";
+import { TaskStatus } from "../workflow/task-status.enum";
 import { TaskType } from "../workflow/task-type.enum";
+import { ICollection } from './../helpers/collection';
+import { Organization } from './../organization/organization.class';
+import { IOrganization } from './../organization/organization.interface';
+import { Visitor } from './../visitor/visitor.class';
+import { IVisitor } from './../visitor/visitor.interface';
+import { IRequestTask } from './request-task.interface';
+import { CarType, IRequest } from "./request.interface";
+import { RequestModel } from './request.model';
 
 export class RequestRepository extends RepositoryBase<IRequest> {
     constructor() {
         super(RequestModel);
     }
 
-    public search(searchTerm?: string, paginationOptions?: IPaginationOptions, filter?: Object): Promise<ICollection<IRequest>> {
-        return new Promise<ICollection<IRequest>>((resolve, reject) => {
-            searchTerm = searchTerm ? searchTerm.replace(/[^\s\w\d\u0590-\u05FF]/gi, '') : '';
-            Visitor.searchVisitors(searchTerm).then((visitorsCollection: ICollection<IVisitor>) => {
-                let visitors = visitorsCollection.set;
-                let visitorsIds = visitors.map((visitor: IVisitor) => {
-                    return visitor._id;
-                });
-
-                let queryFilter = {
-                    '$and': [
-                        { 'visitor': { '$in': visitorsIds } },
-                        filter ? filter : {}
-                    ]
-                };
-
-                let populateFields = [
-                    { path: 'visitor' },
-                    { path: 'organization', select: 'name' }
-                ];
-
-                let requestPromise = RequestModel.find(queryFilter).populate(populateFields).select('startDate endDate visitor organization car isSoldier status');
-                let countPromise = RequestModel.count(queryFilter);
-
-                if (paginationOptions) {
-                    requestPromise = requestPromise
-                        .skip(paginationOptions.skip)
-                        .limit(paginationOptions.limit);
-                }
-
-                return Promise.all([requestPromise, countPromise]);
-            }).then(values => {
-                let result = {
-                    set: values[0],
-                    totalCount: values[1]
-                };
-
-                resolve(result);
-            }).catch(reject);;
+    public async search(searchTerm?: string, paginationOptions?: IPaginationOptions, filter?: Object): Promise<ICollection<IRequest>> {
+        searchTerm = searchTerm ? searchTerm.replace(/[^\s\w\d\u0590-\u05FF]/gi, '') : '';
+        let visitorsCollection: ICollection<IVisitor> = await Visitor.searchVisitors(searchTerm);
+        let visitors = visitorsCollection.set;
+        let visitorsIds = visitors.map((visitor: IVisitor) => {
+            return visitor._id;
         });
+
+        let queryFilter = {
+            '$and': [
+                { 'visitor': { '$in': visitorsIds } },
+                filter ? filter : {}
+            ]
+        };
+
+        let populateFields = [
+            { path: 'visitor' },
+            { path: 'organization', select: 'name' }
+        ];
+
+        let requestPromise = RequestModel.find(queryFilter).sort({ requestDate: -1 }).populate(populateFields).select('startDate endDate visitor organization car isSoldier status requestDate');
+        let countPromise = RequestModel.count(queryFilter);
+
+        if (paginationOptions) {
+            requestPromise = requestPromise
+                .skip(paginationOptions.skip)
+                .limit(paginationOptions.limit);
+        }
+
+        let [requests, count] = await Promise.all([requestPromise, countPromise]);
+        let result = {
+            set: requests,
+            totalCount: count
+        };
+
+        return result;
     }
 
     public searchMy(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
@@ -73,18 +66,34 @@ export class RequestRepository extends RepositoryBase<IRequest> {
     }
 
     public searchPending(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
+        let date = new Date();
+        date.setDate(date.getDate() - 1);
 
         let filter: any = {
-            $or: []
+            $and: [
+                {
+                    'endDate': {
+                        $gte: date
+                    },
+                    'status': TaskStatus.PENDING
+                },
+                {
+                    $or: []
+                }
+            ],
+            // $or: []
         }
 
         if (user && user.permissions && user.permissions.length > 0) {
             user.permissions.forEach(permission => {
-                filter.$or.push(this.convertOrganizationPermissionToFilter(permission.organization._id, permission.organizationPermissions));
+                filter.$and[1].$or.push(this.convertOrganizationPermissionToFilter(permission.organization._id, permission.organizationPermissions));
+                // filter.$or.push(this.convertOrganizationPermissionToFilter(permission.organization._id, permission.organizationPermissions));
             })
 
-            if (filter.$or.length < 2) {
-                filter = filter.$or[0];
+            if (filter.$and[1].$or.length < 2) {
+                // if (filter.$or.length < 2) {
+                filter.$and[1] = filter.$and[1].$or[0];
+                // filter = filter.$or[0];
             }
         } else {
             filter = { noop: false };
@@ -93,39 +102,117 @@ export class RequestRepository extends RepositoryBase<IRequest> {
         return this.search(searchTerm, paginationOptions, filter);
     }
 
-    public searchCivilian(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
+    public async searchCivilian(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
+        let viewableOrgs = await this.getViewableOrganizations(user);
+
         let filter = {
+            organization: { $in: viewableOrgs },
             isSoldier: false
         };
 
+        // if (user && user.organization) {
+        //     let org = <IOrganization>await Organization.findOrganization(user.organization._id);
+        //     let tags = org.tags.map(tag => tag._id);
+
+        //     filter['organization'] = {
+        //         $in: tags.concat(user.organization._id)
+        //     };
+        // }
+
         return this.search(searchTerm, paginationOptions, filter);
     }
 
-    public searchSoldier(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
+    public async searchSoldier(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
+        let viewableOrgs = await this.getViewableOrganizations(user);
+
         let filter = {
+            organization: { $in: viewableOrgs },
             isSoldier: true
         };
 
+        // if (user && user.organization) {
+        //     let org = <IOrganization>await Organization.findOrganization(user.organization._id);
+        //     let tags = org.tags.map(tag => tag._id)
+        //         // .filter(org => viewableOrgs.some(_org => org.equals(_org)));
+
+        //     filter['organization'] = {
+        //         $in: tags.concat(user.organization._id)
+        //     };
+        // }
+
         return this.search(searchTerm, paginationOptions, filter);
     }
 
-    public searchAll(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
+    public async searchAll(user: IUser, searchTerm?: string, paginationOptions?: IPaginationOptions): Promise<ICollection<IRequest>> {
         if (user && user.organization) {
-            return Organization.findOrganization(user.organization._id).then((org: IOrganization) => {
-                let tags = org.tags.map(tag => tag._id);
+            let org = <IOrganization>await Organization.findOrganization(user.organization._id);
 
-                let filter = {
-                    organization: { $in: tags.concat(user.organization._id) }
-                };
+            /*****************************/
+            // let viewableOrgs = org.tags.map((tag: IOrganization) => {
+            //     return {
+            //         _id: tag._id,
+            //         showRequests: tag.showRequests
+            //     };
+            // });
 
-                return this.search(searchTerm, paginationOptions, filter);
-            });
+            // viewableOrgs.push({ _id: org._id, showRequests: org.showRequests });
+            // viewableOrgs = viewableOrgs.filter((tag) => {
+            //     let orgPermissions = user.permissions.find(perm => perm.organization._id.equals(tag._id));
+            //     if (orgPermissions) {
+            //         return (orgPermissions.organizationPermissions.indexOf(PermissionType.VIEW_REQUESTS) !== -1) || tag.showRequests;
+            //     }
+
+            //     return tag.showRequests;
+            // });
+            // viewableOrgs.map(tag => tag._id);
+
+            // if (viewableOrgs.length === 0) {
+            //     return null;
+            // }
+
+            // let filter = {
+            //     organization: { $in: viewableOrgs }
+            // };
+            let viewableOrgs = await this.getViewableOrganizations(user);
+
+            let filter = {
+                organization: { $in: viewableOrgs }
+            };
+
+            return await this.search(searchTerm, paginationOptions, filter);
         } else {
-            return Promise.resolve(null);
+            return null;
         }
     }
 
-    public changeTaskStatus(authorizerId: string,
+    private async getViewableOrganizations(user: IUser) {
+        let viewableOrgs = [];
+        if (user && user.organization) {
+            let org = <IOrganization>await Organization.findOrganization(user.organization._id);
+
+            viewableOrgs = org.tags.map((tag: IOrganization) => {
+                return {
+                    _id: tag._id,
+                    showRequests: tag.showRequests
+                };
+            });
+
+            viewableOrgs.push({ _id: org._id, showRequests: org.showRequests });
+            viewableOrgs = viewableOrgs.filter((tag) => {
+                let orgPermissions = user.permissions.find(perm => perm.organization._id.equals(tag._id));
+                if (orgPermissions) {
+                    return (orgPermissions.organizationPermissions.indexOf(PermissionType.VIEW_REQUESTS) !== -1) || tag.showRequests;
+                }
+
+                return tag.showRequests;
+            });
+            viewableOrgs.map(tag => tag._id);
+        }
+
+        return viewableOrgs;
+    }
+
+    public async changeTaskStatus(authorizerId: string,
         taskId: Types.ObjectId,
         status: TaskStatus,
         needEscort?: boolean,
@@ -154,44 +241,42 @@ export class RequestRepository extends RepositoryBase<IRequest> {
             additionalFields['workflow.$.securityClearance'] = securityClearance;
         }
 
-        return RequestModel.findOneAndUpdate(
+        let request: IRequest = await RequestModel.findOneAndUpdate(
             { 'workflow._id': taskId },
             Object.assign({
                 'workflow.$.status': status,
                 'workflow.$.lastChangeDate': new Date(),
                 'workflow.$.authorizer': authorizerId,
-            }, additionalFields), { new: true })
-            .then((request: IRequest) => {
-                if (request) {
-                    let workflow: IRequestTask[] = request.workflow;
-                    let status: TaskStatus = TaskStatus.PENDING;
-                    let foundDenied: boolean = false;
-                    let foundApproved: boolean = false;
-                    let foundPending: boolean = false;
+            }, additionalFields), { new: true });
+        if (request) {
+            let workflow: IRequestTask[] = request.workflow;
+            let status: TaskStatus = TaskStatus.PENDING;
+            let foundDenied: boolean = false;
+            let foundApproved: boolean = false;
+            let foundPending: boolean = false;
 
-                    workflow.forEach(task => {
-                        if (task.status === TaskStatus.DENIED) {
-                            foundDenied = true;
-                        } else if (task.status === TaskStatus.APPROVED) {
-                            foundApproved = true;
-                        } else {
-                            foundPending = true;
-                        }
-                    });
-
-                    if (foundDenied) {
-                        status = TaskStatus.DENIED;
-                    } else if (foundApproved && !foundPending) {
-                        status = TaskStatus.APPROVED;
-                    }
-                    return RequestModel
-                        .findOneAndUpdate({ _id: request._id }, { status: status }, { new: true })
-                        .populate(populate);
-
+            workflow.forEach(task => {
+                if (task.status === TaskStatus.DENIED) {
+                    foundDenied = true;
+                } else if (task.status === TaskStatus.APPROVED) {
+                    foundApproved = true;
                 } else {
-                    return Promise.resolve(null);
+                    foundPending = true;
                 }
             });
+
+            if (foundDenied) {
+                status = TaskStatus.DENIED;
+            } else if (foundApproved && !foundPending) {
+                status = TaskStatus.APPROVED;
+            }
+            return await RequestModel
+                .findOneAndUpdate({ _id: request._id }, { status: status }, { new: true })
+                .populate(populate);
+
+        } else {
+            return null;
+        }
     }
 
     private convertOrganizationPermissionToFilter(organizationId: Types.ObjectId, permissions: PermissionType[]): Object {
@@ -255,7 +340,7 @@ export class RequestRepository extends RepositoryBase<IRequest> {
         return { noop: false };
     }
 
-    public changeAllApprovableTasksStatus(user: IUser, requestId: Types.ObjectId, status: TaskStatus): Promise<void> {
+    public async changeAllApprovableTasksStatus(user: IUser, requestId: Types.ObjectId, status: TaskStatus): Promise<void> {
         let userPermissions = user.permissions;
         let filter = [];
 
@@ -291,16 +376,9 @@ export class RequestRepository extends RepositoryBase<IRequest> {
             { $match: { $or: filter } },
             { $project: { 'workflow._id': 1 } }
         ]
-        return new Promise<void>((resolve, reject) => {
-            RequestModel.aggregate(filter).exec().then(result => {
-                result = result.map(res => res.workflow._id);
 
-                return Promise.all(result.map(taskId => this.changeTaskStatus(user._id, taskId, status)));
-            }).then(() => {
-                resolve();
-            }).catch(reject);
-        });
-
-
+        let result = await RequestModel.aggregate(filter).exec();
+        result = result.map(res => res.workflow._id);
+        await Promise.all(result.map(taskId => this.changeTaskStatus(user._id, taskId, status)));
     }
 }
