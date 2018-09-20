@@ -1,8 +1,8 @@
-import { Types } from 'mongoose';
-import { Permission } from './permission.class';
-import { IUser } from './../user/user.interface';
 import * as express from 'express';
+import { Types } from 'mongoose';
 import { AuthMiddleware } from './../middlewares/auth.middleware';
+import { IUser } from './../user/user.interface';
+import { Permission } from './permission.class';
 import { PermissionType } from "./permission.enum";
 
 let router: express.Router = express.Router();
@@ -14,7 +14,7 @@ let router: express.Router = express.Router();
  */
 router.post('/permissions',
     AuthMiddleware.requireLogin,
-    (req: express.Request, res: express.Response) => {
+    async (req: express.Request, res: express.Response) => {
         let permissions = <PermissionType[]>req.body.permissions;
         let some: boolean = req.body.some;
         let user: IUser = req.user;
@@ -23,12 +23,13 @@ router.post('/permissions',
             return res.status(400).send();
         }
 
-        Permission.hasPermissions(user._id, permissions, some).then(hasPermissions => {
+        try {
+            let hasPermissions: boolean = await Permission.hasPermissions(user._id, permissions, some);
             return res.json(hasPermissions);
-        }).catch(error => {
-            console.error(error);
-            return res.sendStatus(500);
-        });
+        } catch (err) {
+            console.error(err);
+            return res.status(500).send();
+        }
     });
 
 /**
@@ -37,7 +38,7 @@ router.post('/permissions',
  * Requires user to be logged in
  */
 router.post('/permissions/:organizationId', AuthMiddleware.requireLogin,
-    (req: express.Request, res: express.Response) => {
+    async (req: express.Request, res: express.Response) => {
         let permissions = <PermissionType[]>req.body.permissions;
         let some: boolean = req.body.some;
         let user: IUser = req.user;
@@ -52,13 +53,13 @@ router.post('/permissions/:organizationId', AuthMiddleware.requireLogin,
             return res.status(400).send();
         }
 
-        Permission.hasPermissionForOrganization(user._id, permissions, organizationId, some).then(hasPermissions => {
-            console.log(hasPermissions);
+        try {
+            let hasPermissions: boolean = await Permission.hasPermissionForOrganization(user._id, permissions, organizationId, some);
             return res.json(hasPermissions);
-        }).catch(error => {
+        } catch (error) {
             console.error(error);
             return res.sendStatus(500);
-        });
+        }
     });
 
 export = router;
