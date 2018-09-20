@@ -37,12 +37,18 @@ var organizationSchema: mongoose.Schema = new mongoose.Schema({
     },
     tags: [
         {
-            organization: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Organization'
-            }
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Organization'
         }
-    ]
+    ],
+    showRequests: {
+        type: mongoose.Schema.Types.Boolean,
+        default: true
+    },
+    canCreateRequests: {
+        type: mongoose.Schema.Types.Boolean,
+        default: true
+    }
 });
 
 export let OrganizationModel = mongoose.model<IOrganization>("Organization", organizationSchema);
