@@ -8,7 +8,7 @@
     "start": "set NODE_ENV=prod&& tsc && copyfiles -u 1 \"./src/**/*.{png,html,xml,ejs}\" \"dist\" && node dist/server.js",
     "debug": "tsc && node --nolazy --inspect-brk=5858 dist/server.js",
     "dev": "set NODE_ENV=dev&& nodemon --verbose --exec node_modules\\.bin\\ts-node -- src\\server.ts",
-    "test": "set NODE_ENV=test&& mocha -r ts-node/register src/**/spec.helper.ts src/**/*.spec.ts"
+    "test": "set NODE_ENV=test&& mocha --recursive --timeout 7000 -r ts-node/register src/**/spec.helper.ts src/**/*.spec.ts --exit"
   },
   "author": "Ron Borysovski",
   "license": "ISC",
