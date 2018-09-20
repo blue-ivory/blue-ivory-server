@@ -1,9 +1,8 @@
 import * as mongoose from 'mongoose';
-import * as Promise from 'bluebird';
+import { IPaginationOptions } from "../pagination/pagination.interface";
+import { ICollection } from "./collection";
 import { IRead } from './read.interface';
 import { IWrite } from './write.interface';
-import { ICollection } from "./collection";
-import { IPaginationOptions } from "../pagination/pagination.interface";
 
 export abstract class RepositoryBase<T extends mongoose.Document> implements IRead, IWrite<T> {
 
@@ -22,6 +21,7 @@ export abstract class RepositoryBase<T extends mongoose.Document> implements IRe
     if (populateOptions) {
       updateQuery = updateQuery.populate(populateOptions);
     }
+    
     return updateQuery.exec();
   }
 

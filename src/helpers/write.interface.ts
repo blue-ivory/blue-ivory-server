@@ -1,5 +1,4 @@
-import { Document } from 'mongoose'
-import * as Promise from 'bluebird';
+import { Document } from 'mongoose';
 
 export interface IWrite<T> {
   create: (item: T) => Promise<Document>;
